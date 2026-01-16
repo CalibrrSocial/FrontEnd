@@ -8,6 +8,7 @@
 
 import UIKit
 import OpenAPIClient
+import SDWebImage
 
 class HeaderProfileCell: UITableViewCell {
 
@@ -15,6 +16,22 @@ class HeaderProfileCell: UITableViewCell {
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var avatarImageView: UIImageView!
     @IBOutlet weak var coverImageView: UIImageView!
+
+	// MARK: - Likes UI
+	private var heartButton: UIButton = UIButton(type: .system)
+	private var likeCountLabel: UILabel = UILabel()
+	private var listButton: UIButton = UIButton(type: .system)
+
+	var onToggleLike: (() -> Void)?
+	var onOpenLikes: (() -> Void)?
+
+	private var isLikeEnabled: Bool = true
+	private var isLiked: Bool = false {
+		didSet { updateHeartAppearance() }
+	}
+	private var likesCount: Int = 0 {
+		didSet { likeCountLabel.text = "\(likesCount)" }
+	}
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -24,6 +41,9 @@ class HeaderProfileCell: UITableViewCell {
     private func setupView() {
         self.avatarView.roundFull()
         self.avatarImageView.roundFull()
+
+		// Configure likes UI (programmatically to avoid XIB changes)
+		setupLikesUI()
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -49,5 +69,74 @@ class HeaderProfileCell: UITableViewCell {
         
         nameLabel.text = "\(profile.firstName) \(profile.lastName)"
     }
+
+	// MARK: - Public API
+	func setLikeUI(liked: Bool, count: Int, isEnabled: Bool) {
+		self.isLiked = liked
+		self.likesCount = count
+		self.isLikeEnabled = isEnabled
+		heartButton.isEnabled = isEnabled
+	}
+
+	func currentLikeState() -> Bool { return isLiked }
+	func currentLikesCount() -> Int { return likesCount }
+
+	// MARK: - Private helpers
+	private func setupLikesUI() {
+		// Heart button
+		heartButton.tintColor = .tertiaryLabel
+		heartButton.addTarget(self, action: #selector(didTapHeart), for: .touchUpInside)
+		heartButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+		heartButton.setContentHuggingPriority(.required, for: .horizontal)
+
+		// Count label
+		likeCountLabel.textColor = .white
+		likeCountLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
+		likeCountLabel.text = "0"
+		likeCountLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+		likeCountLabel.setContentHuggingPriority(.required, for: .horizontal)
+
+		// List button (panel trigger)
+		listButton.tintColor = .white
+		listButton.addTarget(self, action: #selector(didTapList), for: .touchUpInside)
+		listButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+		listButton.setContentHuggingPriority(.required, for: .horizontal)
+
+		// Images
+		updateHeartAppearance()
+		let listImage = UIImage(systemName: "list.bullet")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
+		listButton.setImage(listImage, for: .normal)
+
+		// Container stack
+		let stack = UIStackView(arrangedSubviews: [heartButton, likeCountLabel, listButton])
+		stack.axis = .horizontal
+		stack.alignment = .center
+		stack.spacing = 8
+		stack.translatesAutoresizingMaskIntoConstraints = false
+
+		contentView.addSubview(stack)
+
+		// Place near the bottom-right of the cover image
+		NSLayoutConstraint.activate([
+			stack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+			stack.bottomAnchor.constraint(equalTo: coverImageView.bottomAnchor, constant: -12)
+		])
+	}
+
+	private func updateHeartAppearance() {
+		let filled = UIImage(systemName: "heart.fill")?.withRenderingMode(.alwaysTemplate)
+		let outline = UIImage(systemName: "heart")?.withRenderingMode(.alwaysTemplate)
+		heartButton.setImage(isLiked ? (filled ?? outline) : (outline ?? filled), for: .normal)
+		heartButton.tintColor = isLiked ? .systemRed : .tertiaryLabel
+	}
+
+	@objc private func didTapHeart() {
+		guard isLikeEnabled else { return }
+		onToggleLike?()
+	}
+
+	@objc private func didTapList() {
+		onOpenLikes?()
+	}
     
 }

@@ -9,6 +9,7 @@
 import UIKit
 import SDWebImage
 import OpenAPIClient
+import PromiseKit
 
 class ProfilePage : APage, UITableViewDelegate, UICollectionViewDelegate
 {
@@ -66,6 +67,25 @@ class ProfilePage : APage, UITableViewDelegate, UICollectionViewDelegate
         personalInfoDatasource.reload()
         self.items = personalInfoDatasource.items
         personalInfoTableView.reloadData()
+
+        // Reconcile like state with server truth so liked/likeCount persist across app restarts
+        let myId = profile.id
+        ProfileAPI.getUser(id: myId).done { updated in
+            guard var current = self.profile else { return }
+            // Merge only fields relevant to likes to avoid overwriting locally persisted profile details
+            current.liked = updated.liked
+            current.likeCount = updated.likeCount
+            DatabaseService.singleton.updateAccount(current)
+            self.profile = current
+            // Reload just the header row to reflect heart/count
+            let headerIndex = IndexPath(row: 0, section: 0)
+            if self.personalInfoTableView.indexPathsForVisibleRows?.contains(headerIndex) == true,
+               let cell = self.personalInfoTableView.cellForRow(at: headerIndex) as? HeaderProfileCell {
+                cell.setLikeUI(liked: current.liked ?? false, count: current.likeCount ?? 0, isEnabled: true)
+            } else {
+                self.personalInfoTableView.reloadData()
+            }
+        }.catch { _ in }
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -168,6 +188,45 @@ extension ProfilePage: UITableViewDataSource {
             let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: HeaderProfileCell.self), for: indexPath) as! HeaderProfileCell
             if let profile = self.profile {
                 cell.configureCell(profile)
+                let initialLiked = profile.liked ?? false
+                let initialCount = profile.likeCount ?? 0
+                cell.setLikeUI(liked: initialLiked, count: initialCount, isEnabled: true)
+                cell.onToggleLike = { [weak self, weak cell] () -> Void in
+                    guard let self = self else { return }
+                    let myId = DatabaseService.singleton.getProfile().user.id
+                    let targetId = myId // self-like
+                    var currentLiked = cell?.currentLikeState() ?? initialLiked
+                    var currentCount = cell?.currentLikesCount() ?? initialCount
+                    // Optimistic toggle
+                    currentLiked.toggle()
+                    currentCount = max(0, currentLiked ? currentCount + 1 : currentCount - 1)
+                    cell?.setLikeUI(liked: currentLiked, count: currentCount, isEnabled: false)
+                    let request: PromiseKit.Promise<Void> = currentLiked ? ProfileAPI.likeProfile(id: myId, profileLikedId: targetId) : ProfileAPI.unlikeProfile(id: myId, profileLikedId: targetId)
+                    request.done {
+                        // Refresh truth from server and persist
+                        ProfileAPI.getUser(id: myId).done { updated in
+                            // Persist to active profile so it survives refresh/relaunch until next sync
+                            DatabaseService.singleton.updateAccount(updated)
+                            self.profile = updated
+                            let sLiked = updated.liked ?? currentLiked
+                            let sCount = updated.likeCount ?? currentCount
+                            cell?.setLikeUI(liked: sLiked, count: sCount, isEnabled: true)
+                        }.catch { _ in
+                            cell?.setLikeUI(liked: currentLiked, count: currentCount, isEnabled: true)
+                        }
+                    }.catch { _ in
+                        // Rollback on failure
+                        let rollbackLiked = !currentLiked
+                        let rollbackCount = max(0, rollbackLiked ? currentCount + 1 : currentCount - 1)
+                        cell?.setLikeUI(liked: rollbackLiked, count: rollbackCount, isEnabled: true)
+                    }
+                }
+                cell.onOpenLikes = { [weak self] in
+                    guard let self = self, let userId = self.profile?.id else { return }
+                    let vc = ProfileLikesPanelPage()
+                    vc.configure(for: userId, viewingOwnProfile: true)
+                    self.nav.push(vc)
+                }
             }
             return cell
         } else if indexPath.row == 1, isValidSocialAccount {

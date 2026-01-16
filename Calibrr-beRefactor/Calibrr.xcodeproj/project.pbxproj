@@ -57,6 +57,7 @@
 		611BC06F22BC112D00D1824B /* AItemsCollectionDatasource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 611BC06E22BC112D00D1824B /* AItemsCollectionDatasource.swift */; };
 		611BC07222BC130700D1824B /* AStandardItemsCollectionDatasource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 611BC07122BC130700D1824B /* AStandardItemsCollectionDatasource.swift */; };
 		611BC07722BC1C0300D1824B /* ProfileFriendPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 611BC07622BC1C0300D1824B /* ProfileFriendPage.swift */; };
+		84LIKESPANELBUILD0000000000 /* ProfileLikesPanelPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84LIKESPANELFILE0000000000 /* ProfileLikesPanelPage.swift */; };
 		611BC07922BC1C7D00D1824B /* ProfileFriendPage.xib in Resources */ = {isa = PBXBuildFile; fileRef = 611BC07822BC1C7D00D1824B /* ProfileFriendPage.xib */; };
 		6162EB2122AEECA7009569F4 /* Platform.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6162EB2022AEECA7009569F4 /* Platform.swift */; };
 		6162EB2322AEECDD009569F4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6162EB2222AEECDD009569F4 /* AppDelegate.swift */; };
@@ -697,6 +698,7 @@
 		842E069428C1DD310077E47C /* ProfileCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProfileCell.xib; sourceTree = "<group>"; };
 		8452277C28C765E000121713 /* HeaderProfileCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderProfileCell.swift; sourceTree = "<group>"; };
 		8452277D28C765E000121713 /* HeaderProfileCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HeaderProfileCell.xib; sourceTree = "<group>"; };
+		84LIKESPANELFILE0000000000 /* ProfileLikesPanelPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ProfileLikesPanelPage.swift; path = Calibrr/UI/Profile/Friend/ProfileLikesPanelPage.swift; sourceTree = SOURCE_ROOT; };
 		845B5F2329A44FF500D8EA02 /* ShareActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareActivity.swift; sourceTree = "<group>"; };
 		846DFB5628EB03D30003F296 /* GhostModeView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GhostModeView.xib; sourceTree = "<group>"; };
 		846DFB5828EB06CD0003F296 /* GhostModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GhostModeView.swift; sourceTree = "<group>"; };
@@ -966,6 +968,7 @@
 			children = (
 				611BC07622BC1C0300D1824B /* ProfileFriendPage.swift */,
 				611BC07822BC1C7D00D1824B /* ProfileFriendPage.xib */,
+				84LIKESPANELFILE0000000000 /* ProfileLikesPanelPage.swift */,
 			);
 			path = Friend;
 			sourceTree = "<group>";
@@ -1704,6 +1707,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84LIKESPANELBUILD0000000000 /* ProfileLikesPanelPage.swift in Sources */,
 				84042B952994FF59004BC9AD /* NPORadio.swift in Sources */,
 				E13E5BB320A9A58200FF9681 /* KACircleCropScrollView.swift in Sources */,
 				6162EB5322AF0CD8009569F4 /* UIViewControllerExtensions.swift in Sources */,

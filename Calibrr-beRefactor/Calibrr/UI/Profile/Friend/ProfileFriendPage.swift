@@ -8,6 +8,7 @@
 
 import UIKit
 import OpenAPIClient
+import PromiseKit
 
 class ProfileFriendPage: APage, UITableViewDelegate, UICollectionViewDelegate
 {
@@ -25,6 +26,7 @@ class ProfileFriendPage: APage, UITableViewDelegate, UICollectionViewDelegate
     var items: [(String, String, Bool)] = []
     var isShowBarColor: Bool = false
     var isValidSocialAccount: Bool = false
+    var preferDarkBackButton: Bool = false
     
     override func viewDidLoad()
     {
@@ -175,6 +177,42 @@ extension ProfileFriendPage: UITableViewDataSource {
             let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: HeaderProfileCell.self), for: indexPath) as! HeaderProfileCell
             if let profile = self.profile {
                 cell.configureCell(profile)
+                let initialLiked = profile.liked ?? false
+                let initialCount = profile.likeCount ?? 0
+                cell.setLikeUI(liked: initialLiked, count: initialCount, isEnabled: true)
+                cell.onToggleLike = { [weak self, weak cell] () -> Void in
+                    guard let self = self, let targetId = self.friendId else { return }
+                    let myId = DatabaseService.singleton.getProfile().user.id
+                    var currentLiked = cell?.currentLikeState() ?? initialLiked
+                    var currentCount = cell?.currentLikesCount() ?? initialCount
+                    // Optimistic toggle
+                    currentLiked.toggle()
+                    currentCount = max(0, currentLiked ? currentCount + 1 : currentCount - 1)
+                    cell?.setLikeUI(liked: currentLiked, count: currentCount, isEnabled: false)
+                    let request: Promise<Void> = currentLiked ? ProfileAPI.likeProfile(id: myId, profileLikedId: targetId) : ProfileAPI.unlikeProfile(id: myId, profileLikedId: targetId)
+                    request.done {
+                        // Refresh truth from server
+                        ProfileAPI.getUser(id: targetId).done { updated in
+                            self.profile = updated
+                            let sLiked = updated.liked ?? currentLiked
+                            let sCount = updated.likeCount ?? currentCount
+                            cell?.setLikeUI(liked: sLiked, count: sCount, isEnabled: true)
+                        }.catch { _ in
+                            cell?.setLikeUI(liked: currentLiked, count: currentCount, isEnabled: true)
+                        }
+                    }.catch { _ in
+                        // Rollback on failure
+                        let rollbackLiked = !currentLiked
+                        let rollbackCount = max(0, rollbackLiked ? currentCount + 1 : currentCount - 1)
+                        cell?.setLikeUI(liked: rollbackLiked, count: rollbackCount, isEnabled: true)
+                    }
+                }
+                cell.onOpenLikes = { [weak self] in
+                    guard let self = self, let userId = self.friendId else { return }
+                    let vc = ProfileLikesPanelPage()
+                    vc.configure(for: userId, viewingOwnProfile: false)
+                    self.nav.push(vc)
+                }
             }
             return cell
         } else if indexPath.row == 1, isValidSocialAccount {
@@ -196,7 +234,7 @@ extension ProfileFriendPage: UIScrollViewDelegate {
         let color: UIColor = .clear
         self.nav.updateColor(color: color, isShowShadow: isShowBarColor)
         navigationItem.rightBarButtonItem?.tintColor = .white
-        self.setupBackButton(tintColor: .white)
+        self.setupBackButton(tintColor: preferDarkBackButton ? .label : .white)
         if let firstName = self.firstName,
             !firstName.isEmpty {
             self.title = isShowBarColor ? "\(firstName)'s Profile" : nil

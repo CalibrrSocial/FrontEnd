@@ -62,6 +62,82 @@ open class ProfileAPI {
         return localVariableRequestBuilder.init(method: "GET", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters)
     }
 
+    // MARK: - Likes Lists (Received/Sent)
+
+    /**
+     Users who liked {id}
+     - GET /profile/{id}/likes/received
+     - Returns a paginated list of user summaries
+     - parameter id: (path)
+     - parameter cursor: (query) optional pagination cursor
+     - returns: Promise<PaginatedUserSummaries>
+     */
+    public class func getLikesReceived(id: String, cursor: String? = nil) -> Promise<PaginatedUserSummaries> {
+        let deferred = Promise<PaginatedUserSummaries>.pending()
+        getLikesReceivedWithRequestBuilder(id: id, cursor: cursor).execute { result in
+            switch result {
+            case let .success(response):
+                deferred.resolver.fulfill(response.body)
+            case let .failure(error):
+                deferred.resolver.reject(error)
+            }
+        }
+        return deferred.promise
+    }
+
+    public class func getLikesReceivedWithRequestBuilder(id: String, cursor: String? = nil) -> RequestBuilder<PaginatedUserSummaries> {
+        var localVariablePath = "/profile/{id}/likes/received"
+        let idPreEscape = "\(APIHelper.mapValueToPathItem(id))"
+        let idPostEscape = idPreEscape.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? ""
+        localVariablePath = localVariablePath.replacingOccurrences(of: "{id}", with: idPostEscape, options: .literal, range: nil)
+        let localVariableURLString = OpenAPIClientAPI.basePath + localVariablePath
+        var localVariableUrlComponents = URLComponents(string: localVariableURLString)
+        var query: [String: Any] = [:]
+        if let cursor = cursor { query["cursor"] = cursor.encodeToJSON() }
+        localVariableUrlComponents?.queryItems = APIHelper.mapValuesToQueryItems(query)
+        let localVariableNillableHeaders: [String: Any?] = [:]
+        let localVariableHeaderParameters = APIHelper.rejectNilHeaders(localVariableNillableHeaders)
+        let localVariableRequestBuilder: RequestBuilder<PaginatedUserSummaries>.Type = OpenAPIClientAPI.requestBuilderFactory.getBuilder()
+        return localVariableRequestBuilder.init(method: "GET", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: nil, headers: localVariableHeaderParameters)
+    }
+
+    /**
+     Users that {id} has liked
+     - GET /profile/{id}/likes/sent
+     - Returns a paginated list of user summaries
+     - parameter id: (path)
+     - parameter cursor: (query) optional pagination cursor
+     - returns: Promise<PaginatedUserSummaries>
+     */
+    public class func getLikesSent(id: String, cursor: String? = nil) -> Promise<PaginatedUserSummaries> {
+        let deferred = Promise<PaginatedUserSummaries>.pending()
+        getLikesSentWithRequestBuilder(id: id, cursor: cursor).execute { result in
+            switch result {
+            case let .success(response):
+                deferred.resolver.fulfill(response.body)
+            case let .failure(error):
+                deferred.resolver.reject(error)
+            }
+        }
+        return deferred.promise
+    }
+
+    public class func getLikesSentWithRequestBuilder(id: String, cursor: String? = nil) -> RequestBuilder<PaginatedUserSummaries> {
+        var localVariablePath = "/profile/{id}/likes/sent"
+        let idPreEscape = "\(APIHelper.mapValueToPathItem(id))"
+        let idPostEscape = idPreEscape.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? ""
+        localVariablePath = localVariablePath.replacingOccurrences(of: "{id}", with: idPostEscape, options: .literal, range: nil)
+        let localVariableURLString = OpenAPIClientAPI.basePath + localVariablePath
+        var localVariableUrlComponents = URLComponents(string: localVariableURLString)
+        var query: [String: Any] = [:]
+        if let cursor = cursor { query["cursor"] = cursor.encodeToJSON() }
+        localVariableUrlComponents?.queryItems = APIHelper.mapValuesToQueryItems(query)
+        let localVariableNillableHeaders: [String: Any?] = [:]
+        let localVariableHeaderParameters = APIHelper.rejectNilHeaders(localVariableNillableHeaders)
+        let localVariableRequestBuilder: RequestBuilder<PaginatedUserSummaries>.Type = OpenAPIClientAPI.requestBuilderFactory.getBuilder()
+        return localVariableRequestBuilder.init(method: "GET", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: nil, headers: localVariableHeaderParameters)
+    }
+
     /**
      Gets the relationship
      
