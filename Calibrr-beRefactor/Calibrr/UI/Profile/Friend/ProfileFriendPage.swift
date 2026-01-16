@@ -249,7 +249,7 @@ extension ProfileFriendPage: UITableViewDataSource {
                 let initialCount = profile.likeCount ?? 0
                 cell.setLikeUI(liked: initialLiked, count: initialCount, isEnabled: true)
                 // TEMPORARILY DISABLED OLD PROFILE LIKE SYSTEM TO TEST ATTRIBUTE LIKES
-                /*
+                
                 cell.onToggleLike = { [weak self, weak cell] () -> Void in
                     guard let self = self, let targetId = self.friendId else { return }
                     let myId = DatabaseService.singleton.getProfile().user.id
@@ -277,7 +277,7 @@ extension ProfileFriendPage: UITableViewDataSource {
                         cell?.setLikeUI(liked: rollbackLiked, count: rollbackCount, isEnabled: true)
                     }
                 }
-                */
+                
                 cell.onOpenLikes = { [weak self] in
                     guard let self = self, let userId = self.friendId else { return }
                     let vc = ProfileLikesPanelPage()

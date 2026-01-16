@@ -14,6 +14,10 @@ class ProfileCell: ACell<(String, String, Bool)> {
     @IBOutlet weak var desLabel: UILabel!
     @IBOutlet weak var titleLabel: UILabel!
     
+    // Static cache for attribute like states to prevent duplicate API calls across cells
+    private static var attributeLikeCache: [String: (liked: Bool, count: Int, timestamp: Date)] = [:]
+    private static let cacheExpiration: TimeInterval = 30.0 // Cache for 30 seconds
+    
     // MARK: - Attribute Likes UI
     private var heartButton: UIButton = UIButton(type: .system)
     private var likeCountLabel: UILabel = UILabel()
@@ -38,6 +42,9 @@ class ProfileCell: ACell<(String, String, Bool)> {
     private var lastLoadTime: Date = Date.distantPast
     private let minLoadInterval: TimeInterval = 1.0 // Minimum 1 second between loads
     private var currentDataTask: URLSessionDataTask?
+    
+    // Track the last loaded configuration to prevent duplicate requests
+    private var lastLoadedConfig: String = ""
     
     // Public properties for ProfilePage access
     var attributeCategory: String? { return currentCategory.isEmpty ? nil : currentCategory }
@@ -70,6 +77,7 @@ class ProfileCell: ACell<(String, String, Bool)> {
         currentCategory = ""
         currentAttribute = ""
         currentProfileId = ""
+        lastLoadedConfig = ""
         
         // Reset UI
         desLabel.text = ""
@@ -115,6 +123,11 @@ class ProfileCell: ACell<(String, String, Bool)> {
         // Force refresh regardless of throttling - used after like actions
         retryCount = 0
         lastLoadTime = Date()
+        
+        // Invalidate cache for this configuration
+        let currentConfig = "\(currentProfileId)|\(currentCategory)|\(currentAttribute)"
+        ProfileCell.attributeLikeCache.removeValue(forKey: currentConfig)
+        
         loadAttributeLikeState()
     }
     
@@ -255,6 +268,26 @@ class ProfileCell: ACell<(String, String, Bool)> {
             return 
         }
         
+        // Create a unique configuration string
+        let currentConfig = "\(currentProfileId)|\(currentCategory)|\(currentAttribute)"
+        
+        // Check cache first
+        if let cached = ProfileCell.attributeLikeCache[currentConfig] {
+            let age = Date().timeIntervalSince(cached.timestamp)
+            if age < ProfileCell.cacheExpiration {
+                print("🔥 ProfileCell loadAttributeLikeState: Using cached data (age: \(Int(age))s)")
+                setAttributeLikeUI(liked: cached.liked, count: cached.count, isEnabled: true)
+                lastLoadedConfig = currentConfig
+                return
+            }
+        }
+        
+        // Check if we've already loaded this exact configuration
+        if currentConfig == lastLoadedConfig && isLoadingLikeState {
+            print("🔥 ProfileCell loadAttributeLikeState: Already loading this exact configuration, skipping")
+            return
+        }
+        
         // Prevent duplicate concurrent requests
         guard !isLoadingLikeState else {
             print("🔥 ProfileCell loadAttributeLikeState: Already loading, skipping duplicate request")
@@ -268,6 +301,7 @@ class ProfileCell: ACell<(String, String, Bool)> {
         }
         
         isLoadingLikeState = true
+        lastLoadedConfig = currentConfig
         
         // Cancel any existing request
         currentDataTask?.cancel()
@@ -290,7 +324,7 @@ class ProfileCell: ACell<(String, String, Bool)> {
         let token = DatabaseService.singleton.getProfile().token
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
-        currentDataTask = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+        currentDataTask = URLSession.shared.dataTask(with: request) { [weak self, currentConfig] data, response, error in
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 
@@ -313,6 +347,13 @@ class ProfileCell: ACell<(String, String, Bool)> {
 
                                 self.retryCount = 0 // Reset retry count on success
                                 self.setAttributeLikeUI(liked: isLikedByMe, count: totalLikes, isEnabled: true)
+                                
+                                // Update cache
+                                ProfileCell.attributeLikeCache[currentConfig] = (
+                                    liked: isLikedByMe,
+                                    count: totalLikes,
+                                    timestamp: Date()
+                                )
                             }
                         } catch {
                             print("🔥 ProfileCell loadAttributeLikeState JSON parse error: \(error)")

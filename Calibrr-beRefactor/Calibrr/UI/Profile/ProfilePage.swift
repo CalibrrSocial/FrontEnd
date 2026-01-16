@@ -331,6 +331,17 @@ class ProfilePage : APage, UITableViewDelegate, UICollectionViewDelegate
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             cell.forceRefreshLikeState()
                         }
+                        
+                        // If liking own profile, refresh profile data to ensure persistence
+                        if targetId == myId {
+                            ProfileAPI.getUser(id: myId).done { [weak self] updated in
+                                // Update cached profile data
+                                DatabaseService.singleton.updateAccount(updated)
+                                self?.profile = updated
+                            }.catch { error in
+                                print("🔥 ProfilePage Failed to refresh own profile after attribute like: \(error)")
+                            }
+                        }
                     } else {
                         // Error - revert optimistic update
                         cell.setAttributeLikeUI(liked: currentLiked, count: currentCount, isEnabled: true)
@@ -357,7 +368,7 @@ extension ProfilePage: UITableViewDataSource {
                 let initialCount = profile.likeCount ?? 0
                 cell.setLikeUI(liked: initialLiked, count: initialCount, isEnabled: true)
                 // TEMPORARILY DISABLED OLD PROFILE LIKE SYSTEM TO TEST ATTRIBUTE LIKES
-                /*
+                
                 cell.onToggleLike = { [weak self, weak cell] () -> Void in
                     guard let self = self else { return }
                     let myId = DatabaseService.singleton.getProfile().user.id
@@ -388,7 +399,7 @@ extension ProfilePage: UITableViewDataSource {
                         cell?.setLikeUI(liked: rollbackLiked, count: rollbackCount, isEnabled: true)
                     }
                 }
-                */
+                
                 cell.onOpenLikes = { [weak self] in
                     guard let self = self, let userId = self.profile?.id else { return }
                     let vc = ProfileLikesPanelPage()
