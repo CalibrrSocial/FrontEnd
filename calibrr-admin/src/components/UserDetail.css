@@ -1,0 +1,346 @@
+.user-detail {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.user-detail-header {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.back-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.back-btn:hover {
+  background: #5a6268;
+}
+
+.user-detail-header h2 {
+  margin: 0;
+  color: #333;
+}
+
+.user-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.user-info-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid #e0e0e0;
+}
+
+.user-info-card h3 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1.2rem;
+  border-bottom: 2px solid #667eea;
+  padding-bottom: 0.5rem;
+}
+
+.info-row {
+  display: flex;
+  margin-bottom: 0.75rem;
+  align-items: flex-start;
+}
+
+.info-row .label {
+  font-weight: 600;
+  color: #666;
+  min-width: 120px;
+  flex-shrink: 0;
+}
+
+.info-row .value {
+  color: #333;
+  word-break: break-word;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.moderation-card {
+  grid-column: 1 / -1;
+}
+
+.moderation-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.moderate-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+  font-size: 1rem;
+}
+
+.moderate-btn.suspend {
+  background: #ffc107;
+  color: #212529;
+}
+
+.moderate-btn.suspend:hover {
+  background: #e0a800;
+}
+
+.moderate-btn.ban {
+  background: #dc3545;
+  color: white;
+}
+
+.moderate-btn.ban:hover {
+  background: #c82333;
+}
+
+.moderate-btn.unsuspend {
+  background: #28a745;
+  color: white;
+}
+
+.moderate-btn.unsuspend:hover {
+  background: #218838;
+}
+
+.moderate-btn.unban {
+  background: #17a2b8;
+  color: white;
+}
+
+.moderate-btn.unban:hover {
+  background: #138496;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal h3 {
+  margin: 0 0 1.5rem 0;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group textarea,
+.form-group select,
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-group input[type="datetime-local"] {
+  margin-top: 0.5rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.cancel-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancel-btn:hover {
+  background: #5a6268;
+}
+
+.confirm-btn {
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+  color: white;
+}
+
+.confirm-btn.suspend {
+  background: #ffc107;
+  color: #212529;
+}
+
+.confirm-btn.ban {
+  background: #dc3545;
+}
+
+.confirm-btn.unsuspend {
+  background: #28a745;
+}
+
+.confirm-btn.unban {
+  background: #17a2b8;
+}
+
+.confirm-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Account Management Styles */
+.account-actions {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e0e0e0;
+}
+
+.account-actions h4 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.account-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+  font-size: 1rem;
+  margin-right: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.account-btn.reset-password {
+  background: #fd7e14;
+  color: white;
+}
+
+.account-btn.reset-password:hover {
+  background: #e8690e;
+}
+
+.account-btn.update-email {
+  background: #20c997;
+  color: white;
+}
+
+.account-btn.update-email:hover {
+  background: #1ba085;
+}
+
+.confirm-btn.reset-password {
+  background: #fd7e14;
+}
+
+.confirm-btn.reset-password:hover {
+  background: #e8690e;
+}
+
+.confirm-btn.update-email {
+  background: #20c997;
+}
+
+.confirm-btn.update-email:hover {
+  background: #1ba085;
+}
+
+.disabled-input {
+  background: #f8f9fa !important;
+  color: #6c757d !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .user-info-grid {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+  
+  .user-detail-header {
+    padding: 1rem;
+  }
+  
+  .moderation-actions {
+    flex-direction: column;
+  }
+  
+  .moderate-btn {
+    width: 100%;
+  }
+  
+  .modal {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+}
