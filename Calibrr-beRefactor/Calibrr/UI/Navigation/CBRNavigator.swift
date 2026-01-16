@@ -173,7 +173,18 @@ class CBRNavigator : UINavigationController
             view?.addSubview(shadowView)
             
             shadowView.snp.makeConstraints { make in
-                make.bottom.left.right.equalToSuperview()
+                print("🔍 CBRNavigator: About to set shadowView constraints. ShadowView.superview: \(shadowView.superview != nil ? "EXISTS" : "NIL")")
+                if shadowView.superview != nil {
+                    make.bottom.left.right.equalToSuperview()
+                } else {
+                    print("🔍 CBRNavigator: Skipping shadowView equalToSuperview constraints - shadowView has no superview")
+                    if let parentView = view {
+                        make.bottom.left.right.equalTo(parentView)
+                    } else {
+                        print("🔍 CBRNavigator: ERROR - Both shadowView.superview and parentView are nil, cannot set constraints")
+                        return
+                    }
+                }
                 make.height.equalTo(1)
             }
         }

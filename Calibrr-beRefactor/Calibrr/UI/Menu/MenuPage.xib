@@ -72,7 +72,7 @@
                                                 <constraint firstAttribute="width" constant="140" id="p4j-iC-e2a"/>
                                             </constraints>
                                         </imageView>
-                                        <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icon_avatar_placeholder" translatesAutoresizingMaskIntoConstraints="NO" id="v6k-d4-m4W" userLabel="ProfilePic" customClass="HMDProfilePhotoView" customModule="Calibrr" customModuleProvider="target">
+                                        <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icon_avatar_placeholder" translatesAutoresizingMaskIntoConstraints="NO" id="v6k-d4-m4W" userLabel="ProfilePic" customClass="CBRProfilePhotoView" customModule="Calibrr" customModuleProvider="target">
                                             <rect key="frame" x="116" y="113" width="80" height="80"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="80" id="5Hc-d6-pNY"/>

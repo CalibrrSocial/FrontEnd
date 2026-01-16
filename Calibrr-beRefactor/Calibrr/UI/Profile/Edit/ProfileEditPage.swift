@@ -49,12 +49,23 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
     @IBOutlet var myCoursesTextField: [UITextField]!
     @IBOutlet var myBestFriendView: [BestFriendView]!
     
+    // New profile fields
+    @IBOutlet weak var classYearInput: CBRTextInputView!
+    @IBOutlet weak var campusInput: CBRTextInputView!
+    @IBOutlet weak var careerAspirationsInput: CBRTextInputView!
+    @IBOutlet weak var postgraduateInput: CBRTextInputView!
+    @IBOutlet weak var hometownInput: CBRTextInputView!
+    @IBOutlet weak var highSchoolInput: CBRTextInputView!
+    
     private var userProfile : User? = nil
     private var politicsChoicesDatasource : ChoicePickerDatasource? = nil
     private var religionChoicesDatasource : ChoicePickerDatasource? = nil
     private var genderChoicesDatasource : ChoicePickerDatasource? = nil
     private var sexualityChoicesDatasource : ChoicePickerDatasource? = nil
     private var relationshipChoicesDatasource : ChoicePickerDatasource? = nil
+    private var classYearChoicesDatasource : ChoicePickerDatasource? = nil
+    private var campusChoicesDatasource : ChoicePickerDatasource? = nil
+    private var postgraduateChoicesDatasource : ChoicePickerDatasource? = nil
     private var keyboardHelper: KeyboardHelper?
     
     private var editChanges = false
@@ -90,6 +101,22 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         relationshipInput.inputField.inputView = UIPickerView().setup(relationshipChoicesDatasource!)
         relationshipInput.currentInputView = relationshipInput.inputField.inputView
         
+        // New field datasources
+        classYearChoicesDatasource = ChoicePickerDatasource(input: classYearInput, choices: ["", "Freshman", "Sophomore", "Junior", "Senior", "CUSTOM OPTION"])
+        classYearInput.inputField.autocapitalizationType = .words
+        classYearInput.inputField.inputView = UIPickerView().setup(classYearChoicesDatasource!)
+        classYearInput.currentInputView = classYearInput.inputField.inputView
+        
+        campusChoicesDatasource = ChoicePickerDatasource(input: campusInput, choices: ["", "Main campus", "CUSTOM OPTION"])
+        campusInput.inputField.autocapitalizationType = .words
+        campusInput.inputField.inputView = UIPickerView().setup(campusChoicesDatasource!)
+        campusInput.currentInputView = campusInput.inputField.inputView
+        
+        postgraduateChoicesDatasource = ChoicePickerDatasource(input: postgraduateInput, choices: ["", "Yes", "Likely", "Unsure", "No", "Currently enrolled", "SKIP"])
+        postgraduateInput.inputField.autocapitalizationType = .words
+        postgraduateInput.inputField.inputView = UIPickerView().setup(postgraduateChoicesDatasource!)
+        postgraduateInput.currentInputView = postgraduateInput.inputField.inputView
+        
         politicsInput.delegate = self
         religionInput.delegate = self
         genderInput.delegate = self
@@ -102,6 +129,14 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         greekLifeInput.delegate = self
         favoriteGamesInput.delegate = self
         favoriteTVInput.delegate = self
+        
+        // New field delegates
+        classYearInput.delegate = self
+        campusInput.delegate = self
+        careerAspirationsInput.delegate = self
+        postgraduateInput.delegate = self
+        hometownInput.delegate = self
+        highSchoolInput.delegate = self
         
         headerErrorLabel?.setupRed(textSize: 12, bold: true)
         avatarErrorLabel?.setupRed(textSize: 12, bold: true)
@@ -194,6 +229,26 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         
         if let studying = profile.personalInfo?.studying {
             studyingInput.setupInput(studying)
+        }
+        
+        // Setup new fields from profile
+        if let classYear = profile.personalInfo?.classYear {
+            classYearInput.setupInput(classYear)
+        }
+        if let campus = profile.personalInfo?.campus {
+            campusInput.setupInput(campus)
+        }
+        if let careerAspirations = profile.personalInfo?.careerAspirations {
+            careerAspirationsInput.setupInput(careerAspirations)
+        }
+        if let postgraduate = profile.personalInfo?.postgraduate {
+            postgraduateInput.setupInput(postgraduate)
+        }
+        if let hometown = profile.personalInfo?.hometown {
+            hometownInput.setupInput(hometown)
+        }
+        if let highSchool = profile.personalInfo?.highSchool {
+            highSchoolInput.setupInput(highSchool)
         }
         
         var indexCourses: Int = 0
@@ -309,6 +364,14 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         let favoriteMusic = favoriteMusicInput.getInput() ?? ""
         let studying = studyingInput.getInput() ?? ""
         
+        // Get new field values
+        let classYear = classYearInput.getInput() ?? ""
+        let campus = campusInput.getInput() ?? ""
+        let careerAspirations = careerAspirationsInput.getInput() ?? ""
+        let postgraduate = postgraduateInput.getInput() ?? ""
+        let hometown = hometownInput.getInput() ?? ""
+        let highSchool = highSchoolInput.getInput() ?? ""
+        
         var userUpdate =  self.userProfile
         
         if let location = ActiveUser.singleton.currentLocation {
@@ -330,6 +393,14 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         userUpdate?.personalInfo?.favoriteGame = favoriteGame
         userUpdate?.personalInfo?.favoriteMusic = favoriteMusic
         userUpdate?.personalInfo?.studying = studying
+        
+        // Assign new field values
+        userUpdate?.personalInfo?.classYear = classYear
+        userUpdate?.personalInfo?.campus = campus
+        userUpdate?.personalInfo?.careerAspirations = careerAspirations
+        userUpdate?.personalInfo?.postgraduate = postgraduate
+        userUpdate?.personalInfo?.hometown = hometown
+        userUpdate?.personalInfo?.highSchool = highSchool
         
         setupSocialAccount(isUpdate: true)
         userUpdate?.socialInfo = userProfile?.socialInfo
@@ -384,6 +455,7 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
             socialAccount.tiktok = ""
             socialAccount.snapchat = ""
             socialAccount.twitter = ""
+            socialAccount.linkedIn = ""
             socialAccount.vsco = ""
         }
         for item in self.socialView.getValidAccount() {
@@ -396,8 +468,10 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
                 socialAccount.tiktok = item.account
             case .snapchat:
                 socialAccount.snapchat = item.account
-            case .twitter:
+            case .x:
                 socialAccount.twitter = item.account
+            case .linkedin:
+                socialAccount.linkedIn = item.account
             case .vsco:
                 socialAccount.vsco = item.account
             }
@@ -463,6 +537,12 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         profile.personalInfo?.sexuality = updatedProfile.personalInfo?.sexuality
         profile.personalInfo?.relationship = updatedProfile.personalInfo?.relationship
         profile.personalInfo?.gender = updatedProfile.personalInfo?.gender
+        profile.personalInfo?.classYear = updatedProfile.personalInfo?.classYear
+        profile.personalInfo?.campus = updatedProfile.personalInfo?.campus
+        profile.personalInfo?.careerAspirations = updatedProfile.personalInfo?.careerAspirations
+        profile.personalInfo?.postgraduate = updatedProfile.personalInfo?.postgraduate
+        profile.personalInfo?.hometown = updatedProfile.personalInfo?.hometown
+        profile.personalInfo?.highSchool = updatedProfile.personalInfo?.highSchool
         databaseService.getProfile().user = profile
         
         nav.pop(animated: true)

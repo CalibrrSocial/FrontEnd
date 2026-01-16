@@ -28,9 +28,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate
         
         OpenAPIClientAPI.basePath = APIKeys.BASE_API_URL
         
-        IQKeyboardManager.shared.enable = true
-        IQKeyboardManager.shared.previousNextDisplayMode = .default
-        IQKeyboardManager.shared.shouldShowToolbarPlaceholder = false
+        IQKeyboardManager.shared.toolbarConfiguration.previousNextDisplayMode = .default
+        IQKeyboardManager.shared.toolbarConfiguration.placeholderConfiguration.showPlaceholder = false
         
         showNavigationController()
         

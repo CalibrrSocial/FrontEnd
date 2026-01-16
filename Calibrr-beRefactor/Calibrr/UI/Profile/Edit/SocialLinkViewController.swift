@@ -53,7 +53,7 @@ class SocialLinkViewController: UIViewController, DrawerPresentable, SocialLinkD
     private func setupView() {
         containerView.layer.cornerRadius = 8.0
         containerView.clipsToBounds = true
-        socialLinkView.items = [SocialItemData(.instagarm), SocialItemData(.vsco), SocialItemData(.snapchat), SocialItemData(.twitter), SocialItemData(.tiktok), SocialItemData(.facebook)]
+        socialLinkView.items = [SocialItemData(.instagarm), SocialItemData(.vsco), SocialItemData(.snapchat), SocialItemData(.x), SocialItemData(.linkedin), SocialItemData(.tiktok), SocialItemData(.facebook)]
         socialLinkView.reloadData()
         socialLinkView.delegate = self
         backButton.setTitle(nil, for: .normal)

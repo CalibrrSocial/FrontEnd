@@ -15,8 +15,10 @@ class SocialLinkTableViewCell: UITableViewCell, SocialLinkDelegate {
     
     override func awakeFromNib() {
         super.awakeFromNib()
+        print("🔍 SocialLinkTableViewCell: awakeFromNib called")
         // Initialization code
         socialView.delegate = self
+        print("🔍 SocialLinkTableViewCell: awakeFromNib completed")
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -26,7 +28,9 @@ class SocialLinkTableViewCell: UITableViewCell, SocialLinkDelegate {
     }
     
     func setupData(account: UserSocialInfo?) {
+        print("🔍 SocialLinkTableViewCell: setupData called with account: \(account != nil ? "EXISTS" : "NIL")")
         self.socialView.setupData(account: account)
+        print("🔍 SocialLinkTableViewCell: setupData completed")
     }
     
     func didTapOnItem(item: SocialItemData?) {
@@ -45,8 +49,10 @@ class SocialLinkTableViewCell: UITableViewCell, SocialLinkDelegate {
             app.open(Applications.FacebookCustom(), action: .userName(userName))
         case .vsco:
             app.open(Applications.VSCOCustom(), action: .userName(userName))
-        case .twitter:
+        case .x:
             app.open(Applications.TwitterCustom(), action: .userName(userName))
+        case .linkedin:
+            app.open(Applications.LinkedinCustom(), action: .userName(userName))
         case .snapchat:
             app.open(Applications.SnapChatCustom(), action: .userName(userName))
         case .tiktok:

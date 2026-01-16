@@ -887,6 +887,24 @@ components:
           type: string
           enum: &Relationship [PreferNotToSay, Single, HappySingle, InARelationship, Married, Separated, Divorced, Widowed]
           readOnly: true
+        class_year:
+          type: string
+          readOnly: true
+        campus:
+          type: string
+          readOnly: true
+        career_aspirations:
+          type: string
+          readOnly: true
+        postgraduate:
+          type: string
+          readOnly: true
+        hometown:
+          type: string
+          readOnly: true
+        high_school:
+          type: string
+          readOnly: true
 
     UserSocialInfo:
       type: object

@@ -79,6 +79,12 @@ public struct UserPersonalInfo: Codable, JSONEncodable, Hashable {
     public var favoriteGame: String?
     public var studying: String?
     public var club: UserClub?
+    public var classYear: String?
+    public var campus: String?
+    public var careerAspirations: String?
+    public var postgraduate: String?
+    public var hometown: String?
+    public var highSchool: String?
     
     public init(dob: String? = nil,
                 gender: String? = nil,
@@ -95,7 +101,13 @@ public struct UserPersonalInfo: Codable, JSONEncodable, Hashable {
                 favoriteGame: String? = nil,
                 studying: String? = nil,
                 favoriteMusic: String? = nil,
-                club: UserClub? = nil) {
+                club: UserClub? = nil,
+                classYear: String? = nil,
+                campus: String? = nil,
+                careerAspirations: String? = nil,
+                postgraduate: String? = nil,
+                hometown: String? = nil,
+                highSchool: String? = nil) {
         self.dob = dob
         self.gender = gender
         self.bio = bio
@@ -112,6 +124,12 @@ public struct UserPersonalInfo: Codable, JSONEncodable, Hashable {
         self.favoriteMusic = favoriteMusic
         self.studying = studying
         self.club = club
+        self.classYear = classYear
+        self.campus = campus
+        self.careerAspirations = careerAspirations
+        self.postgraduate = postgraduate
+        self.hometown = hometown
+        self.highSchool = highSchool
     }
     
     public enum CodingKeys: String, CodingKey, CaseIterable {
@@ -131,6 +149,12 @@ public struct UserPersonalInfo: Codable, JSONEncodable, Hashable {
         case favoriteGame = "favorite_games"
         case studying = "studying"
         case club = "club"
+        case classYear = "class_year"
+        case campus = "campus"
+        case careerAspirations = "career_aspirations"
+        case postgraduate = "postgraduate"
+        case hometown = "hometown"
+        case highSchool = "high_school"
     }
     
     // Encodable protocol methods
@@ -153,6 +177,12 @@ public struct UserPersonalInfo: Codable, JSONEncodable, Hashable {
         try container.encodeIfPresent(favoriteGame, forKey: .favoriteGame)
         try container.encodeIfPresent(studying, forKey: .studying)
         try container.encodeIfPresent(club, forKey: .club)
+        try container.encodeIfPresent(classYear, forKey: .classYear)
+        try container.encodeIfPresent(campus, forKey: .campus)
+        try container.encodeIfPresent(careerAspirations, forKey: .careerAspirations)
+        try container.encodeIfPresent(postgraduate, forKey: .postgraduate)
+        try container.encodeIfPresent(hometown, forKey: .hometown)
+        try container.encodeIfPresent(highSchool, forKey: .highSchool)
     }
     
     public init(from decoder: Decoder) throws {
@@ -174,6 +204,12 @@ public struct UserPersonalInfo: Codable, JSONEncodable, Hashable {
         favoriteGame = try? container.decodeIfPresent(String.self, forKey: .favoriteGame)
         studying = try? container.decodeIfPresent(String.self, forKey: .studying)
         club = try? container.decodeIfPresent(UserClub.self, forKey: .club)
+        classYear = try? container.decodeIfPresent(String.self, forKey: .classYear)
+        campus = try? container.decodeIfPresent(String.self, forKey: .campus)
+        careerAspirations = try? container.decodeIfPresent(String.self, forKey: .careerAspirations)
+        postgraduate = try? container.decodeIfPresent(String.self, forKey: .postgraduate)
+        hometown = try? container.decodeIfPresent(String.self, forKey: .hometown)
+        highSchool = try? container.decodeIfPresent(String.self, forKey: .highSchool)
     }
 }
 

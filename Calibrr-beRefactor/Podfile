@@ -22,7 +22,7 @@ target 'Calibrr' do
   pod 'SDWebImage'
   pod 'NVActivityIndicatorView'
   pod 'NVActivityIndicatorView/Extended'
-  pod 'TwitterKit'
+  # pod 'TwitterKit'  # Removed due to framework conflicts
   pod 'FBSDKLoginKit'
   pod 'LinkedinSwift'
   pod 'Toast-Swift'

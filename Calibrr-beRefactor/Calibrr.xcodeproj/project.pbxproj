@@ -1567,7 +1567,6 @@
 				E122D423205A491F004E1A36 /* Frameworks */,
 				E122D424205A491F004E1A36 /* Resources */,
 				D302E637FAFE6E41E9C478D8 /* [CP] Embed Pods Frameworks */,
-				9C201E2DECD67C07D43F8416 /* [CP] Copy Pods Resources */,
 				670DB23E206A285700788EB1 /* Embed Frameworks */,
 			);
 			buildRules = (
@@ -1663,23 +1662,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		9C201E2DECD67C07D43F8416 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Calibrr/Pods-Calibrr-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Calibrr/Pods-Calibrr-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Calibrr/Pods-Calibrr-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		D302E637FAFE6E41E9C478D8 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 12;

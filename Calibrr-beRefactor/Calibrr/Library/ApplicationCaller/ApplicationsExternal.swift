@@ -55,7 +55,7 @@ extension Applications {
         typealias ActionType = Applications.TwitterCustom.Action
         
         public let scheme = "twitter:"
-        public let fallbackURL = "https://twitter.com/"
+        public let fallbackURL = "https://x.com/"  // Updated to use x.com
         public let appStoreId = "333903271"
     }
 }
@@ -205,6 +205,49 @@ extension Applications.SnapChatCustom {
                     queryParameters: [:]),
                                    web: Path(pathComponents: ["add", userName],
                                              queryParameters: [:])
+                )
+            }
+        }
+    }
+}
+
+// MARK: LinkedIn
+
+extension Applications {
+    // Define your application as a type that
+    // conforms to "ExternalApplication"
+    struct LinkedinCustom: ExternalApplication {
+        
+        typealias ActionType = Applications.LinkedinCustom.Action
+        
+        public let scheme = "linkedin:"
+        public let fallbackURL = "https://www.linkedin.com/"
+        public let appStoreId = "288429040"
+    }
+}
+
+// Then, you define the actions your app supports
+extension Applications.LinkedinCustom {
+    
+    enum Action: ExternalApplicationAction {
+        
+        case userName(String)
+        
+        // Each action should provide an app path and web path to be
+        // added to the associated URL
+        var paths: ActionPaths {
+            
+            switch self {
+            case .userName(let userName):
+                return ActionPaths(
+                    app: Path(
+                        pathComponents: ["profile", userName],
+                        queryParameters: [:]
+                    ),
+                    web: Path(
+                        pathComponents: ["in", userName],
+                        queryParameters: [:]
+                    )
                 )
             }
         }

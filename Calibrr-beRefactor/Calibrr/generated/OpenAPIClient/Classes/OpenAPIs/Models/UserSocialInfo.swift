@@ -17,18 +17,20 @@ public struct UserSocialInfo: Codable, JSONEncodable, Hashable {
     public var snapchat: String?
     public var tiktok: String?
     public var twitter: String?
+    public var linkedIn: String?
     public var vsco: String?
     public var coverLetter: String?
     public var email: String?
     public var website: String?
     public var contact: String?
 
-    public init(facebook: String? = nil, instagram: String? = nil, snapchat: String? = nil, tiktok: String? = nil, twitter: String? = nil, vsco: String? = nil, coverLetter: String? = nil, email: String? = nil, website: String? = nil, contact: String? = nil) {
+    public init(facebook: String? = nil, instagram: String? = nil, snapchat: String? = nil, tiktok: String? = nil, twitter: String? = nil, linkedIn: String? = nil, vsco: String? = nil, coverLetter: String? = nil, email: String? = nil, website: String? = nil, contact: String? = nil) {
         self.facebook = facebook
         self.instagram = instagram
         self.snapchat = snapchat
         self.tiktok = tiktok
         self.twitter = twitter
+        self.linkedIn = linkedIn
         self.vsco = vsco
         self.coverLetter = coverLetter
         self.email = email
@@ -42,6 +44,7 @@ public struct UserSocialInfo: Codable, JSONEncodable, Hashable {
         case snapchat
         case tiktok
         case twitter
+        case linkedIn
         case vsco
         case coverLetter
         case email
@@ -58,6 +61,7 @@ public struct UserSocialInfo: Codable, JSONEncodable, Hashable {
         try container.encodeIfPresent(snapchat, forKey: .snapchat)
         try container.encodeIfPresent(tiktok, forKey: .tiktok)
         try container.encodeIfPresent(twitter, forKey: .twitter)
+        try container.encodeIfPresent(linkedIn, forKey: .linkedIn)
         try container.encodeIfPresent(vsco, forKey: .vsco)
         try container.encodeIfPresent(coverLetter, forKey: .coverLetter)
         try container.encodeIfPresent(email, forKey: .email)
@@ -73,6 +77,7 @@ public struct UserSocialInfo: Codable, JSONEncodable, Hashable {
         snapchat = try? container.decodeIfPresent(String.self, forKey: .snapchat)
         tiktok = try? container.decodeIfPresent(String.self, forKey: .tiktok)
         twitter = try? container.decodeIfPresent(String.self, forKey: .twitter)
+        linkedIn = try? container.decodeIfPresent(String.self, forKey: .linkedIn)
         vsco = try? container.decodeIfPresent(String.self, forKey: .vsco)
         coverLetter = try? container.decodeIfPresent(String.self, forKey: .coverLetter)
         email = try? container.decodeIfPresent(String.self, forKey: .email)
@@ -105,6 +110,11 @@ public struct UserSocialInfo: Codable, JSONEncodable, Hashable {
         if let twitter = twitter,
            !twitter.isEmpty {
             items.append(twitter)
+        }
+        
+        if let linkedIn = linkedIn,
+           !linkedIn.isEmpty {
+            items.append(linkedIn)
         }
         
         if let vsco = vsco,

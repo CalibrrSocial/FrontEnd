@@ -15,19 +15,58 @@ PODS:
   - AFNetworking/UIKit (4.0.1):
     - AFNetworking/NSURLSession
   - Alamofire (4.9.1)
-  - AnyCodable-FlightSchool (0.6.5)
-  - FBAEMKit (14.1.0):
-    - FBSDKCoreKit_Basics (= 14.1.0)
-  - FBSDKCoreKit (14.1.0):
-    - FBAEMKit (= 14.1.0)
-    - FBSDKCoreKit_Basics (= 14.1.0)
-  - FBSDKCoreKit_Basics (14.1.0)
-  - FBSDKLoginKit (14.1.0):
-    - FBSDKCoreKit (= 14.1.0)
+  - AnyCodable-FlightSchool (0.6.7)
+  - FBAEMKit (18.0.0):
+    - FBSDKCoreKit_Basics (= 18.0.0)
+  - FBSDKCoreKit (18.0.0):
+    - FBAEMKit (= 18.0.0)
+    - FBSDKCoreKit_Basics (= 18.0.0)
+  - FBSDKCoreKit_Basics (18.0.0)
+  - FBSDKLoginKit (18.0.0):
+    - FBSDKCoreKit (= 18.0.0)
   - IOSLinkedInAPIFix1 (2.0.7):
     - AFNetworking (>= 3.0.0)
-  - IQKeyboardManagerSwift (6.5.10)
-  - JWTDecode (3.0.0)
+  - IQKeyboardCore (1.0.5)
+  - IQKeyboardManagerSwift (8.0.1):
+    - IQKeyboardManagerSwift/Appearance (= 8.0.1)
+    - IQKeyboardManagerSwift/Core (= 8.0.1)
+    - IQKeyboardManagerSwift/IQKeyboardReturnManager (= 8.0.1)
+    - IQKeyboardManagerSwift/IQKeyboardToolbarManager (= 8.0.1)
+    - IQKeyboardManagerSwift/IQTextView (= 8.0.1)
+    - IQKeyboardManagerSwift/Resign (= 8.0.1)
+  - IQKeyboardManagerSwift/Appearance (8.0.1):
+    - IQKeyboardManagerSwift/Core
+  - IQKeyboardManagerSwift/Core (8.0.1):
+    - IQKeyboardNotification
+    - IQTextInputViewNotification
+  - IQKeyboardManagerSwift/IQKeyboardReturnManager (8.0.1):
+    - IQKeyboardReturnManager
+  - IQKeyboardManagerSwift/IQKeyboardToolbarManager (8.0.1):
+    - IQKeyboardManagerSwift/Core
+    - IQKeyboardToolbarManager
+  - IQKeyboardManagerSwift/IQTextView (8.0.1):
+    - IQTextView
+  - IQKeyboardManagerSwift/Resign (8.0.1):
+    - IQKeyboardManagerSwift/Core
+  - IQKeyboardNotification (1.0.3)
+  - IQKeyboardReturnManager (1.0.4):
+    - IQKeyboardCore (= 1.0.5)
+  - IQKeyboardToolbar (1.1.1):
+    - IQKeyboardCore
+    - IQKeyboardToolbar/Core (= 1.1.1)
+  - IQKeyboardToolbar/Core (1.1.1):
+    - IQKeyboardCore
+    - IQKeyboardToolbar/Placeholderable
+  - IQKeyboardToolbar/Placeholderable (1.1.1):
+    - IQKeyboardCore
+  - IQKeyboardToolbarManager (1.1.3):
+    - IQKeyboardToolbar
+    - IQTextInputViewNotification
+  - IQTextInputViewNotification (1.0.8):
+    - IQKeyboardCore
+  - IQTextView (1.0.5):
+    - IQKeyboardToolbar/Placeholderable
+  - JWTDecode (3.1.0)
   - LinkedinSwift (1.8.1):
     - AFNetworking (>= 3.5.0)
     - IOSLinkedInAPIFix1 (>= 2.0.7)
@@ -81,10 +120,10 @@ PODS:
     - MDFTextAccessibility
   - MDFInternationalization (3.0.0)
   - MDFTextAccessibility (2.0.1)
-  - NVActivityIndicatorView (5.1.1):
-    - NVActivityIndicatorView/Base (= 5.1.1)
-  - NVActivityIndicatorView/Base (5.1.1)
-  - NVActivityIndicatorView/Extended (5.1.1):
+  - NVActivityIndicatorView (5.2.0):
+    - NVActivityIndicatorView/Base (= 5.2.0)
+  - NVActivityIndicatorView/Base (5.2.0)
+  - NVActivityIndicatorView/Extended (5.2.0):
     - NVActivityIndicatorView/Base
   - OpenAPIClient (0.1.1):
     - AnyCodable-FlightSchool (~> 0.6.1)
@@ -93,18 +132,15 @@ PODS:
     - Alamofire (~> 4.0)
     - PromiseKit/CorePromise
   - PromiseKit/CorePromise (6.18.1)
-  - ReachabilitySwift (5.0.0)
-  - SDWebImage (5.13.2):
-    - SDWebImage/Core (= 5.13.2)
-  - SDWebImage/Core (5.13.2)
-  - SnapKit (5.6.0)
+  - ReachabilitySwift (5.2.4)
+  - SDWebImage (5.21.1):
+    - SDWebImage/Core (= 5.21.1)
+  - SDWebImage/Core (5.21.1)
+  - SnapKit (5.7.1)
   - SwiftKeychainWrapper (4.0.1)
   - SwiftyStoreKit (0.16.1)
-  - Toast-Swift (5.0.1)
+  - Toast-Swift (5.1.1)
   - TTRangeSlider (1.0.7)
-  - TwitterCore (3.2.0)
-  - TwitterKit (3.4.2):
-    - TwitterCore (>= 3.2.0)
 
 DEPENDENCIES:
   - FBSDKLoginKit
@@ -123,7 +159,6 @@ DEPENDENCIES:
   - SwiftyStoreKit
   - Toast-Swift
   - TTRangeSlider
-  - TwitterKit
 
 SPEC REPOS:
   trunk:
@@ -135,7 +170,14 @@ SPEC REPOS:
     - FBSDKCoreKit_Basics
     - FBSDKLoginKit
     - IOSLinkedInAPIFix1
+    - IQKeyboardCore
     - IQKeyboardManagerSwift
+    - IQKeyboardNotification
+    - IQKeyboardReturnManager
+    - IQKeyboardToolbar
+    - IQKeyboardToolbarManager
+    - IQTextInputViewNotification
+    - IQTextView
     - JWTDecode
     - LinkedinSwift
     - MaterialComponents
@@ -150,8 +192,6 @@ SPEC REPOS:
     - SwiftyStoreKit
     - Toast-Swift
     - TTRangeSlider
-    - TwitterCore
-    - TwitterKit
 
 EXTERNAL SOURCES:
   OpenAPIClient:
@@ -160,31 +200,36 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   AFNetworking: 3bd23d814e976cd148d7d44c3ab78017b744cd58
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
-  AnyCodable-FlightSchool: 84b795a9d3ec7ba9e5488673d15cc1b37a566af4
-  FBAEMKit: a899515e45476027f73aef377b5cffadcd56ca3a
-  FBSDKCoreKit: 24f8bc8d3b5b2a8c5c656a1329492a12e8efa792
-  FBSDKCoreKit_Basics: 6e578c9bdc7aa1365dbbbde633c9ebb536bcaa98
-  FBSDKLoginKit: 787de205d524c3a4b17d527916f1d066e4361660
+  AnyCodable-FlightSchool: 261cbe76757802b17d471b9059b21e6fa5edf57b
+  FBAEMKit: e34530df538b8eb8aeb53c35867715ba6c63ef0c
+  FBSDKCoreKit: d3f479a69127acebb1c6aad91c1a33907bcf6c2f
+  FBSDKCoreKit_Basics: 017b6dc2a1862024815a8229e75661e627ac1e29
+  FBSDKLoginKit: 5875762d1fe09ddcb05d03365d4f5dc34413843d
   IOSLinkedInAPIFix1: 3500bcb827ed39db15fe40bb8278568d66c809bd
-  IQKeyboardManagerSwift: 52962c76ab33532f15ad9f3ff4e5715eda5335bb
-  JWTDecode: 82480a7173f8a811954e7e14a2b59f688ca4222a
+  IQKeyboardCore: 28c8bf3bcd8ba5aa1570b318cbc4da94b861711e
+  IQKeyboardManagerSwift: 835fc9c6e4732398113406d84900ad2e8f141218
+  IQKeyboardNotification: d7382c4466c5a5adef92c7452ebf861b36050088
+  IQKeyboardReturnManager: 972be48528ce9e7508ab3ab15ac7efac803f17f5
+  IQKeyboardToolbar: d4bdccfb78324aec2f3920659c77bb89acd33312
+  IQKeyboardToolbarManager: 6c693c8478d6327a7ef2107528d29698b3514dbb
+  IQTextInputViewNotification: f5e954d8881fd9808b744e49e024cc0d4bcfe572
+  IQTextView: ae13b4922f22e6f027f62c557d9f4f236b19d5c7
+  JWTDecode: 3eaab1e06b6f4dcbdd6716aff09ba4c2104ca8b7
   LinkedinSwift: 8801a880fb9c59e18c95f40c8bf44b07c5dd1a2d
   MaterialComponents: 1a9b2d9d45b1601ae544de85089adc4c464306d4
   MDFInternationalization: d697c55307816222a55685c4ccb1044ffb030c12
   MDFTextAccessibility: f4bb4cc2194286651b59a215fdeaa0e05dc90ba5
-  NVActivityIndicatorView: 1f6c5687f1171810aa27a3296814dc2d7dec3667
+  NVActivityIndicatorView: fe52a6a68664c2df8991d7d9e3d86d8d19453c53
   OpenAPIClient: b839df18f870f87c79e6dab6439496595a21f7ad
   PromiseKit: 49d70c53d5d20e346beaea4b276b5dd2ab446bb4
-  ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
-  SDWebImage: 72f86271a6f3139cc7e4a89220946489d4b9a866
-  SnapKit: e01d52ebb8ddbc333eefe2132acf85c8227d9c25
+  ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
+  SDWebImage: f29024626962457f3470184232766516dee8dfea
+  SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
   SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
   SwiftyStoreKit: 6b9c08810269f030586dac1fae8e75871a82e84a
-  Toast-Swift: 9b6a70f28b3bf0b96c40d46c0c4b9d6639846711
+  Toast-Swift: 7a03a532afe3a560d4044bc7c237e2864d295173
   TTRangeSlider: 8cf72eca457c3b700c92eb0074be908c986e25ec
-  TwitterCore: 8cbc9ad34d91c63a0035ea05bfbfc0d7ca72a28c
-  TwitterKit: 5e4f41d70b9abdb41df5467f52d7aa2c0fd26ebb
 
-PODFILE CHECKSUM: 13fdc645ed4309f11bd98855114d77cda077a903
+PODFILE CHECKSUM: dccbc4a0b9fce81533ae4bf30e688aa0bfd39665
 
 COCOAPODS: 1.16.2

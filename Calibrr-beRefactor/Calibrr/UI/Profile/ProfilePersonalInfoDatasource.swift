@@ -38,12 +38,36 @@ class ProfilePersonalInfoDatasource : AStandardItemsDatasource<ProfileCell, (Str
                 appendNonNull(title: "Lives in:", value: liveIn)
             }
             
+            if let hometown = profile.hometown, !hometown.isEmpty {
+                appendNonNull(title: "Hometown:", value: hometown)
+            }
+            
             if let education = profile.education, !education.isEmpty {
                 appendNonNull(title: "Education:", value: education)
             }
             
+            if let highSchool = profile.highSchool, !highSchool.isEmpty {
+                appendNonNull(title: "High School:", value: highSchool)
+            }
+            
+            if let classYear = profile.classYear, !classYear.isEmpty {
+                appendNonNull(title: "Class Year:", value: classYear)
+            }
+            
+            if let campus = profile.campus, !campus.isEmpty {
+                appendNonNull(title: "Campus:", value: campus)
+            }
+            
             if let studying = profile.studying, !studying.isEmpty {
                 appendNonNull(title: "Studying:", value: studying)
+            }
+            
+            if let careerAspirations = profile.careerAspirations, !careerAspirations.isEmpty {
+                appendNonNull(title: "Career Aspirations:", value: careerAspirations)
+            }
+            
+            if let postgraduate = profile.postgraduate, !postgraduate.isEmpty {
+                appendNonNull(title: "Postgraduate Plans:", value: postgraduate)
             }
             
             if !myCourses.isEmpty {
