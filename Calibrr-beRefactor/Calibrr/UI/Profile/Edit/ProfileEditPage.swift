@@ -322,12 +322,16 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         let isRelationValid = relationshipInput.validateAndShow()
         let isCampusValid = campusInput.validateAndShow()
         let isStudyingValid = studyingInput.validateAndShow()
+        let isClassYearValid = classYearInput.validateAndShow()
+        let isPostgraduateValid = postgraduateInput.validateAndShow()
         return isGenderValid
         && isEduValid
         && isLocationValid
         && isRelationValid
         && isCampusValid
         && isStudyingValid
+        && isClassYearValid
+        && isPostgraduateValid
         && isHaveCover
         && isHaveAvatar
         && isValidSocialAccount

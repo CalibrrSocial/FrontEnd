@@ -854,6 +854,15 @@
                                                         <constraint firstAttribute="bottom" secondItem="aLQ-eH-GAG" secondAttribute="bottom" id="yfC-qd-TQM"/>
                                                     </constraints>
                                                 </view>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Enter your postgraduate plans" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="8" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="REQ-POSTGRAD-LABEL" userLabel="RequiredLabel">
+                                                    <rect key="frame" x="20" y="56" width="200" height="15"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="15" id="REQ-POSTGRAD-HEIGHT"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="12"/>
+                                                    <color key="textColor" red="0.8833589702" green="0.2251068623" blue="0.105240731" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
                                             </subviews>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <accessibility key="accessibilityConfiguration" identifier=""/>
@@ -867,7 +876,10 @@
                                                 <constraint firstItem="8xF-NB-VqH" firstAttribute="leading" secondItem="q4S-CT-xmb" secondAttribute="leading" id="eL5-Kh-k6E"/>
                                                 <constraint firstAttribute="trailing" secondItem="q4S-CT-xmb" secondAttribute="trailing" constant="20" id="nGm-jM-RxT"/>
                                                 <constraint firstItem="VPY-NK-1EF" firstAttribute="top" secondItem="7Nq-vF-9sP" secondAttribute="top" id="oqW-NK-nBE"/>
-                                                <constraint firstAttribute="bottom" secondItem="q4S-CT-xmb" secondAttribute="bottom" id="xHr-5w-tHt"/>
+                                                <constraint firstItem="REQ-POSTGRAD-LABEL" firstAttribute="top" secondItem="q4S-CT-xmb" secondAttribute="bottom" constant="4" id="REQ-POSTGRAD-TOP"/>
+                                                <constraint firstItem="REQ-POSTGRAD-LABEL" firstAttribute="leading" secondItem="q4S-CT-xmb" secondAttribute="leading" id="REQ-POSTGRAD-LEADING"/>
+                                                <constraint firstAttribute="trailing" secondItem="q4S-CT-xmb" secondAttribute="trailing" constant="20" id="REQ-POSTGRAD-TRAILING"/>
+                                                <constraint firstAttribute="bottom" secondItem="REQ-POSTGRAD-LABEL" secondAttribute="bottom" id="REQ-POSTGRAD-BOTTOM"/>
                                             </constraints>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="boolean" keyPath="isRequired" value="YES"/>
@@ -881,6 +893,7 @@
                                                 <outlet property="inputDelegate" destination="-1" id="LzG-wJ-dxA"/>
                                                 <outlet property="inputField" destination="8xF-NB-VqH" id="Q6G-gZ-jrA"/>
                                                 <outlet property="nextInput" destination="3b4-GU-oTV" id="gWx-Zx-X0B"/>
+                                                <outlet property="requiredLabel" destination="REQ-POSTGRAD-LABEL" id="REQ-POSTGRAD-OUTLET"/>
                                                 <outlet property="titleLabel" destination="VPY-NK-1EF" id="KgF-dO-PgE"/>
                                             </connections>
                                         </view>
