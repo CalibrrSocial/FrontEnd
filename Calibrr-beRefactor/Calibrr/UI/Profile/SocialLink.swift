@@ -71,7 +71,7 @@ class SocialLink: UIView {
     }
     var numberItem: Int = 7
     
-    var sizeScreen: CGFloat = UIScreen.main.bounds.width - 24
+    var sizeScreen: CGFloat = UIScreen.main.bounds.width - 24 - 16  // Account for cell margins (24pt) + stack view margins (16pt)
     let spacing: CGFloat = 8
     var delegate: SocialLinkDelegate?
     
@@ -87,15 +87,16 @@ class SocialLink: UIView {
     
     private func setupView() {
         stackView.axis = .horizontal
-        stackView.spacing = self.spacing
-        stackView.distribution = .fillEqually  // Ensure equal distribution
+        stackView.spacing = 16.0  // Use consistent spacing
+        stackView.distribution = .equalCentering  // Center icons with equal spacing
         stackView.alignment = .center
         
         self.addSubview(stackView)
         
         stackView.snp.makeConstraints { make in
-            make.leading.trailing.top.equalToSuperview()
-            make.centerX.equalToSuperview()  // Center the stack view
+            make.leading.trailing.equalToSuperview().inset(8)  // Add 8pt margins to prevent cutoff
+            make.top.bottom.equalToSuperview()
+            make.centerX.centerY.equalToSuperview()  // Center both horizontally and vertically
         }
     }
     
@@ -106,22 +107,34 @@ class SocialLink: UIView {
         let availablePlatforms = 7  // instagram, facebook, snapchat, linkedin, x, vsco, tiktok
         let numberOfItem = isEditMode ? availablePlatforms : items.count
         
-        // Dynamic spacing based on content type and number of items
-        let isShowingPlaceholders = items.isEmpty || isEditMode
-        let baseSpacing: CGFloat = 12
-        let dynamicSpacing: CGFloat = isShowingPlaceholders ? 29 : baseSpacing
+        let optimalSpacing: CGFloat = 16.0  // Increased spacing for better visual separation
         
-        // Update stack view spacing dynamically
-        stackView.spacing = dynamicSpacing
+        // Update stack view spacing
+        stackView.spacing = optimalSpacing
         
-        // Ensure we don't exceed available platforms and calculate size properly
-        let actualCount = min(numberOfItem, availablePlatforms)
-        let totalSpacing = CGFloat(actualCount - 1) * dynamicSpacing
-        let availableWidth = sizeScreen - totalSpacing
-        let sizeItem = availableWidth / CGFloat(actualCount)
+        // Calculate icon size with better space utilization
+        let optimalIconSize: CGFloat
         
-        // Ensure reasonable size for circular social media icons
-        let finalSizeItem = min(max(sizeItem, 28.0), 40.0)  // Between 28-40pt for circular icons
+        if isEditMode {
+            // In edit mode, size for all 7 platforms for consistency
+            let totalSpacingForAllPlatforms = (7.0 - 1) * optimalSpacing
+            let availableWidthForIcons = sizeScreen - totalSpacingForAllPlatforms
+            optimalIconSize = availableWidthForIcons / 7.0
+        } else {
+            // In view mode, use actual number of items for better space utilization
+            // but ensure minimum reasonable size
+            let actualItemsForSpacing = CGFloat(numberOfItem)
+            let totalSpacingForActualItems = max(0, (actualItemsForSpacing - 1)) * optimalSpacing
+            let availableWidthForIcons = sizeScreen - totalSpacingForActualItems
+            optimalIconSize = numberOfItem > 0 ? availableWidthForIcons / actualItemsForSpacing : 60.0
+        }
+        
+        // Set minimum and maximum sizes for better usability and appearance
+        // Ensure icons don't exceed available space to prevent cutoff and overlap
+        let maxSafeSize = min(75.0, (sizeScreen - (CGFloat(numberOfItem - 1) * optimalSpacing)) / CGFloat(numberOfItem))
+        let finalSizeItem = min(max(optimalIconSize, 50.0), maxSafeSize)  // Between 50pt and safe maximum
+        
+        print("🔍 SocialLink Debug - Items: \(numberOfItem), ScreenWidth: \(sizeScreen), OptimalSize: \(optimalIconSize), MaxSafe: \(maxSafeSize), Final: \(finalSizeItem)")
         
         for i in 0..<numberOfItem {
             let containerView = UIView()
