@@ -8,56 +8,74 @@ const db = DynamoDBDocumentClient.from(dynamoClient);
 
 exports.handler = async (event) => {
     try {
-        console.log('🔍 Received event:', JSON.stringify(event, null, 2));
-        console.log(`🔍 Processing ${event.notificationType} notification`);
+        console.log('🔍 DEBUG: Received event:', JSON.stringify(event, null, 2));
         
         let notificationType = event.notificationType
         let recipientUserId = event.recipientUserId
         let senderUserId = event.senderUserId
         let additionalData = event.additionalData || {}
         
+        console.log(`🔍 DEBUG: Processing ${notificationType} notification`);
+        console.log(`🔍 DEBUG: Recipient ID: ${recipientUserId}, Sender ID: ${senderUserId}`);
+        
         // Get recipient user details
+        console.log(`🔍 DEBUG: Getting recipient user: ${recipientUserId}`);
         let recipient = await getUser(recipientUserId)
+        console.log(`🔍 DEBUG: Recipient found:`, recipient ? 'YES' : 'NO');
         if (!recipient) {
+            console.log('🔍 DEBUG: Recipient user not found');
             return response(404, "Recipient user not found")
         }
         
         // Get sender user details (for profile and attribute likes)
         let sender = null
         if (senderUserId) {
+            console.log(`🔍 DEBUG: Getting sender user: ${senderUserId}`);
             sender = await getUser(senderUserId)
+            console.log(`🔍 DEBUG: Sender found:`, sender ? 'YES' : 'NO');
+            if (sender) {
+                console.log(`🔍 DEBUG: Sender details: ${sender.firstName} ${sender.lastName}`);
+            }
             if (!sender) {
+                console.log('🔍 DEBUG: Sender user not found');
                 return response(404, "Sender user not found")
             }
         }
         
         // Generate email content based on notification type
+        console.log(`🔍 DEBUG: Generating email content for ${notificationType}`);
         let emailContent = generateEmailContent(notificationType, recipient, sender, additionalData)
+        console.log(`🔍 DEBUG: Email subject: ${emailContent.subject}`);
         
         // Send email using AWS SES
-        console.log(`🔍 Sending ${notificationType} email to ${recipient.email}`);
+        console.log(`🔍 DEBUG: Sending email to ${recipient.email}`);
         const result = await sendEmail(recipient.email, emailContent.subject, emailContent.htmlBody, emailContent.textBody)
-        console.log(`🔍 Email sent successfully! MessageId: ${result.MessageId}`);
+        console.log(`🔍 DEBUG: Email sent successfully. MessageId: ${result.MessageId}`);
+        
         return response(200, {
             message: "Email notification sent successfully",
             messageId: result.MessageId
         })
         
     } catch (error) {
-        console.error('Error sending email notification:', error)
+        console.error('🔍 DEBUG: Error sending email notification:', error)
+        console.error('🔍 DEBUG: Error stack:', error.stack)
         return response(500, {
             error: "Failed to send email notification",
-            details: error.message
+            details: error.message,
+            stack: error.stack
         })
     }
 }
 
 function generateEmailContent(notificationType, recipient, sender, additionalData) {
+    console.log(`🔍 DEBUG: generateEmailContent called with type: ${notificationType}`);
+    
     let subject = ""
     let htmlBody = ""
     let textBody = ""
     
-    // Base HTML template styling (without logo for now)
+    // Base HTML template styling
     let htmlTemplate = `
         <html>
         <head>
@@ -94,8 +112,14 @@ function generateEmailContent(notificationType, recipient, sender, additionalDat
     
     switch (notificationType) {
         case 'profile_liked':
-            if (!sender) throw new Error("Sender required for profile like notification")
+            console.log(`🔍 DEBUG: Processing profile_liked case`);
+            if (!sender) {
+                console.log(`🔍 DEBUG: Error - no sender for profile_liked`);
+                throw new Error("Sender required for profile like notification")
+            }
+            console.log(`🔍 DEBUG: Sender object:`, JSON.stringify(sender, null, 2));
             let senderName = `${sender.firstName} ${sender.lastName}`
+            console.log(`🔍 DEBUG: Sender name: ${senderName}`);
             subject = `${senderName} just liked you!`
             let profileContent = `
                 <h3>${senderName} just liked you!</h3>
@@ -103,9 +127,11 @@ function generateEmailContent(notificationType, recipient, sender, additionalDat
             `
             htmlBody = htmlTemplate.replace('{{CONTENT}}', profileContent)
             textBody = `${senderName} just liked your profile on the Calibrr Social App-- go like their profile back to return the favor!`
+            console.log(`🔍 DEBUG: Profile liked content generated successfully`);
             break
             
         case 'attribute_liked':
+            console.log(`🔍 DEBUG: Processing attribute_liked case`);
             if (!sender) throw new Error("Sender required for attribute like notification")
             if (!additionalData.category || !additionalData.attribute) {
                 throw new Error("Category and attribute required for attribute like notification")
@@ -121,6 +147,7 @@ function generateEmailContent(notificationType, recipient, sender, additionalDat
             break
             
         case 'dead_link_reported':
+            console.log(`🔍 DEBUG: Processing dead_link_reported case`);
             if (!additionalData.platforms || !Array.isArray(additionalData.platforms)) {
                 throw new Error("Platforms array required for dead link notification")
             }
@@ -137,7 +164,7 @@ function generateEmailContent(notificationType, recipient, sender, additionalDat
                 <p>Make sure your username is correct, and/or that you copy and paste a good, functioning, and current link for that platform.</p>
                 <p>Also test it yourself to make sure it is working!</p>
             `
-            // Use different template for dead link (keeps original footer)
+            // Use different template for dead link
             let deadLinkTemplate = `
                 <html>
                 <head>
@@ -177,13 +204,17 @@ function generateEmailContent(notificationType, recipient, sender, additionalDat
             break
             
         default:
+            console.log(`🔍 DEBUG: Unknown notification type: ${notificationType}`);
             throw new Error(`Unknown notification type: ${notificationType}`)
     }
     
+    console.log(`🔍 DEBUG: Email content generated. Subject: ${subject}`);
     return { subject, htmlBody, textBody }
 }
 
 async function sendEmail(toEmail, subject, htmlBody, textBody) {
+    console.log(`🔍 DEBUG: sendEmail called with toEmail: ${toEmail}, subject: ${subject}`);
+    
     const params = {
         Source: 'contact@calibrr.com',
         Destination: {
@@ -207,14 +238,15 @@ async function sendEmail(toEmail, subject, htmlBody, textBody) {
         }
     }
     
+    console.log(`🔍 DEBUG: SES params prepared, sending email...`);
     const command = new SendEmailCommand(params);
-    return await sesClient.send(command);
+    const result = await sesClient.send(command);
+    console.log(`🔍 DEBUG: SES send result:`, result);
+    return result;
 }
 
-
-
 async function getUser(userId) {
-    console.log(`🔍 getUser called with userId: ${userId}, table: ${process.env.USER_TABLE_NAME}`);
+    console.log(`🔍 DEBUG: getUser called with userId: ${userId}`);
     const params = {
         TableName: process.env.USER_TABLE_NAME,
         Key: {
@@ -222,10 +254,10 @@ async function getUser(userId) {
         }
     }
     
-    console.log(`🔍 DynamoDB params:`, JSON.stringify(params, null, 2));
+    console.log(`🔍 DEBUG: DynamoDB params:`, params);
     const command = new GetCommand(params);
     const result = await db.send(command);
-    console.log(`🔍 DynamoDB result:`, JSON.stringify(result, null, 2));
+    console.log(`🔍 DEBUG: DynamoDB result:`, result);
     return result.Item;
 }
 
@@ -235,4 +267,4 @@ function response(statusCode, objectBody) {
         body = JSON.stringify(objectBody)
     }
     return { statusCode, body }
-}
+} 

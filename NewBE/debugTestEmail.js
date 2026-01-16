@@ -8,73 +8,50 @@ const db = DynamoDBDocumentClient.from(dynamoClient);
 
 exports.handler = async (event) => {
     try {
-        console.log('Testing email notification system...')
+        console.log('🔍 DEBUG TEST: Testing email notification system...')
         
         // You can modify these test parameters
         let testRecipientUserId = event.testRecipientUserId || "test-recipient-123"
         let testSenderUserId = event.testSenderUserId || "test-sender-456"
         let testEmail = event.testEmail || "eliyoung4now@gmail.com"
         
-        console.log(`Testing with recipient: ${testRecipientUserId}, sender: ${testSenderUserId}, email: ${testEmail}`)
+        console.log(`🔍 DEBUG TEST: Testing with recipient: ${testRecipientUserId}, sender: ${testSenderUserId}, email: ${testEmail}`)
         
         // Create test users in the expected format
         await createTestUsers(testRecipientUserId, testSenderUserId, testEmail)
         
-        // Test 1: Profile Liked Notification
-        console.log('Testing profile liked notification...')
+        // Test ONLY the Profile Liked Notification to debug the issue
+        console.log('🔍 DEBUG TEST: Testing ONLY profile liked notification...')
         let profileLikedResult = await testNotification({
             notificationType: 'profile_liked',
             recipientUserId: testRecipientUserId,
             senderUserId: testSenderUserId
         })
         
-        // Test 2: Attribute Liked Notification
-        console.log('Testing attribute liked notification...')
-        let attributeLikedResult = await testNotification({
-            notificationType: 'attribute_liked',
-            recipientUserId: testRecipientUserId,
-            senderUserId: testSenderUserId,
-            additionalData: {
-                category: "Music",
-                attribute: "Hip Hop"
-            }
-        })
-        
-        // Test 3: Dead Link Reported Notification
-        console.log('Testing dead link reported notification...')
-        let deadLinkResult = await testNotification({
-            notificationType: 'dead_link_reported',
-            recipientUserId: testRecipientUserId,
-            additionalData: {
-                platforms: ["Instagram", "Snapchat", "TikTok"]
-            }
-        })
-        
         // Cleanup test users
         await cleanupTestUsers(testRecipientUserId, testSenderUserId)
         
         return response(200, {
-            message: "Email notification tests completed",
-            results: {
-                profileLiked: profileLikedResult,
-                attributeLiked: attributeLikedResult,
-                deadLinkReported: deadLinkResult
-            },
-            instructions: `Check the email address ${testEmail} for three test emails`
+            message: "Profile liked notification test completed",
+            result: profileLikedResult,
+            instructions: `Check the email address ${testEmail} for the profile liked test email. Also check CloudWatch logs for detailed debug info.`
         })
         
     } catch (error) {
-        console.error('Error testing email notifications:', error)
+        console.error('🔍 DEBUG TEST: Error testing email notifications:', error)
         return response(500, {
             error: "Failed to test email notifications",
-            details: error.message
+            details: error.message,
+            stack: error.stack
         })
     }
 }
 
 async function testNotification(payload) {
+    console.log('🔍 DEBUG TEST: Calling email notification function with payload:', JSON.stringify(payload, null, 2));
+    
     const params = {
-        FunctionName: process.env.EMAIL_NOTIFICATION_FUNCTION_NAME || 'sendEmailNotification',
+        FunctionName: 'debugEmailNotification', // Point to our debug function
         InvocationType: 'RequestResponse',
         Payload: JSON.stringify(payload)
     }
@@ -83,15 +60,17 @@ async function testNotification(payload) {
         const command = new InvokeCommand(params);
         const result = await lambdaClient.send(command);
         const response = JSON.parse(new TextDecoder().decode(result.Payload));
-        console.log(`Notification test result:`, response)
+        console.log(`🔍 DEBUG TEST: Notification test result:`, JSON.stringify(response, null, 2))
         return { success: true, response: response }
     } catch (error) {
-        console.error(`Notification test failed:`, error)
-        return { success: false, error: error.message }
+        console.error(`🔍 DEBUG TEST: Notification test failed:`, error)
+        return { success: false, error: error.message, stack: error.stack }
     }
 }
 
 async function createTestUsers(recipientUserId, senderUserId, testEmail) {
+    console.log('🔍 DEBUG TEST: Creating test users...');
+    
     // Create test recipient user
     let recipientUser = {
         id: recipientUserId,
@@ -108,23 +87,26 @@ async function createTestUsers(recipientUserId, senderUserId, testEmail) {
         email: "testsender@example.com"
     }
     
+    console.log('🔍 DEBUG TEST: Recipient user:', JSON.stringify(recipientUser, null, 2));
+    console.log('🔍 DEBUG TEST: Sender user:', JSON.stringify(senderUser, null, 2));
+    
     // Put test users in database
-    console.log('Creating recipient user with table:', process.env.USER_TABLE_NAME);
     await db.send(new PutCommand({
         TableName: process.env.USER_TABLE_NAME,
         Item: recipientUser
     }));
     
-    console.log('Creating sender user with table:', process.env.USER_TABLE_NAME);
     await db.send(new PutCommand({
         TableName: process.env.USER_TABLE_NAME,
         Item: senderUser
     }));
     
-    console.log('Test users created successfully')
+    console.log('🔍 DEBUG TEST: Test users created successfully')
 }
 
 async function cleanupTestUsers(recipientUserId, senderUserId) {
+    console.log('🔍 DEBUG TEST: Cleaning up test users...');
+    
     // Delete test users
     await db.send(new DeleteCommand({
         TableName: process.env.USER_TABLE_NAME,
@@ -136,7 +118,7 @@ async function cleanupTestUsers(recipientUserId, senderUserId) {
         Key: { id: senderUserId }
     }));
     
-    console.log('Test users cleaned up successfully')
+    console.log('🔍 DEBUG TEST: Test users cleaned up successfully')
 }
 
 function response(statusCode, objectBody) {
@@ -145,4 +127,4 @@ function response(statusCode, objectBody) {
         body = JSON.stringify(objectBody)
     }
     return { statusCode, body }
-}
+} 
