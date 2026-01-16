@@ -452,18 +452,16 @@ extension ProfileFriendPage: UIScrollViewDelegate {
         guard let friendId = self.friendId,
               let friendName = self.profile?.firstName else { return }
         
-        AlertManager.shared.showAlert(
-            on: self,
+        let alert = UIAlertController(
             title: "Block \(friendName)?",
             message: "You and \(friendName) will no longer be able to see each other on the app. You can unblock them later in Settings.",
-            style: .alert,
-            actions: [
-                UIAlertAction(title: "Cancel", style: .cancel),
-                UIAlertAction(title: "Block", style: .destructive) { [weak self] _ in
-                    self?.blockUser()
-                }
-            ]
+            preferredStyle: .alert
         )
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Block", style: .destructive) { [weak self] _ in
+            self?.blockUser()
+        })
+        present(alert, animated: true)
     }
     
     private func showReportDialog() {
@@ -628,7 +626,14 @@ extension ProfileFriendPage: UIScrollViewDelegate {
         let reporterName = [myProfile.firstName, myProfile.lastName].compactMap { $0 }.joined(separator: " ")
         
         // Show loading
-        AlertManager.shared.showLoadingAlert(on: self, message: "Reporting broken links...")
+        let loadingAlert = UIAlertController(title: nil, message: "Reporting broken links...", preferredStyle: .alert)
+        loadingAlert.view.tintColor = UIColor.black
+        let loadingIndicator: UIActivityIndicatorView = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50)) as UIActivityIndicatorView
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = .medium
+        loadingIndicator.startAnimating();
+        loadingAlert.view.addSubview(loadingIndicator)
+        present(loadingAlert, animated: true)
         
         // Call API to report broken links
         self.reportBrokenLinksAPI(
@@ -637,17 +642,15 @@ extension ProfileFriendPage: UIScrollViewDelegate {
             platforms: platforms,
             reporterName: reporterName.isEmpty ? "Someone" : reporterName
         ).done { [weak self] in
-            AlertManager.shared.dismissCurrentAlert {
-                guard let self = self else { return }
+            loadingAlert.dismiss(animated: true) {
                 let message = platforms.count == 1 
                     ? "The broken \(platforms[0]) link has been reported. \(profile.firstName ?? "The user") will be notified via email."
                     : "The broken links have been reported. \(profile.firstName ?? "The user") will be notified via email."
-                AlertManager.shared.showSuccessAlert(on: self, message: message)
+                self?.showSuccessAlert(message: message)
             }
         }.catch { [weak self] (error: Error) in
-            AlertManager.shared.dismissCurrentAlert {
-                guard let self = self else { return }
-                AlertManager.shared.showErrorAlert(on: self, message: "Failed to report broken links. Please try again.")
+            loadingAlert.dismiss(animated: true) {
+                self?.showErrorAlert(message: "Failed to report broken links. Please try again.")
             }
         }
     }
@@ -664,21 +667,26 @@ extension ProfileFriendPage: UIScrollViewDelegate {
         print("🚫 [BLOCK USER] Blocking user ID: \(friendId)")
         
         // Show loading
-        AlertManager.shared.showLoadingAlert(on: self, message: "Blocking user...")
+        let loadingAlert = UIAlertController(title: nil, message: "Blocking user...", preferredStyle: .alert)
+        loadingAlert.view.tintColor = UIColor.black
+        let loadingIndicator: UIActivityIndicatorView = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50)) as UIActivityIndicatorView
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = .medium
+        loadingIndicator.startAnimating();
+        loadingAlert.view.addSubview(loadingIndicator)
+        present(loadingAlert, animated: true)
         
         self.blockUserAPI(myId: myId, userToBlockId: friendId).done { [weak self] in
             print("✅ [BLOCK USER] Block API call successful")
-            AlertManager.shared.dismissCurrentAlert {
-                guard let self = self else { return }
-                AlertManager.shared.showSuccessAlert(on: self, message: "User has been blocked successfully.") {
-                    self.navigationController?.popViewController(animated: true)
+            loadingAlert.dismiss(animated: true) {
+                self?.showSuccessAlert(message: "User has been blocked successfully.") {
+                    self?.navigationController?.popViewController(animated: true)
                 }
             }
         }.catch { [weak self] (error: Error) in
             print("❌ [BLOCK USER] Block API call failed: \(error)")
-            AlertManager.shared.dismissCurrentAlert {
-                guard let self = self else { return }
-                AlertManager.shared.showErrorAlert(on: self, message: "Failed to block user. Please try again.")
+            loadingAlert.dismiss(animated: true) {
+                self?.showErrorAlert(message: "Failed to block user. Please try again.")
             }
         }
     }
@@ -688,27 +696,32 @@ extension ProfileFriendPage: UIScrollViewDelegate {
         let myId = DatabaseService.singleton.getProfile().user.id
         
         // Show loading
-        AlertManager.shared.showLoadingAlert(on: self, message: "Reporting user...")
+        let loadingAlert = UIAlertController(title: nil, message: "Reporting user...", preferredStyle: .alert)
+        loadingAlert.view.tintColor = UIColor.black
+        let loadingIndicator: UIActivityIndicatorView = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50)) as UIActivityIndicatorView
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = .medium
+        loadingIndicator.startAnimating();
+        loadingAlert.view.addSubview(loadingIndicator)
+        present(loadingAlert, animated: true)
         
         self.reportUserAPI(myId: myId, reportedUserId: friendId, reason: reason).done { [weak self] in
-            AlertManager.shared.dismissCurrentAlert {
-                guard let self = self else { return }
-                AlertManager.shared.showSuccessAlert(on: self, message: "User has been reported and blocked successfully.") {
-                    self.navigationController?.popViewController(animated: true)
+            loadingAlert.dismiss(animated: true) {
+                self?.showSuccessAlert(message: "User has been reported and blocked successfully.") {
+                    self?.navigationController?.popViewController(animated: true)
                 }
             }
         }.catch { [weak self] (error: Error) in
-            AlertManager.shared.dismissCurrentAlert {
-                guard let self = self else { return }
-                AlertManager.shared.showErrorAlert(on: self, message: "Failed to report user. Please try again.")
+            loadingAlert.dismiss(animated: true) {
+                self?.showErrorAlert(message: "Failed to report user. Please try again.")
             }
         }
     }
     
-    private func showSuccessAlert(message: String, completion: @escaping () -> Void) {
+    private func showSuccessAlert(message: String, completion: (() -> Void)? = nil) {
         let alert = UIAlertController(title: "Success", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
-            completion()
+            completion?()
         })
         present(alert, animated: true)
     }
