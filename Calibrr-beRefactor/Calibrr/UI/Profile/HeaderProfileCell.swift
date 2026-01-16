@@ -135,21 +135,34 @@ class HeaderProfileCell: UITableViewCell {
 		let listImage = UIImage(systemName: "line.3.horizontal")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
 		listButton.setImage(listImage, for: .normal)
 
-		// Container stack (to the right of the user's name)
-		// Order: Block, Report, Heart, Count, List
-		let stack = UIStackView(arrangedSubviews: [blockButton, reportButton, heartButton, likeCountLabel, listButton])
-		stack.axis = .horizontal
-		stack.alignment = .center
-		stack.spacing = 8
-		stack.translatesAutoresizingMaskIntoConstraints = false
+		// Likes stack: heart + count, placed directly next to the name (no space between name and heart)
+		let likesStack = UIStackView(arrangedSubviews: [heartButton, likeCountLabel])
+		likesStack.axis = .horizontal
+		likesStack.alignment = .center
+		likesStack.spacing = 4
+		likesStack.translatesAutoresizingMaskIntoConstraints = false
+		likesStack.setContentCompressionResistancePriority(.required, for: .horizontal)
+		likesStack.setContentHuggingPriority(.required, for: .horizontal)
 
-		contentView.addSubview(stack)
+		// Right-aligned actions: block, report, list
+		let rightStack = UIStackView(arrangedSubviews: [blockButton, reportButton, listButton])
+		rightStack.axis = .horizontal
+		rightStack.alignment = .center
+		rightStack.spacing = 8
+		rightStack.translatesAutoresizingMaskIntoConstraints = false
 
-		// Position stack next to the user's name label on the right side
+		contentView.addSubview(rightStack)
+		contentView.addSubview(likesStack)
+
 		NSLayoutConstraint.activate([
-			stack.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
-			stack.leadingAnchor.constraint(greaterThanOrEqualTo: nameLabel.trailingAnchor, constant: 8),
-			stack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16)
+			// Right stack stays aligned to trailing edge
+			rightStack.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
+			rightStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+
+			// Likes stack flush to the right of the name
+			likesStack.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
+			likesStack.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor, constant: 0),
+			likesStack.trailingAnchor.constraint(lessThanOrEqualTo: rightStack.leadingAnchor, constant: -8)
 		])
 	}
 
