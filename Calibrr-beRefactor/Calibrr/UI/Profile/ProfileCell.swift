@@ -195,7 +195,7 @@ class ProfileCell: ACell<(String, String, Bool)> {
         leadingConstraint.priority = UILayoutPriority(999)
         
         NSLayoutConstraint.activate([
-            likesStack.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            likesStack.centerYAnchor.constraint(equalTo: desLabel.centerYAnchor),
             likesStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             leadingConstraint
         ])
