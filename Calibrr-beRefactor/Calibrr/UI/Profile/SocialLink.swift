@@ -161,10 +161,7 @@ class SocialLink: UIView {
                 make.edges.equalToSuperview()
             }
             
-            // Match legacy UI: fix container to icon size so icons don't stretch
-            containerView.snp.makeConstraints { make in
-                make.width.height.equalTo(iconSize)
-            }
+            // Don't set fixed constraints on container - let stack view handle distribution
             
             stackView.addArrangedSubview(containerView)
         }
