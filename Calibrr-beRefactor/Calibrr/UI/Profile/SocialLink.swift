@@ -87,16 +87,15 @@ class SocialLink: UIView {
     
     private func setupView() {
         stackView.axis = .horizontal
-        stackView.spacing = 16.0  // Reduced spacing to minimize white space
-        stackView.distribution = .equalCentering  // Center icons with equal spacing
+        stackView.spacing = 8.0  // Fixed spacing to prevent overlap
+        stackView.distribution = .fillEqually  // Ensure equal width for all icons
         stackView.alignment = .center
         
         self.addSubview(stackView)
         
         stackView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(4)  // Minimal margins to reduce white space
+            make.leading.trailing.equalToSuperview().inset(8)  // Adequate margins
             make.top.bottom.equalToSuperview()
-            make.centerX.centerY.equalToSuperview()  // Center both horizontally and vertically
         }
     }
     
@@ -107,20 +106,16 @@ class SocialLink: UIView {
         let availablePlatforms = 7  // instagram, facebook, snapchat, linkedin, x, vsco, tiktok
         let numberOfItem = isEditMode ? availablePlatforms : items.count
         
-        let optimalSpacing: CGFloat = 16.0  // Reduced spacing to minimize white space
+        // Simplified spacing - use fixed spacing instead of complex calculation
+        let fixedSpacing: CGFloat = 8.0
+        stackView.spacing = fixedSpacing
         
-        // Update stack view spacing
-        stackView.spacing = optimalSpacing
-        
-        // Calculate based on ACTUAL number of items with compact spacing
-        let actualNetworks: CGFloat = CGFloat(numberOfItem)
-        let totalSpacing = max(0, (actualNetworks - 1)) * optimalSpacing  // Spacing between actual icons
-        let safetyMargin: CGFloat = 8.0  // Minimal margin to reduce white space
-        let availableWidthForIcons = sizeScreen - totalSpacing - safetyMargin
-        let maxPossibleIconSize = actualNetworks > 0 ? availableWidthForIcons / actualNetworks : 40.0
-        
-        // Use optimal size with reduced white space
-        let finalSizeItem = min(max(maxPossibleIconSize, 35.0), 60.0)  // Between 35-60pt for good visibility with less white space
+        // Calculate icon size based on available space
+        let margins: CGFloat = 16.0  // 8pt on each side
+        let totalSpacing = max(0, CGFloat(numberOfItem - 1)) * fixedSpacing
+        let currentWidth = bounds.width > 0 ? bounds.width : sizeScreen
+        let availableWidth = currentWidth - margins - totalSpacing
+        let iconSize = numberOfItem > 0 ? max(min(availableWidth / CGFloat(numberOfItem), 50.0), 30.0) : 40.0
         
         for i in 0..<numberOfItem {
             let containerView = UIView()
@@ -138,7 +133,7 @@ class SocialLink: UIView {
             
             // Set image content mode and make circular with border
             imageView.contentMode = .scaleAspectFit
-            imageView.layer.cornerRadius = finalSizeItem / 2
+            imageView.layer.cornerRadius = iconSize / 2
             imageView.clipsToBounds = true
             imageView.backgroundColor = UIColor.clear
             
@@ -151,19 +146,24 @@ class SocialLink: UIView {
             containerView.layer.shadowOffset = CGSize(width: 0, height: 1)
             containerView.layer.shadowRadius = 2
             containerView.layer.shadowOpacity = 0.1
-            containerView.layer.cornerRadius = finalSizeItem / 2
+            containerView.layer.cornerRadius = iconSize / 2
             
             containerView.addSubview(imageView)
             
             imageView.snp.makeConstraints { make in
-                make.width.height.equalTo(finalSizeItem)
+                make.width.height.equalTo(iconSize)
                 make.center.equalToSuperview()
             }
             
             containerView.addSubview(button)
             
             button.snp.makeConstraints { make in
-                make.leading.trailing.bottom.top.equalToSuperview()
+                make.edges.equalToSuperview()
+            }
+            
+            // Set container size constraints
+            containerView.snp.makeConstraints { make in
+                make.width.height.equalTo(iconSize)
             }
             
             stackView.addArrangedSubview(containerView)
