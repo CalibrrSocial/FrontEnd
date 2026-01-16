@@ -281,10 +281,12 @@ class ProfilePage : APage, UITableViewDelegate, UICollectionViewDelegate
         cell.setAttributeLikeUI(liked: newLikedState, count: newCount, isEnabled: true)
         
         // Queue the API request through the rate-limited manager
+        let displayLabel = cell.attributeDisplayLabel ?? attributeCategory
         AttributeLikeManager.shared.queueAttributeLikeOperation(
             profileId: targetId,
             category: attributeCategory,
             attribute: attributeName,
+            displayLabel: displayLabel,
             isLike: newLikedState
         ) { [weak self, weak cell] (finalLiked: Bool, finalCount: Int?) in
             // Update UI with final server state when request completes
@@ -415,15 +417,17 @@ struct AttributeLikeRequest {
     let profileId: String
     let category: String
     let attribute: String
+    let displayLabel: String?
     let isLike: Bool // true for like, false for unlike
     let completion: ((Bool, Int?) -> Void)?
     let timestamp: Date
     
-    init(profileId: String, category: String, attribute: String, isLike: Bool, completion: ((Bool, Int?) -> Void)? = nil) {
+    init(profileId: String, category: String, attribute: String, displayLabel: String? = nil, isLike: Bool, completion: ((Bool, Int?) -> Void)? = nil) {
         self.id = "\(profileId)|\(category)|\(attribute)"
         self.profileId = profileId
         self.category = category
         self.attribute = attribute
+        self.displayLabel = displayLabel
         self.isLike = isLike
         self.completion = completion
         self.timestamp = Date()
@@ -460,6 +464,7 @@ class AttributeLikeManager {
         profileId: String,
         category: String,
         attribute: String,
+        displayLabel: String? = nil,
         isLike: Bool,
         completion: ((Bool, Int?) -> Void)? = nil
     ) {
@@ -467,6 +472,7 @@ class AttributeLikeManager {
             profileId: profileId,
             category: category,
             attribute: attribute,
+            displayLabel: displayLabel,
             isLike: isLike,
             completion: completion
         )
@@ -585,11 +591,14 @@ class AttributeLikeManager {
         urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
         // Add request body
-        let body: [String: Any] = [
+        var body: [String: Any] = [
             "profileId": request.profileId,
             "category": request.category,
             "attribute": request.attribute
         ]
+        if let label = request.displayLabel, !label.isEmpty {
+            body["displayLabel"] = label
+        }
         
         do {
             urlRequest.httpBody = try JSONSerialization.data(withJSONObject: body)

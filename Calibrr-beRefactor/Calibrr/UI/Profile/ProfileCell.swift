@@ -35,6 +35,7 @@ class ProfileCell: ACell<(String, String, Bool)> {
     
     private var currentCategory: String = ""
     private var currentAttribute: String = ""
+    private var currentDisplayLabel: String = ""
     private var currentProfileId: String = ""
     private var isLoadingLikeState: Bool = false
     private var retryCount: Int = 0
@@ -50,6 +51,7 @@ class ProfileCell: ACell<(String, String, Bool)> {
     // Public properties for ProfilePage access
     var attributeCategory: String? { return currentCategory.isEmpty ? nil : currentCategory }
     var attributeName: String? { return currentAttribute.isEmpty ? nil : currentAttribute }
+    var attributeDisplayLabel: String? { return currentDisplayLabel.isEmpty ? nil : currentDisplayLabel }
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -98,6 +100,7 @@ class ProfileCell: ACell<(String, String, Bool)> {
         // Parse category and attribute from title
         currentCategory = getCategoryFromTitle(item.0)
         currentAttribute = item.1
+        currentDisplayLabel = getDisplayLabelFromTitle(item.0)
         print("🔥 ProfileCell setup - category: '\(currentCategory)', attribute: '\(currentAttribute)', title: '\(item.0)'")
         
         // Setup complete
@@ -269,6 +272,37 @@ class ProfileCell: ACell<(String, String, Bool)> {
         ]
         
         return categoryMap[title] ?? "Other"
+    }
+
+    private func getDisplayLabelFromTitle(_ title: String) -> String {
+        // Map UI titles to the exact email display label we want
+        let labelMap: [String: String] = [
+            "Born:": "Born",
+            "Currently lives in:": "Location",
+            "Hometown:": "Location",
+            "Past High School, Graduated from:": "Education",
+            "Current College/School:": "Education",
+            "Major/Studying:": "Major/Studying",
+            "Class/Graduation Year:": "Class Year",
+            "Current Campus:": "Campus",
+            "Career Aspirations:": "Career Aspirations",
+            "Postgraduate Plans:": "Postgraduate Plans",
+            "In Courses:": "Courses",
+            "Greek life:": "Greek life",
+            "Team/Club:": "Team/Club",
+            "Best Friends:": "Best Friends",
+            "Politics:": "Politics",
+            "Favorite Music:": "Favorite Music",
+            "Favorite TV:": "Favorite TV",
+            "Favorite Games:": "Favorite Games",
+            "Religion:": "Religion",
+            "Occupation:": "Occupation",
+            "Gender:": "Gender",
+            "Sexuality:": "Sexuality",
+            "Relationship:": "Relationship",
+            "Bio:": "Bio"
+        ]
+        return labelMap[title] ?? title.replacingOccurrences(of: ":", with: "")
     }
     
     private func loadAttributeLikeState() {

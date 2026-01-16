@@ -362,10 +362,12 @@ extension ProfileFriendPage: UITableViewDataSource {
         cell.setAttributeLikeUI(liked: newLikedState, count: newCount, isEnabled: true)
         
         // Queue the API request through the rate-limited manager
+        let displayLabel = cell.attributeDisplayLabel ?? attributeCategory
         AttributeLikeManager.shared.queueAttributeLikeOperation(
             profileId: targetId,
             category: attributeCategory,
             attribute: attributeName,
+            displayLabel: displayLabel,
             isLike: newLikedState
         ) { [weak self, weak cell] (finalLiked: Bool, finalCount: Int?) in
             // Update UI with final server state when request completes

@@ -43,6 +43,7 @@ exports.handler = async (event) => {
       const senderLastName = ad.senderLastName || "";
       const category = ad.category || "";
       const attribute = ad.attribute || "";
+      const providedLabel = (ad.displayLabel || ad.attributeLabel || ad.label || ad.titleLabel || "").toString().trim();
       
       if (!recipientEmail) {
         console.error("Missing recipientEmail in additionalData");
@@ -55,7 +56,7 @@ exports.handler = async (event) => {
       }
 
       const senderName = [senderFirstName, senderLastName].filter(Boolean).join(" ") || "Someone";
-      const displayLabel = deriveAttributeLabel(category, attribute);
+      const displayLabel = providedLabel || canonicalLabelFromCategory(category);
       const subject = `${senderName} just liked your ${displayLabel}, "${attribute}"!`;
       const htmlBody = baseHtml().replace(
         "{{CONTENT}}",
@@ -236,127 +237,21 @@ function deadLinkHtml() {
   `;
 }
 
-function deriveAttributeLabel(category, attribute) {
-  const group = (category || '').trim();
-  const value = (attribute || '').trim();
-  const groupLower = group.toLowerCase();
-  const valueLower = value.toLowerCase();
-  
-  const genderValues = new Set(['male', 'female', 'non-binary', 'nonbinary', 'other', 'prefer not to say']);
-  const relationshipValues = new Set(['single', 'in a relationship', 'married', 'engaged', "it's complicated", 'divorced', 'separated']);
-  const sexualityValues = new Set(['straight', 'heterosexual', 'gay', 'lesbian', 'bisexual', 'asexual', 'pansexual', 'queer', 'questioning', 'demisexual', 'prefer not to say']);
-  const monthNames = ['january','february','march','april','may','june','july','august','september','october','november','december'];
-
-  const looksLikeDate = monthNames.some((m) => valueLower.includes(m)) || /\b(19|20)\d{2}\b/.test(valueLower) || /years? old\b/.test(valueLower);
-  const looksLikeCourse = /\b[A-Za-z]{2,4}\s?\d{3,4}[A-Za-z]?\b/.test(value);
-  const looksLikeClassYear = /\b(freshman|sophomore|junior|senior)\b/.test(valueLower) || /\b\d(?:st|nd|rd|th) year\b/.test(valueLower);
-  const looksLikeCollege = /\b(university|college|institute|state)\b/.test(valueLower);
-  const looksLikeCampus = /\bcampus\b/.test(valueLower);
-  const looksLikeFriendList = /friend\b/i.test(value) || /,/ .test(value);
-
-  const tvShows = new Set(['breaking bad','game of thrones','the office','friends','stranger things','succession','the boys','walking dead','dexter','risk','chess']);
-  const games = new Set(['minecraft','call of duty','fortnite','league of legends','valorant','overwatch','apex legends','grand theft auto','gta','genshin impact','cod zombies','squid game','metal']);
-  const musicExamples = new Set(['daft punk','rammstein','ramnstein','taylor swift','drake','ariana grande','metallica','motorhead','motörhead','classical','jazz','blues','rock','pop','country','electronic','hip hop','hip-hop','rap','r&b','reggae','folk','punk','metal','opera','symphony','beethoven','mozart','bach','chopin']);
-
-  switch (groupLower) {
-    case 'personal': {
-      if (genderValues.has(valueLower)) return 'Gender';
-      if (relationshipValues.has(valueLower)) return 'Relationship';
-      if (sexualityValues.has(valueLower)) return 'Sexuality';
-      if (looksLikeDate) return 'Born';
-      return 'Bio';
-    }
-    case 'education': {
-      if (looksLikeCourse) return 'Courses';
-      if (looksLikeClassYear) return 'Class Year';
-      if (looksLikeCampus) return 'Campus';
-      if (looksLikeCollege) return 'College';
-      return 'Major/Studying';
-    }
-    case 'career': {
-      if (valueLower === 'yes' || valueLower === 'no') return 'Postgraduate Plans';
-      const occupationHints = ['founder','ceo','cto','engineer','developer','designer','teacher','nurse','pca','manager','doctor','attorney','lawyer','analyst','technician'];
-      if (occupationHints.some((h) => valueLower.includes(h))) return 'Occupation';
-      return 'Career Aspirations';
-    }
-    case 'social': {
-      if (looksLikeFriendList) return 'Best Friends';
-      if (valueLower === 'none') return 'Greek life';
-      return 'Team/Club';
-    }
-    case 'entertainment': {
-      if (games.has(valueLower)) return 'Favorite Games';
-      if (tvShows.has(valueLower)) return 'Favorite TV';
-      // Check for game-like patterns
-      if (/\b(game|gaming|play|cod|zombies|minecraft|fortnite)\b/i.test(value)) return 'Favorite Games';
-      // Check for TV-like patterns  
-      if (/\b(show|series|tv|episode|season|bad|dead|dexter)\b/i.test(value)) return 'Favorite TV';
-      // Default to TV for entertainment category
-      return 'Favorite TV';
-    }
-    case 'music': {
-      return 'Favorite Music';
-    }
-    case 'politics': {
-      return 'Politics';
-    }
-    case 'religion': {
-      return 'Religion';
-    }
-    case 'location': {
-      return 'Location';
-    }
-    case 'other': {
-      if (looksLikeCourse) return 'Courses';
-      if (games.has(valueLower)) return 'Favorite Games';
-      if (tvShows.has(valueLower)) return 'Favorite TV';
-      if (musicExamples.has(valueLower)) return 'Favorite Music';
-      
-      // Check for friend-like patterns (names with numbers, comma-separated names)
-      if (looksLikeFriendList || /friend\s*\d+/i.test(value) || /\b[A-Z][a-z]+\s*\d+\b/.test(value)) return 'Best Friends';
-      
-      // Check for music-like patterns in Other category (including classical music, band names)
-      if (/\b(music|band|artist|song|album|classical|jazz|rock|pop|hip.?hop|country|electronic|metal|punk|blues|reggae|folk|opera|symphony)\b/i.test(value)) return 'Favorite Music';
-      
-      // Check for game-like patterns in Other category
-      if (/\b(game|gaming|play|cod|zombies|minecraft|fortnite|chess|poker|cards)\b/i.test(value)) return 'Favorite Games';
-      
-      // Check for TV-like patterns in Other category
-      if (/\b(show|series|tv|episode|season|bad|dead|dexter|walking|squid|netflix|hulu|disney)\b/i.test(value)) return 'Favorite TV';
-      
-      // Check for sports/activities
-      if (/\b(sport|football|basketball|soccer|tennis|baseball|hockey|swimming|running|gym|workout|fitness)\b/i.test(value)) return 'Sports/Activities';
-      
-      // Check for hobbies
-      if (/\b(hobby|hobbies|reading|writing|cooking|photography|art|drawing|painting|crafts)\b/i.test(value)) return 'Hobbies';
-      
-      // If none of the above patterns match, return a more generic label instead of "Other"
-      return 'Interest';
-    }
-    default: {
-      // If we don't recognize the category, try to infer from the value
-      if (genderValues.has(valueLower)) return 'Gender';
-      if (relationshipValues.has(valueLower)) return 'Relationship';
-      if (sexualityValues.has(valueLower)) return 'Sexuality';
-      if (looksLikeDate) return 'Born';
-      if (looksLikeCourse) return 'Courses';
-      if (looksLikeClassYear) return 'Class Year';
-      if (looksLikeCampus) return 'Campus';
-      if (looksLikeCollege) return 'College';
-      if (looksLikeFriendList || /friend\s*\d+/i.test(value) || /\b[A-Z][a-z]+\s*\d+\b/.test(value)) return 'Best Friends';
-      if (games.has(valueLower) || /\b(game|gaming|play|cod|zombies|minecraft|fortnite|chess|poker|cards)\b/i.test(value)) return 'Favorite Games';
-      if (tvShows.has(valueLower) || /\b(show|series|tv|episode|season|bad|dead|dexter|walking|squid|netflix|hulu|disney)\b/i.test(value)) return 'Favorite TV';
-      if (musicExamples.has(valueLower) || /\b(music|band|artist|song|album|classical|jazz|rock|pop|hip.?hop|country|electronic|metal|punk|blues|reggae|folk|opera|symphony)\b/i.test(value)) return 'Favorite Music';
-      if (/\b(sport|football|basketball|soccer|tennis|baseball|hockey|swimming|running|gym|workout|fitness)\b/i.test(value)) return 'Sports/Activities';
-      if (/\b(hobby|hobbies|reading|writing|cooking|photography|art|drawing|painting|crafts)\b/i.test(value)) return 'Hobbies';
-      
-      // Return the group name if it exists and looks reasonable, otherwise use a generic term
-      if (group && group.length > 0 && group.toLowerCase() !== 'other') {
-        return group.charAt(0).toUpperCase() + group.slice(1);
-      }
-      return 'Interest';
-    }
-  }
+function canonicalLabelFromCategory(category) {
+  const c = (category || '').toString().trim();
+  const map = {
+    'Personal': 'Personal',
+    'Location': 'Location',
+    'Education': 'Education',
+    'Career': 'Career',
+    'Social': 'Social',
+    'Politics': 'Politics',
+    'Music': 'Favorite Music',
+    'Entertainment': 'Entertainment',
+    'Religion': 'Religion',
+    'Other': 'Other'
+  };
+  return map[c] || (c || 'Attribute');
 }
 
 async function sendEmail(toEmail, subject, htmlBody, textBody) {
