@@ -365,6 +365,7 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         && isPostgraduateValid
         && coverPresent
         && avatarPresent
+        && isValidSocialAccount
     }
     
     private func showErrorImage(forceCover: Bool? = nil, forceAvatar: Bool? = nil) {
