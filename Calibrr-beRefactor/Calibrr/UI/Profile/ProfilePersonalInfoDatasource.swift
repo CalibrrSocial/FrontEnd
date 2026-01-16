@@ -71,9 +71,10 @@ class ProfilePersonalInfoDatasource : AStandardItemsDatasource<ProfileCell, (Str
             }
             
             // Display each course as a separate likeable item
-            for course in myCourses {
+            for (index, course) in myCourses.enumerated() {
                 if let courseName = course.name, !courseName.isEmpty {
-                    appendNonNull(title: "In Courses:", value: courseName)
+                    let title = index == 0 ? "In Courses:" : ""
+                    appendNonNull(title: title, value: courseName)
                 }
             }
             
@@ -91,12 +92,13 @@ class ProfilePersonalInfoDatasource : AStandardItemsDatasource<ProfileCell, (Str
             }
             
             // Display each best friend as a separate likeable item
-            for friend in bestFriends {
+            for (index, friend) in bestFriends.enumerated() {
                 let firstName = friend.firstName ?? ""
                 let lastName = friend.lastName ?? ""
                 if !firstName.isEmpty || !lastName.isEmpty {
                     let fullName = "\(firstName) \(lastName)".trimmingCharacters(in: .whitespacesAndNewlines)
-                    appendNonNull(title: "Best Friends:", value: fullName)
+                    let title = index == 0 ? "Best Friends:" : ""
+                    appendNonNull(title: title, value: fullName)
                 }
             }
             
@@ -107,24 +109,27 @@ class ProfilePersonalInfoDatasource : AStandardItemsDatasource<ProfileCell, (Str
             // Display each music artist as a separate likeable item
             if let music = profile.favoriteMusic, !music.isEmpty {
                 let musicArtists = music.components(separatedBy: CharacterSet(charactersIn: ",\n")).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
-                for artist in musicArtists {
-                    appendNonNull(title: "Favorite Music:", value: artist)
+                for (index, artist) in musicArtists.enumerated() {
+                    let title = index == 0 ? "Favorite Music:" : ""
+                    appendNonNull(title: title, value: artist)
                 }
             }
             
             // Display each TV show as a separate likeable item
             if let tv = profile.favoriteTV, !tv.isEmpty {
                 let tvShows = tv.components(separatedBy: CharacterSet(charactersIn: ",\n")).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
-                for show in tvShows {
-                    appendNonNull(title: "Favorite TV:", value: show)
+                for (index, show) in tvShows.enumerated() {
+                    let title = index == 0 ? "Favorite TV:" : ""
+                    appendNonNull(title: title, value: show)
                 }
             }
             
             // Display each game as a separate likeable item
             if let game = profile.favoriteGame, !game.isEmpty {
                 let games = game.components(separatedBy: CharacterSet(charactersIn: ",\n")).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
-                for gameItem in games {
-                    appendNonNull(title: "Favorite Games:", value: gameItem)
+                for (index, gameItem) in games.enumerated() {
+                    let title = index == 0 ? "Favorite Games:" : ""
+                    appendNonNull(title: title, value: gameItem)
                 }
             }
             
