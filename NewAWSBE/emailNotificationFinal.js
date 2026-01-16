@@ -60,11 +60,11 @@ exports.handler = async (event) => {
       const htmlBody = baseHtml().replace(
         "{{CONTENT}}",
         `
-          <h3>${senderName} just liked your ${category}, ${attribute}!</h3>
-          <p>${senderName} just liked your ${category}, ${attribute} on Calibrr Social-- go like their profile back to return the favor!</p>
+          <h3>${senderName} just liked your ${displayLabel}, "${attribute}"!</h3>
+          <p>${senderName} just liked your ${displayLabel}, "${attribute}" on Calibrr Social-- go like their profile back to return the favor!</p>
         `.trim()
       );
-      const textBody = `${senderName} just liked your ${category}, ${attribute} on Calibrr Social -- go like their profile back to return the favor!`;
+      const textBody = `${senderName} just liked your ${displayLabel}, "${attribute}" on Calibrr Social -- go like their profile back to return the favor!`;
 
       const res = await sendEmail(recipientEmail, subject, htmlBody, textBody);
       return response(200, { ok: true, messageId: res.MessageId });
@@ -254,8 +254,8 @@ function deriveAttributeLabel(category, attribute) {
   const looksLikeCampus = /\bcampus\b/.test(valueLower);
   const looksLikeFriendList = /friend\b/i.test(value) || /,/ .test(value);
 
-  const tvShows = new Set(['breaking bad','game of thrones','the office','friends','stranger things','succession','the boys']);
-  const games = new Set(['minecraft','call of duty','fortnite','league of legends','valorant','overwatch','apex legends','grand theft auto','gta','genshin impact']);
+  const tvShows = new Set(['breaking bad','game of thrones','the office','friends','stranger things','succession','the boys','walking dead','dexter','risk','chess']);
+  const games = new Set(['minecraft','call of duty','fortnite','league of legends','valorant','overwatch','apex legends','grand theft auto','gta','genshin impact','cod zombies','squid game','metal']);
   const musicExamples = new Set(['daft punk','rammstein','ramnstein','taylor swift','drake','ariana grande','metallica']);
 
   switch (groupLower) {
@@ -285,9 +285,13 @@ function deriveAttributeLabel(category, attribute) {
       return 'Team/Club';
     }
     case 'entertainment': {
-      if (tvShows.has(valueLower)) return 'Favorite TV';
       if (games.has(valueLower)) return 'Favorite Games';
-      // Default to TV for entertainment strings like known shows
+      if (tvShows.has(valueLower)) return 'Favorite TV';
+      // Check for game-like patterns
+      if (/\b(game|gaming|play|cod|zombies|minecraft|fortnite)\b/i.test(value)) return 'Favorite Games';
+      // Check for TV-like patterns  
+      if (/\b(show|series|tv|episode|season|bad|dead|dexter)\b/i.test(value)) return 'Favorite TV';
+      // Default to TV for entertainment category
       return 'Favorite TV';
     }
     case 'music': {
@@ -307,6 +311,12 @@ function deriveAttributeLabel(category, attribute) {
       if (games.has(valueLower)) return 'Favorite Games';
       if (tvShows.has(valueLower)) return 'Favorite TV';
       if (musicExamples.has(valueLower)) return 'Favorite Music';
+      // Check for game-like patterns in Other category
+      if (/\b(game|gaming|play|cod|zombies|minecraft|fortnite|metal|chess)\b/i.test(value)) return 'Favorite Games';
+      // Check for TV-like patterns in Other category
+      if (/\b(show|series|tv|episode|season|bad|dead|dexter|walking|squid)\b/i.test(value)) return 'Favorite TV';
+      // Check for music-like patterns in Other category
+      if (/\b(music|band|artist|song|album|metal)\b/i.test(value)) return 'Favorite Music';
       return 'Other';
     }
     default:

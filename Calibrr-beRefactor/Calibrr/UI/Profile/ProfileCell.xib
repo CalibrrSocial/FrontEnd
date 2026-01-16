@@ -51,7 +51,7 @@
                             <constraint firstItem="sSG-g4-1qX" firstAttribute="top" secondItem="nF7-Rc-dX4" secondAttribute="top" id="lTh-Kl-kyH"/>
                             <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="8Ro-s0-Bjm" secondAttribute="bottom" constant="14.5" id="olR-K7-y6X"/>
                             <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="pd7-h0-u9b" secondAttribute="bottom" constant="14.5" id="title-bottom-constraint"/>
-                            <constraint firstAttribute="trailing" secondItem="8Ro-s0-Bjm" secondAttribute="trailing" constant="15" id="pei-gt-5dV"/>
+                            <constraint firstAttribute="trailing" secondItem="8Ro-s0-Bjm" secondAttribute="trailing" constant="70" id="pei-gt-5dV"/>
                             <constraint firstItem="8Ro-s0-Bjm" firstAttribute="top" secondItem="nF7-Rc-dX4" secondAttribute="top" constant="14.5" id="vci-xh-3DA"/>
                         </constraints>
                     </view>
