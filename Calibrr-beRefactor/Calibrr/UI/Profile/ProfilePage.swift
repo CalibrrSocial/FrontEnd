@@ -168,6 +168,16 @@ extension ProfilePage: UITableViewDataSource {
             let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: HeaderProfileCell.self), for: indexPath) as! HeaderProfileCell
             if let profile = self.profile {
                 cell.configureCell(profile)
+                let liked = profile.liked ?? false
+                let count = profile.likeCount ?? 0
+                cell.setLikeUI(liked: liked, count: count, isEnabled: false)
+                cell.onToggleLike = nil
+                cell.onOpenLikes = { [weak self] in
+                    guard let self = self, let userId = self.profile?.id else { return }
+                    let vc = ProfileLikesPanelPage()
+                    vc.configure(for: userId, viewingOwnProfile: true)
+                    self.nav.push(vc)
+                }
             }
             return cell
         } else if indexPath.row == 1, isValidSocialAccount {

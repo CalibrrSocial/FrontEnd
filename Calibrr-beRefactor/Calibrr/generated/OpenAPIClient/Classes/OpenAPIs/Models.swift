@@ -117,3 +117,15 @@ public final class RequestTask {
         task = nil
     }
 }
+
+// MARK: - Likes Pagination Models
+
+public struct PaginatedUserSummaries: Codable, Hashable {
+	public let data: [UserSummary]
+	public let nextCursor: String?
+
+	public init(data: [UserSummary], nextCursor: String?) {
+		self.data = data
+		self.nextCursor = nextCursor
+	}
+}
