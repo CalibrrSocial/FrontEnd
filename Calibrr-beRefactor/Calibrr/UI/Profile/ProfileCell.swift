@@ -41,7 +41,6 @@ class ProfileCell: ACell<(String, String, Bool)> {
     private let maxRetries: Int = 3
     private var lastLoadTime: Date = Date.distantPast
     private let minLoadInterval: TimeInterval = 1.0 // Minimum 1 second between loads
-    private var currentDataTask: URLSessionDataTask?
     
     // Track the last loaded configuration to prevent duplicate requests
     private var lastLoadedConfig: String = ""
@@ -61,10 +60,6 @@ class ProfileCell: ACell<(String, String, Bool)> {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        
-        // Cancel any pending network request
-        currentDataTask?.cancel()
-        currentDataTask = nil
         
         // Reset state
         isLoadingLikeState = false
@@ -303,9 +298,6 @@ class ProfileCell: ACell<(String, String, Bool)> {
         isLoadingLikeState = true
         lastLoadedConfig = currentConfig
         
-        // Cancel any existing request
-        currentDataTask?.cancel()
-        
         // Load attribute like state from API
         let myId = DatabaseService.singleton.getProfile().user.id
         let encodedCategory = currentCategory.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? currentCategory
@@ -319,65 +311,81 @@ class ProfileCell: ACell<(String, String, Bool)> {
             return
         }
         
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
+        // Prepare headers
+        var headers: [String: String] = [:]
         let token = DatabaseService.singleton.getProfile().token
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        headers["Authorization"] = "Bearer \(token)"
         
-        currentDataTask = URLSession.shared.dataTask(with: request) { [weak self, currentConfig] data, response, error in
-            DispatchQueue.main.async {
-                guard let self = self else { return }
+        // Use APIRequestManager to handle rate limiting and deduplication
+        APIRequestManager.shared.performRequest(
+            url: url,
+            method: "GET",
+            headers: headers,
+            requestKey: currentConfig
+        ) { [weak self, currentConfig] data, response, error in
+            guard let self = self else { return }
+            
+            self.isLoadingLikeState = false
+            
+            if let error = error as NSError? {
+                print("🔥 ProfileCell loadAttributeLikeState error: \(error)")
                 
-                self.isLoadingLikeState = false
+                // Handle rate limit error specifically
+                if error.code == 429 {
+                    // Don't retry for rate limits - just show cached or default state
+                    if let cached = ProfileCell.attributeLikeCache[currentConfig] {
+                        self.setAttributeLikeUI(liked: cached.liked, count: cached.count, isEnabled: true)
+                    } else {
+                        self.setAttributeLikeUI(liked: false, count: 0, isEnabled: true)
+                    }
+                    return
+                }
                 
-                if let error = error {
-                    self.retryCount += 1
+                // For other errors, show default state
+                self.setAttributeLikeUI(liked: false, count: 0, isEnabled: true)
+                return
+            }
+            
+            if let httpResponse = response as? HTTPURLResponse {
+                print("🔥 ProfileCell loadAttributeLikeState response status: \(httpResponse.statusCode)")
+                
+                if httpResponse.statusCode == 429 {
+                    // Rate limited - use cached data if available
+                    if let cached = ProfileCell.attributeLikeCache[currentConfig] {
+                        self.setAttributeLikeUI(liked: cached.liked, count: cached.count, isEnabled: true)
+                    } else {
+                        self.setAttributeLikeUI(liked: false, count: 0, isEnabled: true)
+                    }
+                    return
+                }
+                
+                guard httpResponse.statusCode == 200, let data = data else {
+                    print("🔥 ProfileCell loadAttributeLikeState unexpected status: \(httpResponse.statusCode)")
                     self.setAttributeLikeUI(liked: false, count: 0, isEnabled: true)
                     return
                 }
                 
-                if let httpResponse = response as? HTTPURLResponse {
-                    print("🔥 ProfileCell loadAttributeLikeState response status: \(httpResponse.statusCode)")
-                    if httpResponse.statusCode == 200, let data = data {
-                        do {
-                            if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                                let totalLikes = json["total_likes"] as? Int ?? 0
-                                let isLikedByMe = json["liked_by_user"] as? Bool ?? false
-                                print("🔥 ProfileCell loadAttributeLikeState success - liked: \(isLikedByMe), count: \(totalLikes)")
+                do {
+                    if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                        let totalLikes = json["total_likes"] as? Int ?? 0
+                        let isLikedByMe = json["liked_by_user"] as? Bool ?? false
+                        print("🔥 ProfileCell loadAttributeLikeState success - liked: \(isLikedByMe), count: \(totalLikes)")
 
-                                self.retryCount = 0 // Reset retry count on success
-                                self.setAttributeLikeUI(liked: isLikedByMe, count: totalLikes, isEnabled: true)
-                                
-                                // Update cache
-                                ProfileCell.attributeLikeCache[currentConfig] = (
-                                    liked: isLikedByMe,
-                                    count: totalLikes,
-                                    timestamp: Date()
-                                )
-                            }
-                        } catch {
-                            print("🔥 ProfileCell loadAttributeLikeState JSON parse error: \(error)")
-                            self.retryCount += 1
-                            self.setAttributeLikeUI(liked: false, count: 0, isEnabled: true)
-                        }
-                    } else if httpResponse.statusCode == 429 {
-                        self.retryCount += 1
+                        self.retryCount = 0 // Reset retry count on success
+                        self.setAttributeLikeUI(liked: isLikedByMe, count: totalLikes, isEnabled: true)
                         
-                        if self.retryCount < self.maxRetries {
-                            // Use exponential backoff: 2^retry seconds
-                            let delay = pow(2.0, Double(self.retryCount))
-                            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                                self.loadAttributeLikeState()
-                            }
-                        } else {
-                            self.setAttributeLikeUI(liked: false, count: 0, isEnabled: true)
-                        }
-                    } else {
-                        self.setAttributeLikeUI(liked: false, count: 0, isEnabled: true)
+                        // Update cache
+                        ProfileCell.attributeLikeCache[currentConfig] = (
+                            liked: isLikedByMe,
+                            count: totalLikes,
+                            timestamp: Date()
+                        )
                     }
+                } catch {
+                    print("🔥 ProfileCell loadAttributeLikeState JSON parse error: \(error)")
+                    self.setAttributeLikeUI(liked: false, count: 0, isEnabled: true)
                 }
             }
         }
-        currentDataTask?.resume()
     }
 }

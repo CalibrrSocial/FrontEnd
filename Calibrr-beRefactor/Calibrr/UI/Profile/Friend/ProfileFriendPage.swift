@@ -452,18 +452,18 @@ extension ProfileFriendPage: UIScrollViewDelegate {
         guard let friendId = self.friendId,
               let friendName = self.profile?.firstName else { return }
         
-        let alert = UIAlertController(
+        AlertManager.shared.showAlert(
+            on: self,
             title: "Block \(friendName)?",
             message: "You and \(friendName) will no longer be able to see each other on the app. You can unblock them later in Settings.",
-            preferredStyle: .alert
+            style: .alert,
+            actions: [
+                UIAlertAction(title: "Cancel", style: .cancel),
+                UIAlertAction(title: "Block", style: .destructive) { [weak self] _ in
+                    self?.blockUser()
+                }
+            ]
         )
-        
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        alert.addAction(UIAlertAction(title: "Block", style: .destructive) { [weak self] _ in
-            self?.blockUser()
-        })
-        
-        present(alert, animated: true)
     }
     
     private func showReportDialog() {
@@ -628,8 +628,7 @@ extension ProfileFriendPage: UIScrollViewDelegate {
         let reporterName = [myProfile.firstName, myProfile.lastName].compactMap { $0 }.joined(separator: " ")
         
         // Show loading
-        let loadingAlert = UIAlertController(title: "Reporting broken links...", message: nil, preferredStyle: .alert)
-        present(loadingAlert, animated: true)
+        AlertManager.shared.showLoadingAlert(on: self, message: "Reporting broken links...")
         
         // Call API to report broken links
         self.reportBrokenLinksAPI(
@@ -638,17 +637,17 @@ extension ProfileFriendPage: UIScrollViewDelegate {
             platforms: platforms,
             reporterName: reporterName.isEmpty ? "Someone" : reporterName
         ).done { [weak self] in
-            loadingAlert.dismiss(animated: true) {
+            AlertManager.shared.dismissCurrentAlert {
+                guard let self = self else { return }
                 let message = platforms.count == 1 
                     ? "The broken \(platforms[0]) link has been reported. \(profile.firstName ?? "The user") will be notified via email."
                     : "The broken links have been reported. \(profile.firstName ?? "The user") will be notified via email."
-                self?.showSuccessAlert(message: message) {
-                    // Don't pop the view, just dismiss the alert
-                }
+                AlertManager.shared.showSuccessAlert(on: self, message: message)
             }
         }.catch { [weak self] (error: Error) in
-            loadingAlert.dismiss(animated: true) {
-                self?.showErrorAlert(message: "Failed to report broken links. Please try again.")
+            AlertManager.shared.dismissCurrentAlert {
+                guard let self = self else { return }
+                AlertManager.shared.showErrorAlert(on: self, message: "Failed to report broken links. Please try again.")
             }
         }
     }
@@ -665,20 +664,21 @@ extension ProfileFriendPage: UIScrollViewDelegate {
         print("🚫 [BLOCK USER] Blocking user ID: \(friendId)")
         
         // Show loading
-        let loadingAlert = UIAlertController(title: "Blocking user...", message: nil, preferredStyle: .alert)
-        present(loadingAlert, animated: true)
+        AlertManager.shared.showLoadingAlert(on: self, message: "Blocking user...")
         
         self.blockUserAPI(myId: myId, userToBlockId: friendId).done { [weak self] in
             print("✅ [BLOCK USER] Block API call successful")
-            loadingAlert.dismiss(animated: true) {
-                self?.showSuccessAlert(message: "User has been blocked successfully.") {
-                    self?.navigationController?.popViewController(animated: true)
+            AlertManager.shared.dismissCurrentAlert {
+                guard let self = self else { return }
+                AlertManager.shared.showSuccessAlert(on: self, message: "User has been blocked successfully.") {
+                    self.navigationController?.popViewController(animated: true)
                 }
             }
         }.catch { [weak self] (error: Error) in
             print("❌ [BLOCK USER] Block API call failed: \(error)")
-            loadingAlert.dismiss(animated: true) {
-                self?.showErrorAlert(message: "Failed to block user. Please try again.")
+            AlertManager.shared.dismissCurrentAlert {
+                guard let self = self else { return }
+                AlertManager.shared.showErrorAlert(on: self, message: "Failed to block user. Please try again.")
             }
         }
     }
@@ -688,18 +688,19 @@ extension ProfileFriendPage: UIScrollViewDelegate {
         let myId = DatabaseService.singleton.getProfile().user.id
         
         // Show loading
-        let loadingAlert = UIAlertController(title: "Reporting user...", message: nil, preferredStyle: .alert)
-        present(loadingAlert, animated: true)
+        AlertManager.shared.showLoadingAlert(on: self, message: "Reporting user...")
         
         self.reportUserAPI(myId: myId, reportedUserId: friendId, reason: reason).done { [weak self] in
-            loadingAlert.dismiss(animated: true) {
-                self?.showSuccessAlert(message: "User has been reported and blocked successfully.") {
-                    self?.navigationController?.popViewController(animated: true)
+            AlertManager.shared.dismissCurrentAlert {
+                guard let self = self else { return }
+                AlertManager.shared.showSuccessAlert(on: self, message: "User has been reported and blocked successfully.") {
+                    self.navigationController?.popViewController(animated: true)
                 }
             }
         }.catch { [weak self] (error: Error) in
-            loadingAlert.dismiss(animated: true) {
-                self?.showErrorAlert(message: "Failed to report user. Please try again.")
+            AlertManager.shared.dismissCurrentAlert {
+                guard let self = self else { return }
+                AlertManager.shared.showErrorAlert(on: self, message: "Failed to report user. Please try again.")
             }
         }
     }
