@@ -41,6 +41,13 @@ class HeaderProfileCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
+        
+        // DISABLE ALL POSSIBLE CELL ANIMATIONS
+        self.layer.allowsGroupOpacity = false
+        self.layer.shouldRasterize = false
+        self.contentView.layer.allowsGroupOpacity = false
+        self.contentView.layer.shouldRasterize = false
+        
         self.setupView()
     }
     
@@ -55,9 +62,15 @@ class HeaderProfileCell: UITableViewCell {
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
+        // NEVER ANIMATE SELECTION - ALWAYS INSTANT
+        super.setSelected(selected, animated: false)
+        
+        // NO SELECTION STATE CHANGES
+    }
+    
+    override func setHighlighted(_ highlighted: Bool, animated: Bool) {
+        // NEVER ANIMATE HIGHLIGHTING - ALWAYS INSTANT
+        super.setHighlighted(highlighted, animated: false)
     }
     
     func configureCell(_ profile: User) {
@@ -80,14 +93,27 @@ class HeaderProfileCell: UITableViewCell {
 
 	// MARK: - Public API
 	func setLikeUI(liked: Bool, count: Int, isEnabled: Bool) {
-		// ENSURE INSTANT UI UPDATES WITH NO ANIMATIONS
+		// ABSOLUTELY INSTANT UI UPDATES - NO ANIMATIONS WHATSOEVER
 		CATransaction.begin()
 		CATransaction.setDisableActions(true)
+		CATransaction.setAnimationDuration(0.0)
 		
-		self.isLiked = liked
-		self.likesCount = count
-		self.isLikeEnabled = isEnabled
-		heartButton.isEnabled = isEnabled
+		// REMOVE ANY EXISTING ANIMATIONS
+		heartButton.layer.removeAllAnimations()
+		heartButton.imageView?.layer.removeAllAnimations()
+		likeCountLabel.layer.removeAllAnimations()
+		
+		// UPDATE STATE INSIDE PERFORMWITHOUTANIMATION BLOCK
+		UIView.performWithoutAnimation {
+			self.isLiked = liked
+			self.likesCount = count
+			self.isLikeEnabled = isEnabled
+			self.heartButton.isEnabled = isEnabled
+			
+			// FORCE IMMEDIATE LAYOUT
+			self.heartButton.layoutIfNeeded()
+			self.likeCountLabel.layoutIfNeeded()
+		}
 		
 		CATransaction.commit()
 	}
@@ -112,10 +138,21 @@ class HeaderProfileCell: UITableViewCell {
 		heartButton.setContentCompressionResistancePriority(.required, for: .horizontal)
 		heartButton.setContentHuggingPriority(.required, for: .horizontal)
 		
-		// DISABLE ALL BUTTON HIGHLIGHTING AND ANIMATIONS
+		// DISABLE ALL BUTTON HIGHLIGHTING, ANIMATIONS, AND DELAYS
 		heartButton.adjustsImageWhenHighlighted = false
 		heartButton.adjustsImageWhenDisabled = false
 		heartButton.showsTouchWhenHighlighted = false
+		
+		// DISABLE ALL POSSIBLE ANIMATION SOURCES
+		heartButton.layer.allowsGroupOpacity = false
+		heartButton.imageView?.layer.allowsGroupOpacity = false
+		heartButton.layer.shouldRasterize = false
+		heartButton.imageView?.layer.shouldRasterize = false
+		
+		// ENSURE INSTANT RESPONSE TO TOUCHES
+		if let imageView = heartButton.imageView {
+			imageView.contentMode = .center
+		}
 
 		// Count label
 		likeCountLabel.textColor = .label
@@ -167,22 +204,33 @@ class HeaderProfileCell: UITableViewCell {
 	}
 
 	private func updateHeartAppearance() {
-		// NO ANIMATIONS, NO PULSE, JUST INSTANT CHANGE
-		// DISABLE ALL LAYER ANIMATIONS FOR INSTANT UPDATES
+		// ABSOLUTELY NO ANIMATIONS WHATSOEVER - COMPLETELY INSTANT
+		// DISABLE ALL POSSIBLE ANIMATIONS AT EVERY LEVEL
 		CATransaction.begin()
 		CATransaction.setDisableActions(true)
+		CATransaction.setAnimationDuration(0.0)
 		
-		let filled = UIImage(systemName: "heart.fill")?.withRenderingMode(.alwaysTemplate)
-		let outline = UIImage(systemName: "heart")?.withRenderingMode(.alwaysTemplate)
+		// DISABLE ANY IMPLICIT LAYER ANIMATIONS
+		heartButton.layer.removeAllAnimations()
+		heartButton.imageView?.layer.removeAllAnimations()
 		
-		if isLiked {
-			// RED FILLED HEART - INSTANT
-			self.heartButton.setImage(filled, for: .normal)
-			self.heartButton.tintColor = .systemRed
-		} else {
-			// GRAY OUTLINE HEART (NOT FILLED) - INSTANT
-			self.heartButton.setImage(outline, for: .normal)
-			self.heartButton.tintColor = .tertiaryLabel
+		// FORCE IMMEDIATE LAYOUT WITHOUT ANIMATIONS
+		UIView.performWithoutAnimation {
+			let filled = UIImage(systemName: "heart.fill")?.withRenderingMode(.alwaysTemplate)
+			let outline = UIImage(systemName: "heart")?.withRenderingMode(.alwaysTemplate)
+			
+			if isLiked {
+				// RED FILLED HEART - ABSOLUTELY INSTANT
+				self.heartButton.setImage(filled, for: .normal)
+				self.heartButton.tintColor = .systemRed
+			} else {
+				// GRAY OUTLINE HEART (NOT FILLED) - ABSOLUTELY INSTANT
+				self.heartButton.setImage(outline, for: .normal)
+				self.heartButton.tintColor = .tertiaryLabel
+			}
+			
+			// FORCE IMMEDIATE LAYOUT UPDATE
+			self.heartButton.layoutIfNeeded()
 		}
 		
 		CATransaction.commit()
