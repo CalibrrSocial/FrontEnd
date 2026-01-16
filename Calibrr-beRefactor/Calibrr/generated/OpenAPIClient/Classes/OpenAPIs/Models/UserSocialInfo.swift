@@ -72,9 +72,22 @@ public struct UserSocialInfo: Codable, JSONEncodable, Hashable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
+        // Create a dynamic container to check for capitalized keys
+        let dynamicContainer = try decoder.container(keyedBy: DynamicCodingKey.self)
+        
         facebook = try? container.decodeIfPresent(String.self, forKey: .facebook)
         instagram = try? container.decodeIfPresent(String.self, forKey: .instagram)
+        // Also check for capitalized "Instagram" key if lowercase is empty
+        if instagram?.isEmpty ?? true {
+            instagram = try? dynamicContainer.decodeIfPresent(String.self, forKey: DynamicCodingKey(stringValue: "Instagram"))
+        }
+        
         snapchat = try? container.decodeIfPresent(String.self, forKey: .snapchat)
+        // Also check for capitalized "Snapchat" key if lowercase is empty
+        if snapchat?.isEmpty ?? true {
+            snapchat = try? dynamicContainer.decodeIfPresent(String.self, forKey: DynamicCodingKey(stringValue: "Snapchat"))
+        }
+        
         tiktok = try? container.decodeIfPresent(String.self, forKey: .tiktok)
         twitter = try? container.decodeIfPresent(String.self, forKey: .twitter)
         linkedIn = try? container.decodeIfPresent(String.self, forKey: .linkedIn)
@@ -83,6 +96,21 @@ public struct UserSocialInfo: Codable, JSONEncodable, Hashable {
         email = try? container.decodeIfPresent(String.self, forKey: .email)
         website = try? container.decodeIfPresent(String.self, forKey: .website)
         contact = try? container.decodeIfPresent(String.self, forKey: .contact)
+    }
+    
+    // Helper struct for dynamic coding keys
+    private struct DynamicCodingKey: CodingKey {
+        var stringValue: String
+        var intValue: Int?
+        
+        init(stringValue: String) {
+            self.stringValue = stringValue
+            self.intValue = nil
+        }
+        
+        init?(intValue: Int) {
+            return nil
+        }
     }
     
     public func getAccountValid() -> [String] {
