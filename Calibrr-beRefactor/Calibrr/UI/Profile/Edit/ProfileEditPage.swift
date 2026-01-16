@@ -664,6 +664,49 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         // Update the database service with the final profile
         databaseService.getProfile().user = profile
         
+        // Show reminder to test social links if any were added
+        if let socialInfo = profile.socialInfo,
+           !socialInfo.getAccountValid().isEmpty {
+            showTestLinksReminder()
+        } else {
+            // No social links, just pop back
+            popBackAfterSave()
+        }
+        // Success toast handled post-upload; avoid modal alerts that may block popping
+    }
+    
+    private func showTestLinksReminder() {
+        let alert = UIAlertController(
+            title: "✅ Profile Saved!",
+            message: "Don't forget to test your social media links to make sure they work properly! This ensures other users can connect with you on your favorite platforms.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Test My Links", style: .default) { _ in
+            // Open the user's own profile so they can test their links
+            if let navc = self.navigationController {
+                navc.popViewController(animated: false)
+                // Give a moment for the pop to complete, then push profile page
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    let profilePage = ProfilePage()
+                    navc.pushViewController(profilePage, animated: true)
+                }
+            } else {
+                self.nav.pop(animated: false)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    self.nav.push(ProfilePage())
+                }
+            }
+        })
+        
+        alert.addAction(UIAlertAction(title: "Later", style: .cancel) { _ in
+            self.popBackAfterSave()
+        })
+        
+        present(alert, animated: true)
+    }
+    
+    private func popBackAfterSave() {
         // Pop back on the main thread after a slight delay; use UIKit nav if available
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
             if let navc = self.navigationController {
@@ -672,7 +715,6 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
                 self.nav.pop(animated: true)
             }
         }
-        // Success toast handled post-upload; avoid modal alerts that may block popping
     }
     
     private func saveCoverPic()

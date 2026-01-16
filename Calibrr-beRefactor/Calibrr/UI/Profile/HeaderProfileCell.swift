@@ -25,11 +25,13 @@ class HeaderProfileCell: UITableViewCell {
 	// MARK: - Block/Report UI
 	private var blockButton: UIButton = UIButton(type: .system)
 	private var reportButton: UIButton = UIButton(type: .system)
+	private var reportLinkButton: UIButton = UIButton(type: .system)
 
 	var onToggleLike: (() -> Void)?
 	var onOpenLikes: (() -> Void)?
 	var onBlockUser: (() -> Void)?
 	var onReportUser: (() -> Void)?
+	var onReportBrokenLink: (() -> Void)?
 
 	private var isLikeEnabled: Bool = true
 	private var isLiked: Bool = false {
@@ -124,6 +126,7 @@ class HeaderProfileCell: UITableViewCell {
 	func hideBlockReportButtons() {
 		blockButton.isHidden = true
 		reportButton.isHidden = true
+		reportLinkButton.isHidden = true
 	}
 
 	// MARK: - Private helpers
@@ -181,8 +184,8 @@ class HeaderProfileCell: UITableViewCell {
 		likesStack.setContentCompressionResistancePriority(.required, for: .horizontal)
 		likesStack.setContentHuggingPriority(.required, for: .horizontal)
 
-		// Right-aligned actions
-		let rightStack = UIStackView(arrangedSubviews: [blockButton, reportButton])
+		// Right-aligned actions - order: block, report user, report broken link
+		let rightStack = UIStackView(arrangedSubviews: [blockButton, reportButton, reportLinkButton])
 		rightStack.axis = .horizontal
 		rightStack.alignment = .center
 		rightStack.spacing = 8
@@ -263,6 +266,15 @@ class HeaderProfileCell: UITableViewCell {
 		
 		let reportImage = UIImage(systemName: "exclamationmark.triangle.fill")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
 		reportButton.setImage(reportImage, for: .normal)
+		
+		// Report Broken Link button
+		reportLinkButton.tintColor = .systemPurple
+		reportLinkButton.addTarget(self, action: #selector(didTapReportLink), for: .touchUpInside)
+		reportLinkButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+		reportLinkButton.setContentHuggingPriority(.required, for: .horizontal)
+		
+		let linkImage = UIImage(systemName: "link.circle.fill")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
+		reportLinkButton.setImage(linkImage, for: .normal)
 	}
 
 	@objc private func didTapBlock() {
@@ -271,6 +283,10 @@ class HeaderProfileCell: UITableViewCell {
 
 	@objc private func didTapReport() {
 		onReportUser?()
+	}
+	
+	@objc private func didTapReportLink() {
+		onReportBrokenLink?()
 	}
     
 }

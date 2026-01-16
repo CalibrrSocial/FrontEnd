@@ -72,19 +72,42 @@ exports.handler = async (event) => {
     if (notificationType === "dead_link_reported") {
       const platforms = Array.isArray(ad.platforms) ? ad.platforms : [];
       const recipientEmail = ad.recipientEmail;
+      const reporterName = ad.reporterName || "Someone";
+      
       if (!recipientEmail) return response(400, { error: "recipientEmail missing" });
+      if (!platforms.length) return response(400, { error: "platforms array missing or empty" });
+      
       const subject = "Fix your broken links!";
-      const list = platforms.map((p) => `<li>${p}</li>`).join("");
+      const platformsList = platforms.map((p) => `<li style="margin: 5px 0;">${p}</li>`).join("");
+      
       const htmlBody = deadLinkHtml().replace(
         "{{CONTENT}}",
         `
-          <h3>Fix your broken links!</h3>
-          <p>Someone on the Calibrr Social app reported the social media link on your profile seems to be broken for the following platform(s):</p>
-          <ul>${list}</ul>
-          <p>Please relink these platforms in your profile settings.</p>
+          <h3 style="color: #d9534f;">⚠️ Fix your broken links!</h3>
+          <p><strong>${reporterName} on the Calibrr Social app reported that the social media link(s) on your profile seem to be broken for the following platform(s):</strong></p>
+          <ul style="margin: 15px 0; padding-left: 20px; background-color: #f8f9fa; padding: 15px 20px; border-radius: 5px;">
+            ${platformsList}
+          </ul>
+          <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #ffc107;">
+            <p style="margin: 0;"><strong>This means that no one can check you out, or hit you up on the platforms listed above, until you fix the link(s)!</strong></p>
+          </div>
+          <h4>How to fix this:</h4>
+          <ol style="line-height: 1.8;">
+            <li>Open the Calibrr Social app</li>
+            <li>Go to your profile settings</li>
+            <li>Try relinking these platforms to your Calibrr account by editing your profile</li>
+            <li>Make sure your username is correct, and/or that you copy and paste a good, functioning, and current link for that platform</li>
+            <li><strong>Test it yourself to make sure it is working!</strong></li>
+          </ol>
         `.trim()
       );
-      const textBody = `Broken links reported for: ${platforms.join(", ")}. Please relink in your profile.`;
+      
+      const textBody = `${reporterName} on the Calibrr Social app reported the social media link on your profile seems to be broken for the following platform(s): ${platforms.join(', ')}. 
+
+This means that no one can check you out, or hit you up on the platforms listed above, until you fix the link(s)!
+
+Try relinking these platforms to your Calibrr account by editing your profile. Make sure your username is correct, and/or that you copy and paste a good, functioning, and current link for that platform. Also test it yourself to make sure it is working!`;
+      
       const res = await sendEmail(recipientEmail, subject, htmlBody, textBody);
       return response(200, { ok: true, messageId: res.MessageId });
     }

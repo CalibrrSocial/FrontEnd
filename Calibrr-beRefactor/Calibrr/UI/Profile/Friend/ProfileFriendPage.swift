@@ -267,6 +267,11 @@ extension ProfileFriendPage: UITableViewDataSource {
                 cell.onReportUser = { [weak self] in
                     self?.showReportDialog()
                 }
+                
+                // Report Broken Link functionality
+                cell.onReportBrokenLink = { [weak self] in
+                    self?.showReportBrokenLinkDialog()
+                }
             }
             return cell
         } else if indexPath.row == 1, isValidSocialAccount {
@@ -456,6 +461,165 @@ extension ProfileFriendPage: UIScrollViewDelegate {
         present(alert, animated: true)
     }
     
+    private func showReportBrokenLinkDialog() {
+        guard let profile = self.profile,
+              let socialInfo = profile.socialInfo else {
+            showErrorAlert(message: "No social media links to report.")
+            return
+        }
+        
+        let friendName = profile.firstName ?? "this user"
+        
+        // Get all available social platforms
+        var availablePlatforms: [(platform: String, hasLink: Bool)] = []
+        
+        if let instagram = socialInfo.instagram, !instagram.isEmpty {
+            availablePlatforms.append(("Instagram", true))
+        }
+        if let facebook = socialInfo.facebook, !facebook.isEmpty {
+            availablePlatforms.append(("Facebook", true))
+        }
+        if let snapchat = socialInfo.snapchat, !snapchat.isEmpty {
+            availablePlatforms.append(("Snapchat", true))
+        }
+        if let linkedin = socialInfo.linkedIn, !linkedin.isEmpty {
+            availablePlatforms.append(("LinkedIn", true))
+        }
+        if let twitter = socialInfo.twitter, !twitter.isEmpty {
+            availablePlatforms.append(("X (Twitter)", true))
+        }
+        if let vsco = socialInfo.vsco, !vsco.isEmpty {
+            availablePlatforms.append(("VSCO", true))
+        }
+        if let tiktok = socialInfo.tiktok, !tiktok.isEmpty {
+            availablePlatforms.append(("TikTok", true))
+        }
+        
+        if availablePlatforms.isEmpty {
+            showErrorAlert(message: "This user has no social media links to report.")
+            return
+        }
+        
+        // Create action sheet for platform selection
+        let actionSheet = UIAlertController(
+            title: "Report Broken Link",
+            message: "Which social media link for \(friendName) is broken?",
+            preferredStyle: .actionSheet
+        )
+        
+        // Add option for each platform
+        for platform in availablePlatforms {
+            actionSheet.addAction(UIAlertAction(title: platform.platform, style: .default) { [weak self] _ in
+                self?.confirmReportBrokenLink(platform: platform.platform)
+            })
+        }
+        
+        // Add "Multiple Links" option if there are multiple platforms
+        if availablePlatforms.count > 1 {
+            actionSheet.addAction(UIAlertAction(title: "Multiple Links Are Broken", style: .default) { [weak self] _ in
+                self?.showMultipleBrokenLinksDialog(availablePlatforms: availablePlatforms.map { $0.platform })
+            })
+        }
+        
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        // For iPad
+        if let popover = actionSheet.popoverPresentationController {
+            popover.sourceView = self.view
+            popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+        
+        present(actionSheet, animated: true)
+    }
+    
+    private func showMultipleBrokenLinksDialog(availablePlatforms: [String]) {
+        let alert = UIAlertController(
+            title: "Select Broken Links",
+            message: "Select all platforms with broken links:",
+            preferredStyle: .alert
+        )
+        
+        // Create a simplified version with text input
+        let message = availablePlatforms.joined(separator: ", ")
+        alert.message = "Enter the platforms with broken links separated by commas:\n(Available: \(message))"
+        
+        alert.addTextField { textField in
+            textField.placeholder = "e.g., Instagram, Facebook, TikTok"
+            textField.autocapitalizationType = .words
+        }
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Report", style: .destructive) { [weak self] _ in
+            guard let input = alert.textFields?.first?.text,
+                  !input.isEmpty else {
+                self?.showErrorAlert(message: "Please enter at least one platform.")
+                return
+            }
+            
+            let platforms = input.split(separator: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            if platforms.isEmpty {
+                self?.showErrorAlert(message: "Please enter at least one platform.")
+                return
+            }
+            
+            self?.reportBrokenLinks(platforms: platforms)
+        })
+        
+        present(alert, animated: true)
+    }
+    
+    private func confirmReportBrokenLink(platform: String) {
+        guard let friendName = self.profile?.firstName else { return }
+        
+        let alert = UIAlertController(
+            title: "Report Broken \(platform) Link?",
+            message: "\(friendName) will receive an email notification asking them to fix their \(platform) link.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Report", style: .destructive) { [weak self] _ in
+            self?.reportBrokenLinks(platforms: [platform])
+        })
+        
+        present(alert, animated: true)
+    }
+    
+    private func reportBrokenLinks(platforms: [String]) {
+        guard let friendId = self.friendId,
+              let profile = self.profile else { return }
+        
+        let myId = DatabaseService.singleton.getProfile().user.id
+        let myProfile = DatabaseService.singleton.getProfile().user
+        let reporterName = [myProfile.firstName, myProfile.lastName].compactMap { $0 }.joined(separator: " ")
+        
+        // Show loading
+        let loadingAlert = UIAlertController(title: "Reporting broken links...", message: nil, preferredStyle: .alert)
+        present(loadingAlert, animated: true)
+        
+        // Call API to report broken links
+        self.reportBrokenLinksAPI(
+            reporterId: myId,
+            reportedUserId: friendId,
+            platforms: platforms,
+            reporterName: reporterName.isEmpty ? "Someone" : reporterName
+        ).done { [weak self] in
+            loadingAlert.dismiss(animated: true) {
+                let message = platforms.count == 1 
+                    ? "The broken \(platforms[0]) link has been reported. \(profile.firstName ?? "The user") will be notified via email."
+                    : "The broken links have been reported. \(profile.firstName ?? "The user") will be notified via email."
+                self?.showSuccessAlert(message: message) {
+                    // Don't pop the view, just dismiss the alert
+                }
+            }
+        }.catch { [weak self] (error: Error) in
+            loadingAlert.dismiss(animated: true) {
+                self?.showErrorAlert(message: "Failed to report broken links. Please try again.")
+            }
+        }
+    }
+    
     private func blockUser() {
         guard let friendId = self.friendId else { 
             print("❌ [BLOCK USER] No friendId available")
@@ -522,6 +686,117 @@ extension ProfileFriendPage: UIScrollViewDelegate {
     }
     
     // MARK: - API Methods
+    
+    private func reportBrokenLinksAPI(reporterId: String, reportedUserId: String, platforms: [String], reporterName: String) -> Promise<Void> {
+        let deferred = Promise<Void>.pending()
+        
+        print("🔗 [BROKEN LINKS] Starting API call for user: \(reportedUserId)")
+        print("🔗 [BROKEN LINKS] Platforms: \(platforms)")
+        print("🔗 [BROKEN LINKS] Reporter: \(reporterName)")
+        
+        // First, get the reported user's email address
+        ProfileAPI.getUser(id: reportedUserId).done { [weak self] reportedUser in
+            print("🔗 [BROKEN LINKS] Got user data: \(reportedUser.email ?? "NO EMAIL")")
+            
+            guard let recipientEmail = reportedUser.email else {
+                print("❌ [BROKEN LINKS] User has no email address")
+                let error = NSError(domain: "MissingEmail", code: -1, userInfo: [NSLocalizedDescriptionKey: "Reported user has no email address"])
+                deferred.resolver.reject(error)
+                return
+            }
+            
+            print("🔗 [BROKEN LINKS] Calling email notification API...")
+            
+            // Call the email notification endpoint with dead_link_reported type
+            self?.sendEmailNotification(
+                notificationType: "dead_link_reported",
+                additionalData: [
+                    "recipientEmail": recipientEmail,
+                    "platforms": platforms,
+                    "reporterName": reporterName
+                ]
+            ).done {
+                print("✅ [BROKEN LINKS] Email notification sent successfully")
+                deferred.resolver.fulfill(())
+            }.catch { error in
+                print("❌ [BROKEN LINKS] Email notification failed: \(error)")
+                deferred.resolver.reject(error)
+            }
+        }.catch { error in
+            print("❌ [BROKEN LINKS] Failed to get user data: \(error)")
+            deferred.resolver.reject(error)
+        }
+        
+        return deferred.promise
+    }
+    
+    private func sendEmailNotification(notificationType: String, additionalData: [String: Any]) -> Promise<Void> {
+        let deferred = Promise<Void>.pending()
+        
+        // Use the AWS API Gateway endpoint for the emailNotificationFinal Lambda
+        let urlString = "https://x1oyeepmz2.execute-api.us-east-1.amazonaws.com/prod/email-notification"
+        print("📧 [EMAIL API] URL: \(urlString)")
+        
+        guard let url = URL(string: urlString) else {
+            print("❌ [EMAIL API] Invalid URL: \(urlString)")
+            deferred.resolver.reject(NSError(domain: "InvalidURL", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]))
+            return deferred.promise
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // AWS API Gateway may not be configured to accept JWT tokens
+        // Try without authentication first
+        print("🔑 [EMAIL API] Attempting request without authentication header")
+        
+        let parameters: [String: Any] = [
+            "notificationType": notificationType,
+            "additionalData": additionalData
+        ]
+        
+        print("📧 [EMAIL API] Parameters: \(parameters)")
+        
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: parameters)
+        } catch {
+            print("❌ [EMAIL API] JSON serialization failed: \(error)")
+            deferred.resolver.reject(error)
+            return deferred.promise
+        }
+        
+        print("📧 [EMAIL API] Making request...")
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("❌ [EMAIL API] Network error: \(error)")
+                deferred.resolver.reject(error)
+                return
+            }
+            
+            if let httpResponse = response as? HTTPURLResponse {
+                print("📧 [EMAIL API] Response status: \(httpResponse.statusCode)")
+                if let data = data, let responseString = String(data: data, encoding: .utf8) {
+                    print("📧 [EMAIL API] Response body: \(responseString)")
+                }
+                
+                if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
+                    print("✅ [EMAIL API] Success")
+                    deferred.resolver.fulfill(())
+                } else {
+                    print("❌ [EMAIL API] HTTP Error \(httpResponse.statusCode)")
+                    let error = NSError(domain: "HTTPError", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "HTTP Error \(httpResponse.statusCode)"])
+                    deferred.resolver.reject(error)
+                }
+            } else {
+                print("❌ [EMAIL API] Invalid response")
+                let error = NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
+                deferred.resolver.reject(error)
+            }
+        }.resume()
+        
+        return deferred.promise
+    }
     
     private func blockUserAPI(myId: String, userToBlockId: String) -> Promise<Void> {
         return Promise { seal in

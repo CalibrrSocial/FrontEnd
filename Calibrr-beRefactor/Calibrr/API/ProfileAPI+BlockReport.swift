@@ -208,6 +208,63 @@ extension ProfileAPI {
         
         return localVariableRequestBuilder.init(method: "DELETE", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters, requiresAuthentication: true)
     }
+    
+    /**
+     Report broken social media links for a user
+     
+     - parameter reporterId: (path) ID of the user reporting the broken links
+     - parameter reportedUserId: (path) ID of the user whose links are broken
+     - parameter platforms: (body) Array of platform names with broken links
+     - parameter reporterName: (body) Name of the reporter
+     - returns: Promise<Void>
+     */
+    open class func reportBrokenLinks(reporterId: String, reportedUserId: String, platforms: [String], reporterName: String) -> Promise<Void> {
+        let deferred = Promise<Void>.pending()
+        reportBrokenLinksWithRequestBuilder(reporterId: reporterId, reportedUserId: reportedUserId, platforms: platforms, reporterName: reporterName).execute { result in
+            switch result {
+            case .success(_):
+                deferred.resolver.fulfill(())
+            case let .failure(error):
+                deferred.resolver.reject(error)
+            }
+        }
+        return deferred.promise
+    }
+    
+    /**
+     Report broken social media links for a user
+     - POST /profile/{reportedUserId}/report-broken-links
+     - API Key:
+       - type: apiKey Authorization
+       - name: CalibrrAuthorizer
+     - parameter reporterId: (path) ID of the user reporting the broken links
+     - parameter reportedUserId: (path) ID of the user whose links are broken
+     - parameter platforms: (body) Array of platform names with broken links
+     - parameter reporterName: (body) Name of the reporter
+     - returns: RequestBuilder<Void>
+     */
+    open class func reportBrokenLinksWithRequestBuilder(reporterId: String, reportedUserId: String, platforms: [String], reporterName: String) -> RequestBuilder<Void> {
+        var localVariablePath = "/profile/\(reportedUserId)/report-broken-links"
+        let localVariableURLString = OpenAPIClientAPI.basePath + localVariablePath
+        
+        let localVariableParameters: [String: Any] = [
+            "reporter_id": reporterId,
+            "platforms": platforms,
+            "reporter_name": reporterName
+        ]
+        
+        let localVariableUrlComponents = URLComponents(string: localVariableURLString)
+        
+        let localVariableNillableHeaders: [String: Any?] = [
+            "Content-Type": "application/json",
+        ]
+        
+        let localVariableHeaderParameters = APIHelper.rejectNilHeaders(localVariableNillableHeaders)
+        
+        let localVariableRequestBuilder: RequestBuilder<Void>.Type = OpenAPIClientAPI.requestBuilderFactory.getNonDecodableBuilder()
+        
+        return localVariableRequestBuilder.init(method: "POST", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters, requiresAuthentication: true)
+    }
 }
 
 // MARK: - BlockedUser Model
