@@ -365,7 +365,6 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         && isPostgraduateValid
         && coverPresent
         && avatarPresent
-        && isValidSocialAccount
     }
     
     private func showErrorImage(forceCover: Bool? = nil, forceAvatar: Bool? = nil) {
@@ -394,6 +393,7 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         }
         
         saveButton.showWaiting()
+        saveButton.isEnabled = false
         
         let city = locationInput.getInput() ?? ""
         let politics = politicsInput.getInput() ?? ""
@@ -524,6 +524,7 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
             }.ensure {
                 DispatchQueue.main.async {
                     self.saveButton.showNormal()
+                    self.saveButton.isEnabled = true
                 }
             }.catchCBRError(show: true, from: self)
         }
@@ -649,7 +650,10 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         // Update the database service with the final profile
         databaseService.getProfile().user = profile
         
-        nav.pop(animated: true)
+        // Pop back on the main thread after a slight delay to allow UI updates and toasts
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.nav.pop(animated: true)
+        }
         Alert.Basic(title: "Success", message: "Your profile has been successfully updated!")
     }
     
