@@ -41,6 +41,8 @@ class HeaderProfileCell: UITableViewCell {
     private func setupView() {
         self.avatarView.roundFull()
         self.avatarImageView.roundFull()
+        nameLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        nameLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
 
 		// Configure likes UI (programmatically to avoid XIB changes)
 		setupLikesUI()
@@ -90,44 +92,55 @@ class HeaderProfileCell: UITableViewCell {
 		heartButton.setContentHuggingPriority(.required, for: .horizontal)
 
 		// Count label
-		likeCountLabel.textColor = .white
+		likeCountLabel.textColor = .label
 		likeCountLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
 		likeCountLabel.text = "0"
 		likeCountLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
 		likeCountLabel.setContentHuggingPriority(.required, for: .horizontal)
 
 		// List button (panel trigger)
-		listButton.tintColor = .white
+		listButton.tintColor = .label
 		listButton.addTarget(self, action: #selector(didTapList), for: .touchUpInside)
 		listButton.setContentCompressionResistancePriority(.required, for: .horizontal)
 		listButton.setContentHuggingPriority(.required, for: .horizontal)
 
 		// Images
 		updateHeartAppearance()
-		let listImage = UIImage(systemName: "list.bullet")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
+		let listImage = UIImage(systemName: "line.3.horizontal")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
 		listButton.setImage(listImage, for: .normal)
 
-		// Container stack
+		// Container stack (to the right of the user's name)
 		let stack = UIStackView(arrangedSubviews: [heartButton, likeCountLabel, listButton])
 		stack.axis = .horizontal
 		stack.alignment = .center
-		stack.spacing = 8
+		stack.spacing = 6
 		stack.translatesAutoresizingMaskIntoConstraints = false
 
 		contentView.addSubview(stack)
 
-		// Place near the bottom-right of the cover image
+		// Position stack next to the user's name label on the right side
 		NSLayoutConstraint.activate([
-			stack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-			stack.bottomAnchor.constraint(equalTo: coverImageView.bottomAnchor, constant: -12)
+			stack.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
+			stack.leadingAnchor.constraint(greaterThanOrEqualTo: nameLabel.trailingAnchor, constant: 8),
+			stack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16)
 		])
 	}
 
 	private func updateHeartAppearance() {
 		let filled = UIImage(systemName: "heart.fill")?.withRenderingMode(.alwaysTemplate)
 		let outline = UIImage(systemName: "heart")?.withRenderingMode(.alwaysTemplate)
-		heartButton.setImage(isLiked ? (filled ?? outline) : (outline ?? filled), for: .normal)
-		heartButton.tintColor = isLiked ? .systemRed : .tertiaryLabel
+		let newImage = isLiked ? (filled ?? outline) : (outline ?? filled)
+		// Apply image + tint immediately (no gray delay)
+		self.heartButton.setImage(newImage, for: .normal)
+		self.heartButton.tintColor = self.isLiked ? .systemRed : .tertiaryLabel
+		// Quick pulse only for perceived responsiveness
+		UIView.animate(withDuration: 0.08, animations: {
+			self.heartButton.transform = CGAffineTransform(scaleX: 1.12, y: 1.12)
+		}) { _ in
+			UIView.animate(withDuration: 0.08) {
+				self.heartButton.transform = .identity
+			}
+		}
 	}
 
 	@objc private func didTapHeart() {

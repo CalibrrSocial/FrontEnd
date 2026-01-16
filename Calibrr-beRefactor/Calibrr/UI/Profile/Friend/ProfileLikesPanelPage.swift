@@ -51,9 +51,9 @@ class ProfileLikesPanelPage: APage, UITableViewDelegate, UITableViewDataSource {
 
 		let titles: [String]
 		if viewingOwnProfile {
-			titles = ["Who liked me", "Who I liked"]
+			titles = ["Likes you", "You Like"]
 		} else {
-			titles = ["Who liked this user", "Who this user liked"]
+			titles = ["Likes them", "They Like"]
 		}
 		segmented = UISegmentedControl(items: titles)
 		segmented.selectedSegmentIndex = 0
