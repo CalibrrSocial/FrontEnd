@@ -164,8 +164,18 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
     }
     
     func setupProfilePage() {
-        let profile = databaseService.getProfile().user
+        var profile = databaseService.getProfile().user
 
+        // Ensure personalInfo is initialized
+        if profile.personalInfo == nil {
+            profile.personalInfo = UserPersonalInfo()
+        }
+        
+        // Ensure socialInfo is initialized
+        if profile.socialInfo == nil {
+            profile.socialInfo = UserSocialInfo()
+        }
+        
         // Quiet non-save logs: only log save-related events elsewhere
         
 
@@ -411,6 +421,16 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         
         var userUpdate =  self.userProfile
         
+        // Ensure personalInfo is initialized
+        if userUpdate?.personalInfo == nil {
+            userUpdate?.personalInfo = UserPersonalInfo()
+        }
+        
+        // Ensure socialInfo is initialized
+        if userUpdate?.socialInfo == nil {
+            userUpdate?.socialInfo = UserSocialInfo()
+        }
+        
         // Preserve image URLs from local database (these come from legacy backend)
         let currentProfile = databaseService.getProfile().user
         if userUpdate?.pictureProfile == nil || userUpdate?.pictureProfile?.isEmpty == true {
@@ -453,6 +473,9 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         userUpdate?.personalInfo?.hometown = hometown
         userUpdate?.personalInfo?.highSchool = highSchool
         
+        // Debug log to verify classYear is set
+        print("[SaveProfile] Setting classYear: '\(classYear)' -> personalInfo.classYear: '\(userUpdate?.personalInfo?.classYear ?? "nil")'")
+        
         setupSocialAccount(isUpdate: true)
         userUpdate?.socialInfo = userProfile?.socialInfo
         
@@ -489,9 +512,12 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         userUpdate?.myFriends = myFriends
         if let user = userUpdate {
             print("[SaveProfile] Sending update: avatar='\(user.pictureProfile ?? "")' cover='\(user.pictureCover ?? "")'")
+            print("[SaveProfile] PersonalInfo.classYear before send: '\(user.personalInfo?.classYear ?? "nil")'")
             // Route through Laravel API instead of Lambda
             ProfileAPI.updateUserProfile(id: user.id, user: user).thenInAction{ userUpdated in
                 print("[SaveProfile] Success: avatar='\(userUpdated.pictureProfile ?? "")' cover='\(userUpdated.pictureCover ?? "")'")
+                // Update the cached profile in DatabaseService so location updates use the latest data
+                self.databaseService.updateAccount(userUpdated)
                 DispatchQueue.main.async {
                     self.processSaveProfile(userUpdated)
                 }

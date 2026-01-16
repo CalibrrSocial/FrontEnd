@@ -142,6 +142,17 @@ class SettingsPage : APage, UITableViewDataSource, UITableViewDelegate, MFMailCo
     private func updateGhostMode(_ ghostMode: Bool) {
         var user = dataService.getProfile().user
         user.ghostMode = ghostMode
+        
+        // Ensure personalInfo is initialized to preserve all fields
+        if user.personalInfo == nil {
+            user.personalInfo = UserPersonalInfo()
+        }
+        
+        // Ensure socialInfo is initialized to preserve all fields
+        if user.socialInfo == nil {
+            user.socialInfo = UserSocialInfo()
+        }
+        
         self.showLoadingView()
         ProfileAPI.updateUserProfile(id: user.id, user: user).thenInAction{ user in
             self.dataService.updateAccount(user)

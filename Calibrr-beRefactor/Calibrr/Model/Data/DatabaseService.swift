@@ -48,6 +48,8 @@ class DatabaseService
     }
     
     func updateAccount(_ profile: User) {
+        print("[DatabaseService] Updating cached profile with classYear: '\(profile.personalInfo?.classYear ?? "nil")'")
         self.activeProfile?.user = profile
+        print("[DatabaseService] Cached profile now has classYear: '\(self.activeProfile?.user.personalInfo?.classYear ?? "nil")'")
     }
 }

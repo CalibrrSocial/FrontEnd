@@ -209,7 +209,18 @@ public struct UserPersonalInfo: Codable, JSONEncodable, Hashable {
         favoriteGame = try? container.decodeIfPresent(String.self, forKey: .favoriteGame)
         studying = try? container.decodeIfPresent(String.self, forKey: .studying)
         club = try? container.decodeIfPresent(UserClub.self, forKey: .club)
+        
+        // Handle both camelCase (from backend response) and snake_case (our encoding)
         classYear = try? container.decodeIfPresent(String.self, forKey: .classYear)
+        if classYear == nil {
+            // Try decoding with the camelCase key that backend returns
+            enum AlternateKeys: String, CodingKey {
+                case classYearCamel = "classYear"
+            }
+            let altContainer = try decoder.container(keyedBy: AlternateKeys.self)
+            classYear = try? altContainer.decodeIfPresent(String.self, forKey: .classYearCamel)
+        }
+        
         campus = try? container.decodeIfPresent(String.self, forKey: .campus)
         careerAspirations = try? container.decodeIfPresent(String.self, forKey: .careerAspirations)
         postgraduate = try? container.decodeIfPresent(String.self, forKey: .postgraduate)
