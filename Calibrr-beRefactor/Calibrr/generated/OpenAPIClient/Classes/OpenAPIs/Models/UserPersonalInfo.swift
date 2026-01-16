@@ -222,11 +222,40 @@ public struct UserPersonalInfo: Codable, JSONEncodable, Hashable {
         }
         
         campus = try? container.decodeIfPresent(String.self, forKey: .campus)
+        
+        // Handle both snake_case and camelCase for careerAspirations
         careerAspirations = try? container.decodeIfPresent(String.self, forKey: .careerAspirations)
+        if careerAspirations == nil {
+            enum CareerKeys: String, CodingKey {
+                case careerAspirationsCamel = "careerAspirations"
+            }
+            let careerContainer = try decoder.container(keyedBy: CareerKeys.self)
+            careerAspirations = try? careerContainer.decodeIfPresent(String.self, forKey: .careerAspirationsCamel)
+        }
+        
         postgraduate = try? container.decodeIfPresent(String.self, forKey: .postgraduate)
+        
+        // Handle both snake_case and camelCase for postgraduatePlans
         postgraduatePlans = try? container.decodeIfPresent(String.self, forKey: .postgraduatePlans)
+        if postgraduatePlans == nil {
+            enum PostgradKeys: String, CodingKey {
+                case postgraduatePlansCamel = "postgraduatePlans"
+            }
+            let postgradContainer = try decoder.container(keyedBy: PostgradKeys.self)
+            postgraduatePlans = try? postgradContainer.decodeIfPresent(String.self, forKey: .postgraduatePlansCamel)
+        }
+        
         hometown = try? container.decodeIfPresent(String.self, forKey: .hometown)
+        
+        // Handle both snake_case and camelCase for highSchool
         highSchool = try? container.decodeIfPresent(String.self, forKey: .highSchool)
+        if highSchool == nil {
+            enum HighSchoolKeys: String, CodingKey {
+                case highSchoolCamel = "highSchool"
+            }
+            let hsContainer = try decoder.container(keyedBy: HighSchoolKeys.self)
+            highSchool = try? hsContainer.decodeIfPresent(String.self, forKey: .highSchoolCamel)
+        }
     }
 }
 

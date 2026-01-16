@@ -85,7 +85,7 @@ class HeaderProfileCell: UITableViewCell {
 
 	// MARK: - Private helpers
 	private func setupLikesUI() {
-		// Heart button
+		// Heart button - starts gray (will be updated based on like state)
 		heartButton.tintColor = .tertiaryLabel
 		heartButton.addTarget(self, action: #selector(didTapHeart), for: .touchUpInside)
 		heartButton.setContentCompressionResistancePriority(.required, for: .horizontal)
@@ -127,19 +127,18 @@ class HeaderProfileCell: UITableViewCell {
 	}
 
 	private func updateHeartAppearance() {
+		// NO ANIMATIONS, NO PULSE, JUST INSTANT CHANGE
 		let filled = UIImage(systemName: "heart.fill")?.withRenderingMode(.alwaysTemplate)
 		let outline = UIImage(systemName: "heart")?.withRenderingMode(.alwaysTemplate)
-		let newImage = isLiked ? (filled ?? outline) : (outline ?? filled)
-		// Apply image + tint immediately (no gray delay)
-		self.heartButton.setImage(newImage, for: .normal)
-		self.heartButton.tintColor = self.isLiked ? .systemRed : .tertiaryLabel
-		// Quick pulse only for perceived responsiveness
-		UIView.animate(withDuration: 0.08, animations: {
-			self.heartButton.transform = CGAffineTransform(scaleX: 1.12, y: 1.12)
-		}) { _ in
-			UIView.animate(withDuration: 0.08) {
-				self.heartButton.transform = .identity
-			}
+		
+		if isLiked {
+			// RED FILLED HEART
+			self.heartButton.setImage(filled, for: .normal)
+			self.heartButton.tintColor = .systemRed
+		} else {
+			// GRAY OUTLINE HEART (NOT FILLED)
+			self.heartButton.setImage(outline, for: .normal)
+			self.heartButton.tintColor = .tertiaryLabel
 		}
 	}
 
