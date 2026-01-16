@@ -37,6 +37,38 @@ exports.handler = async (event) => {
       return response(200, { ok: true, messageId: res.MessageId });
     }
 
+    if (notificationType === "attribute_liked") {
+      const recipientEmail = ad.recipientEmail;
+      const senderFirstName = ad.senderFirstName || "";
+      const senderLastName = ad.senderLastName || "";
+      const category = ad.category || "";
+      const attribute = ad.attribute || "";
+      
+      if (!recipientEmail) {
+        console.error("Missing recipientEmail in additionalData");
+        return response(400, { error: "recipientEmail missing" });
+      }
+
+      if (!category || !attribute) {
+        console.error("Missing category or attribute in additionalData");
+        return response(400, { error: "category and attribute required" });
+      }
+
+      const senderName = [senderFirstName, senderLastName].filter(Boolean).join(" ") || "Someone";
+      const subject = `${senderName} just liked your ${attribute}!`;
+      const htmlBody = baseHtml().replace(
+        "{{CONTENT}}",
+        `
+          <h3>${senderName} just liked your ${attribute}!</h3>
+          <p>${senderName} just liked your ${attribute} on Calibrr Social-- go like their profile back to return the favor!</p>
+        `.trim()
+      );
+      const textBody = `${senderName} just liked your ${attribute} on Calibrr Social -- go like their profile back to return the favor!`;
+
+      const res = await sendEmail(recipientEmail, subject, htmlBody, textBody);
+      return response(200, { ok: true, messageId: res.MessageId });
+    }
+
     if (notificationType === "dead_link_reported") {
       const platforms = Array.isArray(ad.platforms) ? ad.platforms : [];
       const recipientEmail = ad.recipientEmail;
