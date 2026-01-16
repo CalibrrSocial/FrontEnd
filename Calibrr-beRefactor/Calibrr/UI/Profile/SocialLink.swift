@@ -86,29 +86,17 @@ class SocialLink: UIView {
     }
     
     private func setupView() {
-        print("🔍 SocialLink setupView called")
         stackView.axis = .horizontal
         stackView.spacing = self.spacing
         stackView.distribution = .fillEqually  // Ensure equal distribution
         stackView.alignment = .center
         
-        print("🔍 SocialLink: About to add stackView to superview. Self.superview: \(self.superview != nil ? "EXISTS" : "NIL")")
         self.addSubview(stackView)
         
-        print("🔍 SocialLink: About to set constraints. StackView.superview: \(stackView.superview != nil ? "EXISTS" : "NIL")")
         stackView.snp.makeConstraints { make in
-            print("🔍 SocialLink: Inside constraint block. StackView.superview: \(stackView.superview != nil ? "EXISTS" : "NIL")")
-            if stackView.superview != nil {
-                make.leading.trailing.top.equalToSuperview()
-                make.centerX.equalToSuperview()  // Center the stack view
-            } else {
-                print("🔍 SocialLink: Skipping equalToSuperview constraints - stackView has no superview")
-                // Fallback constraints
-                make.leading.trailing.top.equalTo(self)
-                make.centerX.equalTo(self)
-            }
+            make.leading.trailing.top.equalToSuperview()
+            make.centerX.equalToSuperview()  // Center the stack view
         }
-        print("🔍 SocialLink setupView completed successfully")
     }
     
     public func reloadData() {
@@ -118,9 +106,10 @@ class SocialLink: UIView {
         let availablePlatforms = 7  // instagram, facebook, snapchat, linkedin, x, vsco, tiktok
         let numberOfItem = isEditMode ? availablePlatforms : items.count
         
-        // Dynamic spacing based on content type
+        // Dynamic spacing based on content type and number of items
         let isShowingPlaceholders = items.isEmpty || isEditMode
-        let dynamicSpacing: CGFloat = isShowingPlaceholders ? 29 : spacing  // More space for placeholders
+        let baseSpacing: CGFloat = 12
+        let dynamicSpacing: CGFloat = isShowingPlaceholders ? 29 : baseSpacing
         
         // Update stack view spacing dynamically
         stackView.spacing = dynamicSpacing
@@ -131,8 +120,8 @@ class SocialLink: UIView {
         let availableWidth = sizeScreen - totalSpacing
         let sizeItem = availableWidth / CGFloat(actualCount)
         
-        // Ensure minimum size for readability
-        let finalSizeItem = max(sizeItem, 35.0)  // Minimum 35pt size
+        // Ensure reasonable size for circular social media icons
+        let finalSizeItem = min(max(sizeItem, 28.0), 40.0)  // Between 28-40pt for circular icons
         
         for i in 0..<numberOfItem {
             let containerView = UIView()
@@ -148,41 +137,37 @@ class SocialLink: UIView {
                 imageView.image = UIImage(named: "ic_addSocial")
             }
             
-            // Set image content mode to maintain aspect ratio
+            // Set image content mode and make circular with border
             imageView.contentMode = .scaleAspectFit
+            imageView.layer.cornerRadius = finalSizeItem / 2
+            imageView.clipsToBounds = true
+            imageView.backgroundColor = UIColor.clear
             
-            print("🔍 SocialLink reloadData: About to add imageView \(i) to containerView. ContainerView.superview: \(containerView.superview != nil ? "EXISTS" : "NIL")")
+            // Add subtle border for better visibility
+            imageView.layer.borderWidth = 0.5
+            imageView.layer.borderColor = UIColor.systemGray4.cgColor
+            
+            // Add subtle shadow to container (since imageView clips bounds)
+            containerView.layer.shadowColor = UIColor.black.cgColor
+            containerView.layer.shadowOffset = CGSize(width: 0, height: 1)
+            containerView.layer.shadowRadius = 2
+            containerView.layer.shadowOpacity = 0.1
+            containerView.layer.cornerRadius = finalSizeItem / 2
+            
             containerView.addSubview(imageView)
             
-            print("🔍 SocialLink reloadData: About to set imageView \(i) constraints. ImageView.superview: \(imageView.superview != nil ? "EXISTS" : "NIL")")
             imageView.snp.makeConstraints { make in
-                print("🔍 SocialLink reloadData: Inside imageView \(i) constraint block. ImageView.superview: \(imageView.superview != nil ? "EXISTS" : "NIL")")
                 make.width.height.equalTo(finalSizeItem)
-                if imageView.superview != nil {
-                    make.center.equalToSuperview()
-                } else {
-                    print("🔍 SocialLink: Skipping imageView equalToSuperview constraint - imageView has no superview")
-                    make.center.equalTo(containerView)
-                }
+                make.center.equalToSuperview()
             }
             
-            print("🔍 SocialLink reloadData: About to add button \(i) to containerView")
             containerView.addSubview(button)
             
-            print("🔍 SocialLink reloadData: About to set button \(i) constraints. Button.superview: \(button.superview != nil ? "EXISTS" : "NIL")")
             button.snp.makeConstraints { make in
-                print("🔍 SocialLink reloadData: Inside button \(i) constraint block. Button.superview: \(button.superview != nil ? "EXISTS" : "NIL")")
-                if button.superview != nil {
-                    make.leading.trailing.bottom.top.equalToSuperview()
-                } else {
-                    print("🔍 SocialLink: Skipping button equalToSuperview constraint - button has no superview")
-                    make.leading.trailing.bottom.top.equalTo(containerView)
-                }
+                make.leading.trailing.bottom.top.equalToSuperview()
             }
             
-            print("🔍 SocialLink reloadData: About to add containerView \(i) to stackView")
             stackView.addArrangedSubview(containerView)
-            print("🔍 SocialLink reloadData: Completed item \(i)")
         }
     }
     

@@ -18,6 +18,7 @@ public class DateUtils
     public static let FORMAT_DATE_MONTH = "MMMM"
     public static let FORMAT_DATE_MONTH_YEAR = "MMMM yyyy"
     public static let FORMAT_DATE_MONTH_YEAR_SHORT = "MM/yyyy"
+    public static let FORMAT_DATE_WRITTEN = "MMMM d, yyyy"
     public static let FORMAT_TIME_DATE = FORMAT_TIME + " " + FORMAT_DATE
     
     static func GetFormatter(_ format: String? = nil) -> DateFormatter
@@ -35,6 +36,7 @@ public class DateUtils
     public static let FORMATTER_DATE_MONTH              = GetFormatter(FORMAT_DATE_MONTH)
     public static let FORMATTER_DATE_MONTH_YEAR         = GetFormatter(FORMAT_DATE_MONTH_YEAR)
     public static let FORMATTER_DATE_MONTH_YEAR_SHORT   = GetFormatter(FORMAT_DATE_MONTH_YEAR_SHORT)
+    public static let FORMATTER_DATE_WRITTEN            = GetFormatter(FORMAT_DATE_WRITTEN)
     public static let FORMATTER_TIME_DATE               = GetFormatter(FORMAT_TIME_DATE)
     public static let FORMATTER_TIME_DATE_SHORT : DateFormatter = {
         var formatter = GetFormatter()
@@ -126,6 +128,11 @@ extension Date
         } else {
             return self.toString(format: .custom("MM/dd/YYYY")) ?? ""
         }
+    }
+    
+    func getBirthdayString() -> String
+    {
+        return DateUtils.FORMATTER_DATE_WRITTEN.string(from: self)
     }
     func getTimeDateString(_ short: Bool = false) -> String
     {

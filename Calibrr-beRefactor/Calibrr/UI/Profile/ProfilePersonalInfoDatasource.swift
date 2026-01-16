@@ -28,7 +28,7 @@ class ProfilePersonalInfoDatasource : AStandardItemsDatasource<ProfileCell, (Str
         if let profile = profile {
             if let dateValue = profile.dob.date {
                 let age = profile.dob.date!.age()
-                let date = dateValue.getDateString(false)
+                let date = dateValue.getBirthdayString()
                 if !date.isEmpty {
                     appendNonNull(title: "Born:", value: "\(date) (\(age) years old)")
                 }

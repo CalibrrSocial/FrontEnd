@@ -15,10 +15,8 @@ class SocialLinkTableViewCell: UITableViewCell, SocialLinkDelegate {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        print("🔍 SocialLinkTableViewCell: awakeFromNib called")
         // Initialization code
         socialView.delegate = self
-        print("🔍 SocialLinkTableViewCell: awakeFromNib completed")
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -28,20 +26,20 @@ class SocialLinkTableViewCell: UITableViewCell, SocialLinkDelegate {
     }
     
     func setupData(account: UserSocialInfo?) {
-        print("🔍 SocialLinkTableViewCell: setupData called with account: \(account != nil ? "EXISTS" : "NIL")")
         self.socialView.setupData(account: account)
-        print("🔍 SocialLinkTableViewCell: setupData completed")
     }
     
     func didTapOnItem(item: SocialItemData?) {
         let app = UIApplication.shared
         guard let item = item else { return }
+        
         var userName = item.account
         if let url = URL(string: userName),
            let name = url.pathComponents.last {
             userName = name
         }
         userName = userName.replacingOccurrences(of: "@", with: "")
+        
         switch item.type {
         case .instagarm:
             app.open(Applications.Instagram(), action: .username(userName))
