@@ -663,11 +663,15 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         // Update the database service with the final profile
         databaseService.getProfile().user = profile
         
-        // Pop back on the main thread after a slight delay to allow UI updates and toasts
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.nav.pop(animated: true)
+        // Pop back on the main thread after a slight delay; use UIKit nav if available
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            if let navc = self.navigationController {
+                navc.popViewController(animated: true)
+            } else {
+                self.nav.pop(animated: true)
+            }
         }
-        Alert.Basic(title: "Success", message: "Your profile has been successfully updated!")
+        // Success toast handled post-upload; avoid modal alerts that may block popping
     }
     
     private func saveCoverPic()
