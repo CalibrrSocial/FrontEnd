@@ -98,8 +98,31 @@ class ProfileFriendPage: APage, UITableViewDelegate, UICollectionViewDelegate
         personalInfoDatasource.reload()
         personalInfoTableView.reloadData()
         
+        // Refresh attribute like states for all visible cells
+        refreshAttributeLikeStates()
+        
         // Hide the collection view since we're using SocialLinkTableViewCell in the table view
         socialInfoCollectionView.isHidden = true
+    }
+    
+    private func refreshAttributeLikeStates() {
+        // Refresh attribute like states for all visible ProfileCell instances
+        guard let visibleIndexPaths = personalInfoTableView.indexPathsForVisibleRows else { return }
+        
+        // Add small delays between API calls to prevent rate limiting
+        var delay: TimeInterval = 0.0
+        
+        for indexPath in visibleIndexPaths {
+            if let cell = personalInfoTableView.cellForRow(at: indexPath) as? ProfileCell {
+                // Trigger a reload of the like state for this cell with a small delay
+                if let profileId = self.profile?.id {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                        cell.configureForProfile(profileId)
+                    }
+                    delay += 0.1 // 100ms delay between each API call
+                }
+            }
+        }
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
@@ -319,8 +342,8 @@ extension ProfileFriendPage: UITableViewDataSource {
             return
         }
         
-        // Make API call using existing profile like endpoint with attribute parameters
-        let endpoint = "https://api.calibrr.com/api/profile/\(targetId)/likes?profileLikedId=\(targetId)"
+        // Make API call using dedicated attribute like endpoints
+        let endpoint = "https://api.calibrr.com/api/profile/\(myId)/attributes/like"
         
         print("Attribute like endpoint: \(endpoint)")
         print("Current liked state: \(currentLiked), will use method: \(currentLiked ? "DELETE" : "POST")")
@@ -343,10 +366,9 @@ extension ProfileFriendPage: UITableViewDataSource {
         
         // Add attribute parameters in request body
         let body: [String: Any] = [
-            "attributeCategory": attributeCategory,
-            "attributeName": attributeName,
-            "profileLikeId": targetId,
-            "profileLikedId": targetId
+            "profileId": targetId,
+            "category": attributeCategory,
+            "attribute": attributeName
         ]
         
         print("Request body: \(body)")

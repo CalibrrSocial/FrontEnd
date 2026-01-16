@@ -97,6 +97,9 @@ class ProfilePage : APage, UITableViewDelegate, UICollectionViewDelegate
         self.items = personalInfoDatasource.items
         personalInfoTableView.reloadData()
 
+        // Refresh attribute like states for all visible cells
+        refreshAttributeLikeStates()
+
         // Reconcile like state with server truth so liked/likeCount persist across app restarts
         let myId = profile.id
         ProfileAPI.getUser(id: myId).done { updated in
@@ -115,6 +118,26 @@ class ProfilePage : APage, UITableViewDelegate, UICollectionViewDelegate
                 self.personalInfoTableView.reloadData()
             }
         }.catch { _ in }
+    }
+    
+    private func refreshAttributeLikeStates() {
+        // Refresh attribute like states for all visible ProfileCell instances
+        guard let visibleIndexPaths = personalInfoTableView.indexPathsForVisibleRows else { return }
+        
+        // Add small delays between API calls to prevent rate limiting
+        var delay: TimeInterval = 0.0
+        
+        for indexPath in visibleIndexPaths {
+            if let cell = personalInfoTableView.cellForRow(at: indexPath) as? ProfileCell {
+                // Trigger a reload of the like state for this cell with a small delay
+                if let profileId = self.profile?.id {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                        cell.configureForProfile(profileId)
+                    }
+                    delay += 0.1 // 100ms delay between each API call
+                }
+            }
+        }
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -245,10 +268,8 @@ class ProfilePage : APage, UITableViewDelegate, UICollectionViewDelegate
             return
         }
         
-        // Make API call using existing profile like endpoint with attribute parameters
-        let endpoint = currentLiked ? 
-            "https://api.calibrr.com/api/profile/\(targetId)/likes?profileLikedId=\(targetId)" :
-            "https://api.calibrr.com/api/profile/\(targetId)/likes?profileLikedId=\(targetId)"
+        // Make API call using dedicated attribute like endpoints
+        let endpoint = "https://api.calibrr.com/api/profile/\(myId)/attributes/like"
         
         print("Attribute like endpoint: \(endpoint)")
         print("Current liked state: \(currentLiked), will use method: \(currentLiked ? "DELETE" : "POST")")
@@ -271,10 +292,9 @@ class ProfilePage : APage, UITableViewDelegate, UICollectionViewDelegate
         
         // Add attribute parameters in request body
         let body: [String: Any] = [
-            "attributeCategory": attributeCategory,
-            "attributeName": attributeName,
-            "profileLikeId": targetId,  // Use profileLikeId (without 'd')
-            "profileLikedId": targetId  // Also include with 'd' for compatibility
+            "profileId": targetId,
+            "category": attributeCategory,
+            "attribute": attributeName
         ]
         
         print("Request body: \(body)")

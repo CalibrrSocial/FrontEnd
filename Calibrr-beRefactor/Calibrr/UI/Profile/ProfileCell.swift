@@ -32,6 +32,7 @@ class ProfileCell: ACell<(String, String, Bool)> {
     private var currentCategory: String = ""
     private var currentAttribute: String = ""
     private var currentProfileId: String = ""
+    private var isLoadingLikeState: Bool = false
     
     // Public properties for ProfilePage access
     var attributeCategory: String? { return currentCategory.isEmpty ? nil : currentCategory }
@@ -57,14 +58,20 @@ class ProfileCell: ACell<(String, String, Bool)> {
         
         print("ProfileCell setup - category: \(currentCategory), attribute: \(currentAttribute), profileId: \(currentProfileId)")
         
-        // Load like state for this attribute
-        loadAttributeLikeState()
+        // Don't load like state here - wait for configureForProfile to be called with profileId
+        // This prevents unnecessary API calls with missing profileId
     }
     
     func configureForProfile(_ profileId: String) {
         print("ProfileCell configureForProfile called with profileId: \(profileId)")
-        currentProfileId = profileId
-        loadAttributeLikeState()
+        
+        // Only reload if profileId has changed to prevent duplicate API calls
+        if currentProfileId != profileId {
+            currentProfileId = profileId
+            loadAttributeLikeState()
+        } else {
+            print("ProfileCell: Same profileId, skipping duplicate API call")
+        }
     }
     
     private func setupAttributeLikeUI() {
@@ -201,9 +208,79 @@ class ProfileCell: ACell<(String, String, Bool)> {
     }
     
     private func loadAttributeLikeState() {
-        guard !currentProfileId.isEmpty && !currentAttribute.isEmpty else { return }
+        guard !currentProfileId.isEmpty && !currentAttribute.isEmpty && !currentCategory.isEmpty else { 
+            print("ProfileCell: Missing required data for loading like state - profileId: \(currentProfileId), attribute: \(currentAttribute), category: \(currentCategory)")
+            return 
+        }
         
-        // TODO: Load from API - for now set defaults
-        setAttributeLikeUI(liked: false, count: 0, isEnabled: true)
+        // Prevent duplicate concurrent requests
+        guard !isLoadingLikeState else {
+            print("ProfileCell: Already loading like state, skipping duplicate request")
+            return
+        }
+        
+        isLoadingLikeState = true
+        
+        // Load attribute like state from API
+        let myId = DatabaseService.singleton.getProfile().user.id
+        let encodedCategory = currentCategory.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? currentCategory
+        let encodedAttribute = currentAttribute.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? currentAttribute
+        let endpoint = "https://api.calibrr.com/api/profile/\(currentProfileId)/attributes/\(encodedCategory)/\(encodedAttribute)/likes"
+        
+        print("ProfileCell: Loading like state from: \(endpoint)")
+        
+        guard let url = URL(string: endpoint) else {
+            print("ProfileCell: Invalid URL for loading like state")
+            isLoadingLikeState = false
+            setAttributeLikeUI(liked: false, count: 0, isEnabled: true)
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        let token = DatabaseService.singleton.getProfile().token
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                
+                self.isLoadingLikeState = false
+                
+                if let error = error {
+                    print("ProfileCell: Error loading like state: \(error)")
+                    self.setAttributeLikeUI(liked: false, count: 0, isEnabled: true)
+                    return
+                }
+                
+                if let httpResponse = response as? HTTPURLResponse {
+                    print("ProfileCell: Like state API response: \(httpResponse.statusCode)")
+                    
+                    if httpResponse.statusCode == 200, let data = data {
+                        do {
+                            if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                                let totalLikes = json["total_likes"] as? Int ?? 0
+                                let isLikedByMe = json["liked_by_user"] as? Bool ?? false
+                                
+                                print("ProfileCell: Loaded like state - liked: \(isLikedByMe), count: \(totalLikes)")
+                                self.setAttributeLikeUI(liked: isLikedByMe, count: totalLikes, isEnabled: true)
+                            }
+                        } catch {
+                            print("ProfileCell: Error parsing like state response: \(error)")
+                            self.setAttributeLikeUI(liked: false, count: 0, isEnabled: true)
+                        }
+                    } else if httpResponse.statusCode == 429 {
+                        print("ProfileCell: Rate limited (429), will retry after delay")
+                        // Retry after a short delay for rate limiting
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                            self.loadAttributeLikeState()
+                        }
+                    } else {
+                        print("ProfileCell: Non-200 response for like state")
+                        self.setAttributeLikeUI(liked: false, count: 0, isEnabled: true)
+                    }
+                }
+            }
+        }.resume()
     }
 }
