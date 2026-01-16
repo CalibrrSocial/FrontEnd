@@ -84,6 +84,10 @@ class SearchUsersByDistancePage : APage, UITableViewDelegate
         )
     }
     
+    override func forceMenuButton() -> Bool {
+        return true
+    }
+    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
