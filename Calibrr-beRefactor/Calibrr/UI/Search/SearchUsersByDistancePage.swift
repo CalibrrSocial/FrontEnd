@@ -181,9 +181,10 @@ class SearchUsersByDistancePage : APage, UITableViewDelegate
     
     private func search() {
         activeUser.startUpdateLocation()
-        self.datasource.items = []
-        self.refreshUI()
+        // Don't clear items here - wait until we have new data
         if DatabaseService.singleton.getProfile().user.ghostMode ?? false {
+            self.datasource.items = []
+            self.refreshUI()
             self.resultsTable.endRefreshing()
             return 
         }
@@ -196,12 +197,17 @@ class SearchUsersByDistancePage : APage, UITableViewDelegate
                                        maxDistance: Distance(type: .miles, amount: Double(distances[Int(self.distanceSlider.value)-1])))
             .thenInActionVoid{ result in
                 self.resultsTable.endRefreshing()
+                // Only update data if we successfully received new data
                 self.allUsers = result
                 self.applyFilters()
                 self.refreshUI()
             }.ensure {
                 self.hideLoadingView()
+                self.resultsTable.endRefreshing() // Ensure we always end refreshing
             }.catchCBRError(show: true, from: self)
+        } else {
+            // If no location, end refreshing without clearing data
+            self.resultsTable.endRefreshing()
         }
     }
     

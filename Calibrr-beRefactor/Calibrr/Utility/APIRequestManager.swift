@@ -59,6 +59,8 @@ class APIRequestManager {
         if inFlightRequests.contains(key) {
             inFlightLock.unlock()
             print("🚫 APIRequestManager: Skipping duplicate request for: \(key)")
+            // Return cached response or silently succeed for duplicate requests
+            completion(nil, nil, nil)
             return
         }
         inFlightRequests.insert(key)
