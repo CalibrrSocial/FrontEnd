@@ -108,6 +108,26 @@ class CreateProfilePage: ProfileEditPage {
         }
     }
     
+    // MARK: - Overrides to prevent immediate upload
+    
+    override func squareCropDidCropImage(_ image: UIImage) {
+        // Just update UI state - prevent calling saveCoverPic() which crashes
+        headerErrorLabel?.isHidden = true
+        coverPicImage?.image = image
+        isHaveCover = true
+        print("[CreateProfile] Cover image selected, skipping immediate upload")
+        dismiss(animated: true)
+    }
+    
+    override func circleCropDidCropImage(_ image: UIImage) {
+        // Just update UI state - prevent calling saveProfilePic() which crashes
+        avatarErrorLabel?.isHidden = true
+        profilePicImage?.image = image
+        isHaveAvatar = true
+        print("[CreateProfile] Avatar image selected, skipping immediate upload")
+        dismiss(animated: true)
+    }
+    
     /// Override the save action to save to pending data and navigate to signup
     @IBAction override func clickSave(_ sender: UIButton?) {
         // Use parent's validation
