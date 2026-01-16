@@ -733,8 +733,9 @@ extension ProfileFriendPage: UIScrollViewDelegate {
     private func sendEmailNotification(notificationType: String, additionalData: [String: Any]) -> Promise<Void> {
         let deferred = Promise<Void>.pending()
         
-        // Call emailNotificationFinal Lambda directly via API Gateway
-        let urlString = "https://x1oyeepmz2.execute-api.us-east-1.amazonaws.com/prod/email-notification"
+        // Use the Calibrr EC2 backend API for broken link reporting
+        // The backend will handle calling the emailNotificationFinal Lambda
+        let urlString = "\(APIKeys.BASE_API_URL)/broken-links/report"
         print("📧 [EMAIL API] URL: \(urlString)")
         
         guard let url = URL(string: urlString) else {
@@ -747,8 +748,14 @@ extension ProfileFriendPage: UIScrollViewDelegate {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        // emailNotificationFinal Lambda is public - no authentication needed
-        print("🔑 [EMAIL API] Making public request to emailNotificationFinal Lambda")
+        // Add authorization header using the same pattern as other API calls
+        if let token = OpenAPIClientAPI.customHeaders[APIKeys.HTTP_AUTHORIZATION_HEADER] {
+            let tokenPrefix = String(token.prefix(20))
+            print("🔑 [EMAIL API] Using token: \(tokenPrefix)...")
+            request.setValue(token, forHTTPHeaderField: APIKeys.HTTP_AUTHORIZATION_HEADER)
+        } else {
+            print("❌ [EMAIL API] No authorization token found")
+        }
         
         let parameters: [String: Any] = [
             "notificationType": notificationType,

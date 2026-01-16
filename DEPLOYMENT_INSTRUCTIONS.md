@@ -1,7 +1,7 @@
 # Broken Links Feature - Deployment Instructions
 
 ## Overview
-The broken links feature calls the existing `emailNotificationFinal` Lambda directly via API Gateway. The Lambda already supports "dead_link_reported" notifications.
+The broken links feature follows the same architecture as the attribute likes system: iOS app calls the EC2 backend, which then calls the `emailNotificationFinal` Lambda via `LambdaNotificationService`.
 
 ## What Was Implemented
 
@@ -10,31 +10,31 @@ The broken links feature calls the existing `emailNotificationFinal` Lambda dire
 - **ProfileFriendPage.swift**: Complete broken link reporting UI and API integration
 - **ProfileEditPage.swift**: Profile save reminder to test links
 
-### 2. Email Lambda ✅ (Already Deployed)
+### 2. Backend Controller ✅ (Ready to Deploy)
+- **EC2_BACKEND_BROKEN_LINKS_CONTROLLER.php**: New controller to handle broken link reports
+- **EC2_BACKEND_ROUTES.php**: Route configuration for `/broken-links/report`
+
+### 3. Email Lambda ✅ (Already Deployed)
 - **NewAWSBE/emailNotificationFinal.js**: Already supports "dead_link_reported" notifications
 
 ## Deployment Steps
 
-### Step 1: Configure API Gateway (If Not Already Done)
-The iOS app calls the `emailNotificationFinal` Lambda directly at:
-```
-https://x1oyeepmz2.execute-api.us-east-1.amazonaws.com/prod/email-notification
-```
-
-Ensure this endpoint is configured as:
-- **Method**: POST
-- **Integration**: Lambda function `emailNotificationFinal`
-- **Authentication**: NONE (public endpoint)
+### Step 1: Deploy Backend Controller
+1. Add `EC2_BACKEND_BROKEN_LINKS_CONTROLLER.php` to your EC2 backend as `app/Http/Controllers/BrokenLinksController.php`
+2. Add the route from `EC2_BACKEND_ROUTES.php` to your `routes/api.php` file
+3. Deploy the EC2 backend (push to trigger GitHub action)
 
 ### Step 2: Test the Feature
-The feature should work immediately since `emailNotificationFinal` already supports broken link notifications.
+The feature should work immediately since it uses the existing `LambdaNotificationService`.
 
 ## Architecture Flow
 
 ```
 iOS App (ProfileFriendPage.swift)
-    ↓ POST /email-notification
-AWS API Gateway
+    ↓ POST /api/broken-links/report
+EC2 Backend (api.calibrr.com)
+    ↓ BrokenLinksController
+LambdaNotificationService
     ↓ Invokes Lambda
 emailNotificationFinal.js
     ↓ Sends email via AWS SES
