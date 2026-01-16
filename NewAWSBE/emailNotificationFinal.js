@@ -28,7 +28,7 @@ exports.handler = async (event) => {
         "{{CONTENT}}",
         `
           <h3>${senderName} just liked you!</h3>
-          <p>${senderName} just liked your profile on the Calibrr Social App-- go like their profile back to return the favor!</p>
+          <p>${senderName} just liked your profile on Calibrr Social-- go like their profile back to return the favor!</p>
         `.trim()
       );
       const textBody = `${senderName} just liked your profile on Calibrr Social -- go like their profile back to return the favor!`;
@@ -80,7 +80,7 @@ function baseHtml() {
         <div class="header"><h2>Calibrr Social App</h2></div>
         <div class="content">{{CONTENT}}</div>
         <div class="footer">
-          <p>Open the Calibrr Social <a href="https://apps.apple.com/us/app/calibrr-social/id1377015871" class="app-link">HERE</a></p>
+          <p>Open Calibrr Social <a href="https://apps.apple.com/us/app/calibrr-social/id1377015871" class="app-link">HERE</a></p>
         </div>
         <div class="logo">
           <img src="https://calibrr-email-logo-1753077694.s3.amazonaws.com/calibrr-logo.png" alt="Calibrr Social App" style="max-width:200px;height:auto;">
