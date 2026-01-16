@@ -28,7 +28,13 @@ class AutoLoginPage : APage
         spinner.startAnimating()
         
         if activeUser.loggedIn {
-            nav.show(SearchUsersByDistancePage(), animated: false)
+            // Check moderation status for already logged-in users
+            activeUser.checkModerationStatus(nav) { [weak self] isAllowed in
+                if isAllowed {
+                    self?.nav.show(SearchUsersByDistancePage(), animated: false)
+                }
+                // If not allowed, the moderation screen is already shown
+            }
         }else{
             login()
         }

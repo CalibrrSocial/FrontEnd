@@ -37,7 +37,63 @@ class ActiveUser : NSObject, CLLocationManagerDelegate
     
     func showLoginError(_ nav: CBRNavigator, _ e: Error, completionHandler: CompletionHandlerClosureType? = nil)
     {
+        // Check if this is a moderation error (banned/suspended)
+        if let errorResponse = e as? ErrorResponse,
+           case let .error(statusCode, data, _, _) = errorResponse,
+           statusCode == 403,
+           let data = data,
+           let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+           let moderationState = json["moderation_state"] as? String {
+            
+            let moderationReason = json["moderation_reason"] as? String
+            let suspensionEndsAt = json["suspension_ends_at"] as? String
+            
+            // Show moderation screen instead of alert
+            let moderationPage = ModerationBlockedPage(
+                moderationState: moderationState,
+                moderationReason: moderationReason,
+                suspensionEndsAt: suspensionEndsAt
+            )
+            nav.show(moderationPage, animated: false)
+            return
+        }
+        
         Alert.Error(error: e.createCBR(), completionHandler: completionHandler)
+    }
+    
+    func checkModerationStatus(_ nav: CBRNavigator, completion: @escaping (Bool) -> Void) {
+        // Make a simple API call to check if user is still allowed to use the app
+        // We'll use the profile endpoint as it's protected by the moderation middleware
+        let userId = databaseService.getProfile().user.id
+        
+        ProfileAPI.getUser(id: userId).done { _ in
+            // If successful, user is not banned/suspended
+            completion(true)
+        }.catch { error in
+            // Check if this is a moderation error
+            if let errorResponse = error as? ErrorResponse,
+               case let .error(statusCode, data, _, _) = errorResponse,
+               statusCode == 403,
+               let data = data,
+               let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+               let moderationState = json["moderation_state"] as? String {
+                
+                let moderationReason = json["moderation_reason"] as? String
+                let suspensionEndsAt = json["suspension_ends_at"] as? String
+                
+                // Show moderation screen
+                let moderationPage = ModerationBlockedPage(
+                    moderationState: moderationState,
+                    moderationReason: moderationReason,
+                    suspensionEndsAt: suspensionEndsAt
+                )
+                nav.show(moderationPage, animated: false)
+                completion(false)
+            } else {
+                // Other error, allow user to continue
+                completion(true)
+            }
+        }
     }
     
     func logOut()

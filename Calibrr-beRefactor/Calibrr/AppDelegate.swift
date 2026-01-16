@@ -46,7 +46,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate
         Tracking.TrackEnterForeground()
         
         if let nav = window?.rootViewController as? CBRNavigator {
-            (nav.topViewController as? IPage)?.reloadData()
+            // Check moderation status when app comes to foreground
+            if ActiveUser.singleton.loggedIn {
+                ActiveUser.singleton.checkModerationStatus(nav) { isAllowed in
+                    if isAllowed {
+                        (nav.topViewController as? IPage)?.reloadData()
+                    }
+                    // If not allowed, the moderation screen is already shown
+                }
+            } else {
+                (nav.topViewController as? IPage)?.reloadData()
+            }
         }
     }
     
