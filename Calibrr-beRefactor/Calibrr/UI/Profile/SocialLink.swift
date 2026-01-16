@@ -87,7 +87,7 @@ class SocialLink: UIView {
     
     private func setupView() {
         stackView.axis = .horizontal
-        stackView.spacing = 16.0  // Use consistent spacing
+        stackView.spacing = 30.0  // Very generous spacing to eliminate any overlap
         stackView.distribution = .equalCentering  // Center icons with equal spacing
         stackView.alignment = .center
         
@@ -107,34 +107,20 @@ class SocialLink: UIView {
         let availablePlatforms = 7  // instagram, facebook, snapchat, linkedin, x, vsco, tiktok
         let numberOfItem = isEditMode ? availablePlatforms : items.count
         
-        let optimalSpacing: CGFloat = 16.0  // Increased spacing for better visual separation
+        let optimalSpacing: CGFloat = 30.0  // Very generous spacing to eliminate any overlap
         
         // Update stack view spacing
         stackView.spacing = optimalSpacing
         
-        // Calculate icon size with better space utilization
-        let optimalIconSize: CGFloat
+        // Calculate based on ACTUAL number of items with very conservative spacing
+        let actualNetworks: CGFloat = CGFloat(numberOfItem)
+        let totalSpacing = max(0, (actualNetworks - 1)) * optimalSpacing  // Spacing between actual icons
+        let safetyMargin: CGFloat = 24.0  // Extra margin to ensure absolutely no overlap
+        let availableWidthForIcons = sizeScreen - totalSpacing - safetyMargin
+        let maxPossibleIconSize = actualNetworks > 0 ? availableWidthForIcons / actualNetworks : 40.0
         
-        if isEditMode {
-            // In edit mode, size for all 7 platforms for consistency
-            let totalSpacingForAllPlatforms = (7.0 - 1) * optimalSpacing
-            let availableWidthForIcons = sizeScreen - totalSpacingForAllPlatforms
-            optimalIconSize = availableWidthForIcons / 7.0
-        } else {
-            // In view mode, use actual number of items for better space utilization
-            // but ensure minimum reasonable size
-            let actualItemsForSpacing = CGFloat(numberOfItem)
-            let totalSpacingForActualItems = max(0, (actualItemsForSpacing - 1)) * optimalSpacing
-            let availableWidthForIcons = sizeScreen - totalSpacingForActualItems
-            optimalIconSize = numberOfItem > 0 ? availableWidthForIcons / actualItemsForSpacing : 60.0
-        }
-        
-        // Set minimum and maximum sizes for better usability and appearance
-        // Ensure icons don't exceed available space to prevent cutoff and overlap
-        let maxSafeSize = min(75.0, (sizeScreen - (CGFloat(numberOfItem - 1) * optimalSpacing)) / CGFloat(numberOfItem))
-        let finalSizeItem = min(max(optimalIconSize, 50.0), maxSafeSize)  // Between 50pt and safe maximum
-        
-        print("🔍 SocialLink Debug - Items: \(numberOfItem), ScreenWidth: \(sizeScreen), OptimalSize: \(optimalIconSize), MaxSafe: \(maxSafeSize), Final: \(finalSizeItem)")
+        // Use very conservative size to guarantee no overlap
+        let finalSizeItem = min(max(maxPossibleIconSize, 30.0), 55.0)  // Between 30-55pt with absolute no overlap guarantee
         
         for i in 0..<numberOfItem {
             let containerView = UIView()
