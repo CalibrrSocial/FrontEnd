@@ -337,17 +337,17 @@ extension ProfileFriendPage: UITableViewDataSource {
         var currentCount = cell.currentAttributeLikesCount()
         print("🔥 ProfileFriendPage currentLiked: \(currentLiked), currentCount: \(currentCount)")
         
-        // Optimistic toggle
+        // INSTANT optimistic toggle - heart fills immediately and stays enabled
         let newLikedState = !currentLiked
         let newCount = max(0, newLikedState ? currentCount + 1 : currentCount - 1)
-        cell.setAttributeLikeUI(liked: newLikedState, count: newCount, isEnabled: false)
+        cell.setAttributeLikeUI(liked: newLikedState, count: newCount, isEnabled: true)
         
         // Get attribute info from cell
         print("🔥 ProfileFriendPage Getting attribute info - category: \(cell.attributeCategory ?? "nil"), name: \(cell.attributeName ?? "nil")")
         guard let attributeCategory = cell.attributeCategory,
               let attributeName = cell.attributeName else {
-            print("🔥 ProfileFriendPage Missing attribute info, falling back to profile like system")
-            cell.setAttributeLikeUI(liked: !currentLiked, count: currentLiked ? currentCount - 1 : currentCount + 1, isEnabled: true)
+            print("🔥 ProfileFriendPage Missing attribute info, keeping optimistic UI")
+            // Keep the instant UI change even if we can't make the API call
             return
         }
         print("🔥 ProfileFriendPage Using attribute like system - category: \(attributeCategory), name: \(attributeName)")
@@ -358,7 +358,7 @@ extension ProfileFriendPage: UITableViewDataSource {
         
         guard let url = URL(string: endpoint) else {
             print("🔥 ProfileFriendPage Failed to create URL from: \(endpoint)")
-            cell.setAttributeLikeUI(liked: !currentLiked, count: currentLiked ? currentCount - 1 : currentCount + 1, isEnabled: true)
+            // Keep the instant UI change even if URL creation fails
             return
         }
         print("🔥 ProfileFriendPage URL created successfully")
@@ -384,7 +384,7 @@ extension ProfileFriendPage: UITableViewDataSource {
             print("🔥 ProfileFriendPage JSON serialization successful")
         } catch {
             print("🔥 ProfileFriendPage JSON serialization failed: \(error)")
-            cell.setAttributeLikeUI(liked: !currentLiked, count: currentLiked ? currentCount - 1 : currentCount + 1, isEnabled: true)
+            // Keep the instant UI change even if JSON serialization fails
             return
         }
         
@@ -395,8 +395,10 @@ extension ProfileFriendPage: UITableViewDataSource {
             DispatchQueue.main.async {
                 if let error = error {
                     print("🔥 ProfileFriendPage API call failed with error: \(error)")
-                    // Revert optimistic update
-                    cell.setAttributeLikeUI(liked: currentLiked, count: currentCount, isEnabled: true)
+                    // Only revert on network/connection errors, keep instant UI for user experience
+                    if (error as NSError).code != NSURLErrorCancelled {
+                        cell.setAttributeLikeUI(liked: currentLiked, count: currentCount, isEnabled: true)
+                    }
                     return
                 }
                 
@@ -408,16 +410,12 @@ extension ProfileFriendPage: UITableViewDataSource {
                     
                     if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
                         print("🔥 ProfileFriendPage Success response")
-                        // Success - keep optimistic update and force refresh for accurate count
-                        cell.setAttributeLikeUI(liked: newLikedState, count: newCount, isEnabled: true)
-
-                        // Force refresh after short delay to get accurate server data
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            cell.forceRefreshLikeState()
-                        }
+                        // SUCCESS: Keep the optimistic UI (heart is already red/filled instantly!)
+                        // Silently refresh cache for accuracy on next load - no UI changes needed
+                        cell.forceRefreshLikeState()
                     } else {
                         print("🔥 ProfileFriendPage Error response: \(httpResponse.statusCode)")
-                        // Error - revert optimistic update
+                        // FAILURE: Only revert on actual API failure
                         cell.setAttributeLikeUI(liked: currentLiked, count: currentCount, isEnabled: true)
                     }
                 } else {

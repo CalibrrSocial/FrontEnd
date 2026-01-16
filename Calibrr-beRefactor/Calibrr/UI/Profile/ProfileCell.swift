@@ -180,24 +180,24 @@ class ProfileCell: ACell<(String, String, Bool)> {
     }
     
     private func updateHeartAppearance() {
+        // INSTANT heart update with ZERO delays for maximum responsiveness
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         CATransaction.setAnimationDuration(0.0)
         
-        UIView.performWithoutAnimation {
-            let filled = UIImage(systemName: "heart.fill")?.withRenderingMode(.alwaysTemplate)
-            let outline = UIImage(systemName: "heart")?.withRenderingMode(.alwaysTemplate)
-            
-            if isLiked {
-                self.heartButton.setImage(filled, for: .normal)
-                self.heartButton.tintColor = .systemRed
-            } else {
-                self.heartButton.setImage(outline, for: .normal)
-                self.heartButton.tintColor = .tertiaryLabel
-            }
-            
-            self.heartButton.layoutIfNeeded()
+        let filled = UIImage(systemName: "heart.fill")?.withRenderingMode(.alwaysTemplate)
+        let outline = UIImage(systemName: "heart")?.withRenderingMode(.alwaysTemplate)
+        
+        if isLiked {
+            self.heartButton.setImage(filled, for: .normal)
+            self.heartButton.tintColor = .systemRed
+        } else {
+            self.heartButton.setImage(outline, for: .normal)
+            self.heartButton.tintColor = .tertiaryLabel
         }
+        
+        // Force immediate visual update without UIView animation wrapper
+        self.heartButton.layoutIfNeeded()
         
         CATransaction.commit()
     }
@@ -214,19 +214,19 @@ class ProfileCell: ACell<(String, String, Bool)> {
     }
     
     func setAttributeLikeUI(liked: Bool, count: Int, isEnabled: Bool) {
+        // INSTANT UI update - no animation blocks that could cause delays
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         CATransaction.setAnimationDuration(0.0)
         
-        UIView.performWithoutAnimation {
-            self.isLiked = liked
-            self.likesCount = count
-            self.isLikeEnabled = isEnabled
-            self.heartButton.isEnabled = isEnabled
-            
-            self.heartButton.layoutIfNeeded()
-            self.likeCountLabel.layoutIfNeeded()
-        }
+        self.isLiked = liked
+        self.likesCount = count
+        self.isLikeEnabled = isEnabled
+        self.heartButton.isEnabled = isEnabled
+        
+        // Force immediate layout without animation wrappers
+        self.heartButton.layoutIfNeeded()
+        self.likeCountLabel.layoutIfNeeded()
         
         CATransaction.commit()
     }
