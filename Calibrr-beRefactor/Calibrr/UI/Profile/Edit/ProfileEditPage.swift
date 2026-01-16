@@ -54,6 +54,7 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
     @IBOutlet weak var campusInput: CBRTextInputView!
     @IBOutlet weak var careerAspirationsInput: CBRTextInputView!
     @IBOutlet weak var postgraduateInput: CBRTextInputView!
+    @IBOutlet weak var postgraduatePlansInput: CBRTextInputView!
     @IBOutlet weak var hometownInput: CBRTextInputView!
     @IBOutlet weak var highSchoolInput: CBRTextInputView!
     
@@ -135,6 +136,7 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         campusInput.delegate = self
         careerAspirationsInput.delegate = self
         postgraduateInput.delegate = self
+        postgraduatePlansInput?.delegate = self
         hometownInput.delegate = self
         highSchoolInput.delegate = self
         
@@ -251,6 +253,9 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         }
         if let postgraduate = profile.personalInfo?.postgraduate {
             postgraduateInput.setupInput(postgraduate)
+        }
+        if let postgraduatePlans = profile.personalInfo?.postgraduatePlans {
+            postgraduatePlansInput?.setupInput(postgraduatePlans)
         }
         if let hometown = profile.personalInfo?.hometown {
             hometownInput.setupInput(hometown)
@@ -390,6 +395,7 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         let campus = campusInput.getInput() ?? ""
         let careerAspirations = careerAspirationsInput.getInput() ?? ""
         let postgraduate = postgraduateInput.getInput() ?? ""
+        let postgraduatePlans = postgraduatePlansInput?.getInput() ?? ""
         let hometown = hometownInput.getInput() ?? ""
         let highSchool = highSchoolInput.getInput() ?? ""
         
@@ -429,6 +435,7 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         userUpdate?.personalInfo?.campus = campus
         userUpdate?.personalInfo?.careerAspirations = careerAspirations
         userUpdate?.personalInfo?.postgraduate = postgraduate
+        userUpdate?.personalInfo?.postgraduatePlans = postgraduatePlans
         userUpdate?.personalInfo?.hometown = hometown
         userUpdate?.personalInfo?.highSchool = highSchool
         

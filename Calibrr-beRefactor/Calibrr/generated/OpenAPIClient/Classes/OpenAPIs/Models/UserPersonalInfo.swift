@@ -83,6 +83,7 @@ public struct UserPersonalInfo: Codable, JSONEncodable, Hashable {
     public var campus: String?
     public var careerAspirations: String?
     public var postgraduate: String?
+    public var postgraduatePlans: String?
     public var hometown: String?
     public var highSchool: String?
     
@@ -106,6 +107,7 @@ public struct UserPersonalInfo: Codable, JSONEncodable, Hashable {
                 campus: String? = nil,
                 careerAspirations: String? = nil,
                 postgraduate: String? = nil,
+                postgraduatePlans: String? = nil,
                 hometown: String? = nil,
                 highSchool: String? = nil) {
         self.dob = dob
@@ -128,6 +130,7 @@ public struct UserPersonalInfo: Codable, JSONEncodable, Hashable {
         self.campus = campus
         self.careerAspirations = careerAspirations
         self.postgraduate = postgraduate
+        self.postgraduatePlans = postgraduatePlans
         self.hometown = hometown
         self.highSchool = highSchool
     }
@@ -153,6 +156,7 @@ public struct UserPersonalInfo: Codable, JSONEncodable, Hashable {
         case campus = "campus"
         case careerAspirations = "career_aspirations"
         case postgraduate = "postgraduate"
+        case postgraduatePlans = "postgraduate_plans"
         case hometown = "hometown"
         case highSchool = "high_school"
     }
@@ -181,6 +185,7 @@ public struct UserPersonalInfo: Codable, JSONEncodable, Hashable {
         try container.encodeIfPresent(campus, forKey: .campus)
         try container.encodeIfPresent(careerAspirations, forKey: .careerAspirations)
         try container.encodeIfPresent(postgraduate, forKey: .postgraduate)
+        try container.encodeIfPresent(postgraduatePlans, forKey: .postgraduatePlans)
         try container.encodeIfPresent(hometown, forKey: .hometown)
         try container.encodeIfPresent(highSchool, forKey: .highSchool)
     }
@@ -208,6 +213,7 @@ public struct UserPersonalInfo: Codable, JSONEncodable, Hashable {
         campus = try? container.decodeIfPresent(String.self, forKey: .campus)
         careerAspirations = try? container.decodeIfPresent(String.self, forKey: .careerAspirations)
         postgraduate = try? container.decodeIfPresent(String.self, forKey: .postgraduate)
+        postgraduatePlans = try? container.decodeIfPresent(String.self, forKey: .postgraduatePlans)
         hometown = try? container.decodeIfPresent(String.self, forKey: .hometown)
         highSchool = try? container.decodeIfPresent(String.self, forKey: .highSchool)
     }
