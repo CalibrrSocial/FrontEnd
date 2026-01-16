@@ -36,7 +36,7 @@ class CreateProfilePage: ProfileEditPage {
         saveButton?.setTitle("Continue to Sign Up", for: .normal)
         
         // Update name label to placeholder since there's no logged in user
-        nameLabel?.text = "Your Name"
+        nameLabel?.text = "Your Profile"
     }
     
     /// Override to prevent loading profile from database (no user logged in yet)
