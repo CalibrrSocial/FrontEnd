@@ -1,37 +1,79 @@
 # Calibrr
-Calibrr iOS app
 
+A social networking iOS application with a Laravel backend and AWS Lambda services.
 
-## Workspace
-To setup the workspace, pull the latest dev and run `pod install` in the project folder. Now open `Calibrr.xcworkspace` - you're ready to go.
+## Project Structure
+
+```
+├── Calibrr-beRefactor/     # iOS App (Swift/Xcode)
+├── EC2BACKENDGIT/          # Laravel Backend (PHP)
+├── NewAWSBE/               # AWS Lambda Functions (Node.js)
+├── calibrr-admin/          # Admin Dashboard (React)
+├── docs/                   # Documentation
+└── assets/                 # Brand assets
+```
+
+## iOS App Setup
+
+1. Navigate to the iOS project folder:
+   ```bash
+   cd Calibrr-beRefactor
+   ```
+
+2. Install dependencies:
+   ```bash
+   pod install
+   ```
+
+3. Open `Calibrr.xcworkspace` in Xcode
+
+## Backend Setup
+
+See `EC2BACKENDGIT/README.md` for Laravel backend setup instructions.
+
+## Lambda Functions
+
+AWS Lambda functions are located in `NewAWSBE/`:
+- `lambdas/` - Production Lambda function code
+- `tests/` - Test scripts
+- `debug/` - Debug utilities
+
+## Admin Dashboard
+
+React-based admin panel in `calibrr-admin/`:
+```bash
+cd calibrr-admin
+npm install
+npm start
+```
+
+## Documentation
+
+All documentation is located in the `docs/` folder.
 
 ## Swagger Codegen
-To generate the BE related code (APIs and Models), make sure to get the OpenAPI Generator:
-https://github.com/OpenAPITools/openapi-generator
 
-Simply clone the master branch.
+To generate the BE related code (APIs and Models):
 
-Then in the terminal, go to the top folder where you cloned the OpenAPI Generator and run the below command where you specify the location of the swagger.yaml and the output folder (assuming it's all in the Calibrr iOS Project directory):
+1. Get OpenAPI Generator: https://github.com/OpenAPITools/openapi-generator
 
-`
-java -jar modules/openapi-generator-cli/target/openapi-generator-cli.jar generate \
-  -i pathToCalibrriOS/swagger.yaml \
-  -c pathToCalibrriOS/swagger_gen_config.json \
-  -g swift4 \
-  -o pathToCalibrriOS/Calibrr/Generated
-`
+2. Run:
+   ```bash
+   java -jar modules/openapi-generator-cli/target/openapi-generator-cli.jar generate \
+     -i pathToCalibrriOS/swagger.yaml \
+     -c pathToCalibrriOS/swagger_gen_config.json \
+     -g swift4 \
+     -o pathToCalibrriOS/Calibrr/Generated
+   ```
 
-Assuming that pathToCalibrriOS should be something like `/Users/username/Calibrr-iOS`
+## Deploying to TestFlight
 
-## Deploying to Testflight
-We're using fastlane to speed up the deployment process:
+Using fastlane for deployment:
 
-https://docs.fastlane.tools/getting-started/ios/setup/
+1. Install fastlane: https://docs.fastlane.tools/getting-started/ios/setup/
 
-Follow the above link's `Installing fastlane` to install it on your machine.
-
-After that,  to deploy to TestFlight you have to go to the project folder in the terminal, and run `fastlane pushTestflight`
-
-That's it.
-
-There will be some prompts - asking for credentials to iTunesConnect - just follow the instructions on screen and fastlane will guide you through it.
+2. Deploy:
+   ```bash
+   cd Calibrr-beRefactor
+   fastlane pushTestflight
+   ```
