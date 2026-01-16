@@ -474,9 +474,6 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         userUpdate?.personalInfo?.hometown = hometown
         userUpdate?.personalInfo?.highSchool = highSchool
         
-        // Debug log to verify classYear is set
-        print("[SaveProfile] Setting classYear: '\(classYear)' -> personalInfo.classYear: '\(userUpdate?.personalInfo?.classYear ?? "nil")'")
-        
         setupSocialAccount(isUpdate: true)
         userUpdate?.socialInfo = userProfile?.socialInfo
         
@@ -511,12 +508,29 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
             }
         }
         userUpdate?.myFriends = myFriends
+        // Targeted debug logs for fields reported as not saving (after payload assembled)
+        let coursesLog = myCourses.map { $0.name ?? "" }.joined(separator: ", ")
+        let friendsLog = myFriends.map { "\($0.firstName) \($0.lastName)" }.joined(separator: ", ")
+        print("[SaveProfile] Prepared fields → city='\(city)', postgraduatePlans='\(postgraduatePlans)', club='\(self.myClub.getInput() ?? "")', jersey='\(self.jerseyNumber.text ?? "")'")
+        print("[SaveProfile] Courses payload count=\(myCourses.count) values=\(coursesLog)")
+        print("[SaveProfile] BestFriends payload count=\(myFriends.count) values=\(friendsLog)")
+        print("[SaveProfile] Bio length=\(bio.count)")
         if let user = userUpdate {
-            print("[SaveProfile] Sending update: avatar='\(user.pictureProfile ?? "")' cover='\(user.pictureCover ?? "")'")
-            print("[SaveProfile] PersonalInfo.classYear before send: '\(user.personalInfo?.classYear ?? "nil")'")
+            // Compact request echo (avoid huge dumps) focusing on fields we're debugging
+            let reqCourses = user.myCourses.map { $0.name ?? "" }.joined(separator: ", ")
+            let reqFriends = user.myFriends.map { "\($0.firstName) \($0.lastName)" }.joined(separator: ", ")
+            print("[SaveProfile->Request] city='\(user.personalInfo?.city ?? "")', postgraduate='\(user.personalInfo?.postgraduate ?? "")', postgraduatePlans='\(user.personalInfo?.postgraduatePlans ?? "")', bioLen=\(user.personalInfo?.bio?.count ?? 0)")
+            print("[SaveProfile->Request] club='\(user.personalInfo?.club?.club ?? "")', jersey='\(user.personalInfo?.club?.number ?? "")'")
+            print("[SaveProfile->Request] courses=\(reqCourses)")
+            print("[SaveProfile->Request] bestFriends=\(reqFriends)")
             // Route through Laravel API instead of Lambda
             ProfileAPI.updateUserProfile(id: user.id, user: user).thenInAction{ userUpdated in
-                print("[SaveProfile] Success: avatar='\(userUpdated.pictureProfile ?? "")' cover='\(userUpdated.pictureCover ?? "")'")
+                let respCourses = userUpdated.myCourses.map { $0.name ?? "" }.joined(separator: ", ")
+                let respFriends = userUpdated.myFriends.map { "\($0.firstName) \($0.lastName)" }.joined(separator: ", ")
+                print("[SaveProfile->Response] Updated city='\(userUpdated.personalInfo?.city ?? "")', postgraduate='\(userUpdated.personalInfo?.postgraduate ?? "")', postgraduatePlans='\(userUpdated.personalInfo?.postgraduatePlans ?? "")', bioLen=\(userUpdated.personalInfo?.bio?.count ?? 0)")
+                if let club = userUpdated.personalInfo?.club { print("[SaveProfile->Response] club='\(club.club ?? "")' jersey='\(club.number ?? "")'") }
+                print("[SaveProfile->Response] courses=\(respCourses)")
+                print("[SaveProfile->Response] bestFriends=\(respFriends)")
                 // Update the cached profile in DatabaseService so location updates use the latest data
                 self.databaseService.updateAccount(userUpdated)
                 DispatchQueue.main.async {
