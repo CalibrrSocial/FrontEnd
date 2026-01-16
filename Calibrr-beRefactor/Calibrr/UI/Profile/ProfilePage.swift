@@ -31,6 +31,10 @@ class ProfilePage : APage, UITableViewDelegate, UICollectionViewDelegate
         
         personalInfoTableView.dataSource = self
         
+        // Configure automatic row heights for dynamic content
+        personalInfoTableView.rowHeight = UITableView.automaticDimension
+        personalInfoTableView.estimatedRowHeight = 60
+        
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: #imageLiteral(resourceName: "icon_settings").withRenderingMode(.alwaysTemplate), style: .plain, target: self, action: #selector(clickEdit(_:)))
         navigationItem.rightBarButtonItem?.tintColor = .white
         

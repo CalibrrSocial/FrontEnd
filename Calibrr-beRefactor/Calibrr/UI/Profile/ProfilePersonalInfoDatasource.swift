@@ -35,31 +35,31 @@ class ProfilePersonalInfoDatasource : AStandardItemsDatasource<ProfileCell, (Str
             }
             
             if let liveIn = profile.city, !liveIn.isEmpty {
-                appendNonNull(title: "Lives in:", value: liveIn)
+                appendNonNull(title: "Currently lives in:", value: liveIn)
             }
             
             if let hometown = profile.hometown, !hometown.isEmpty {
                 appendNonNull(title: "Hometown:", value: hometown)
             }
             
-            if let education = profile.education, !education.isEmpty {
-                appendNonNull(title: "Education:", value: education)
-            }
-            
             if let highSchool = profile.highSchool, !highSchool.isEmpty {
-                appendNonNull(title: "High School:", value: highSchool)
+                appendNonNull(title: "Past High School, Graduated from:", value: highSchool)
             }
             
-            if let classYear = profile.classYear, !classYear.isEmpty {
-                appendNonNull(title: "Class Year:", value: classYear)
-            }
-            
-            if let campus = profile.campus, !campus.isEmpty {
-                appendNonNull(title: "Campus:", value: campus)
+            if let education = profile.education, !education.isEmpty {
+                appendNonNull(title: "Current College/School:", value: education)
             }
             
             if let studying = profile.studying, !studying.isEmpty {
-                appendNonNull(title: "Studying:", value: studying)
+                appendNonNull(title: "Major/Studying:", value: studying)
+            }
+            
+            if let classYear = profile.classYear, !classYear.isEmpty {
+                appendNonNull(title: "Class/Graduation Year:", value: classYear)
+            }
+            
+            if let campus = profile.campus, !campus.isEmpty {
+                appendNonNull(title: "Current Campus:", value: campus)
             }
             
             if let careerAspirations = profile.careerAspirations, !careerAspirations.isEmpty {

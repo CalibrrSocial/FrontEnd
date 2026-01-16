@@ -373,7 +373,7 @@
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hLt-7a-CpR" userLabel="HighSchoolInput" customClass="CBRTextInputView" customModule="Calibrr" customModuleProvider="target">
                                             <rect key="frame" x="0.0" y="370.5" width="422.5" height="52"/>
                                             <subviews>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Past Highschool, Graduated from:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="8" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Mg6-jJ-cXP">
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Past High School, Graduated from:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="8" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Mg6-jJ-cXP">
                                                     <rect key="frame" x="20" y="0.0" width="382.5" height="20"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="20" id="2Ft-vQ-g5G"/>
@@ -472,7 +472,7 @@
                                                         <constraint firstItem="6e8-DP-xyk" firstAttribute="top" secondItem="yPE-5y-Boc" secondAttribute="top" id="uQN-9p-1Lk"/>
                                                     </constraints>
                                                 </view>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Enter your Education" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="8" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4jy-Be-NXR" userLabel="RequiredLabel">
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Where are you enrolled/attending?" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="8" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4jy-Be-NXR" userLabel="RequiredLabel">
                                                     <rect key="frame" x="20" y="57" width="126" height="15"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="15" id="AqE-Z3-BgG"/>
