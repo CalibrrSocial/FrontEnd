@@ -159,21 +159,11 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
     func setupProfilePage() {
         let profile = databaseService.getProfile().user
 
-        // Add comprehensive debug logging
-        print("=== DEBUG: Profile loaded on startup ===")
+        print("=== Profile Edit Page Loaded ===")
         print("Profile ID: \(profile.id)")
-        print("Full PersonalInfo: \(profile.personalInfo ?? UserPersonalInfo())")
-        print("Class Year: \(profile.personalInfo?.classYear ?? "NIL")")
-        print("Campus: \(profile.personalInfo?.campus ?? "NIL")")
-        print("Education: \(profile.personalInfo?.education ?? "NIL")")
-        print("Studying: \(profile.personalInfo?.studying ?? "NIL")")
-        print("Gender: \(profile.personalInfo?.gender ?? "NIL")")
-        print("City: \(profile.personalInfo?.city ?? "NIL")")
-        print("Postgraduate: \(profile.personalInfo?.postgraduate ?? "NIL")")
-        print("Career Aspirations: \(profile.personalInfo?.careerAspirations ?? "NIL")")
-        print("Hometown: \(profile.personalInfo?.hometown ?? "NIL")")
-        print("High School: \(profile.personalInfo?.highSchool ?? "NIL")")
-        print("==================================")
+        print("Profile Picture URL: \(profile.pictureProfile ?? "NIL")")
+        print("Cover Picture URL: \(profile.pictureCover ?? "NIL")")
+        print("================================")
         
 
         socialView.setupData(account: profile.socialInfo)
@@ -405,6 +395,15 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         
         var userUpdate =  self.userProfile
         
+        // Preserve image URLs from local database (these come from legacy backend)
+        let currentProfile = databaseService.getProfile().user
+        if userUpdate?.pictureProfile == nil || userUpdate?.pictureProfile?.isEmpty == true {
+            userUpdate?.pictureProfile = currentProfile.pictureProfile
+        }
+        if userUpdate?.pictureCover == nil || userUpdate?.pictureCover?.isEmpty == true {
+            userUpdate?.pictureCover = currentProfile.pictureCover
+        }
+        
         if let location = ActiveUser.singleton.currentLocation {
             userUpdate?.location = Position(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
         }
@@ -468,12 +467,13 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         }
         userUpdate?.myFriends = myFriends
         if let user = userUpdate {
-            print("=== DEBUG: About to call updateUserProfileAWS ===")
-            print("User ID: \(user.id)")
-            print("API Base URL: \(OpenAPIClientAPI.basePath)")
-            print("Authorization header: \(OpenAPIClientAPI.customHeaders[APIKeys.HTTP_AUTHORIZATION_HEADER] ?? "MISSING")")
+            print("=== Saving Profile to AWS ===")
+            print("Profile Picture URL: \(user.pictureProfile ?? "NIL")")
+            print("Cover Picture URL: \(user.pictureCover ?? "NIL")")
             ProfileAPI.updateUserProfileAWS(id: user.id, user: user).thenInAction{ userUpdated in
-                print("=== DEBUG: API call succeeded ===")
+                print("=== Profile Saved Successfully ===")
+                print("Profile Picture URL: \(userUpdated.pictureProfile ?? "NIL")")
+                print("Cover Picture URL: \(userUpdated.pictureCover ?? "NIL")")
                 DispatchQueue.main.async {
                     self.processSaveProfile(userUpdated)
                 }
@@ -565,15 +565,13 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
     {
         editChanges = false
         
-        // Preserve the current image URLs before updating the profile
+        // Preserve the current image URLs before doing anything else
         let currentProfile = databaseService.getProfile().user
         let currentProfilePicture = currentProfile.pictureProfile
         let currentCoverPicture = currentProfile.pictureCover
         
-        // Update the profile with server response
-        databaseService.getProfile().user = updatedProfile
-        
-        var profile = databaseService.getProfile().user
+        // Create an updated profile object with server data but preserved images
+        var profile = updatedProfile
         profile.personalInfo?.bio = updatedProfile.personalInfo?.bio
         profile.location = updatedProfile.location
         profile.personalInfo?.dob = updatedProfile.personalInfo?.dob
@@ -592,7 +590,7 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         profile.personalInfo?.highSchool = updatedProfile.personalInfo?.highSchool
         
         // Preserve image URLs if they exist in the current profile (uploaded during this session)
-        // Only use server response if current profile doesn't have images
+        // Always use current profile images if they exist, regardless of server response
         if let currentProfilePic = currentProfilePicture, !currentProfilePic.isEmpty {
             profile.pictureProfile = currentProfilePic
         }
@@ -600,6 +598,7 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
             profile.pictureCover = currentCoverPic
         }
         
+        // Update the database service with the final profile
         databaseService.getProfile().user = profile
         
         nav.pop(animated: true)
