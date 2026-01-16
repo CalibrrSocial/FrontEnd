@@ -164,7 +164,7 @@ class ProfilePersonalInfoDatasource : AStandardItemsDatasource<ProfileCell, (Str
             }
             
             if let occupation = profile.occupation, !occupation.isEmpty {
-                appendNonNull(title: "Occupation:", value: occupation)
+                appendNonNull(title: "Job:", value: occupation)
             }
             
             if let gender = profile.gender, !gender.isEmpty {
