@@ -29,7 +29,7 @@ class SearchUsersByDistancePage : APage, UITableViewDelegate
     let stepMile: Float = 1.0
     let ghostModeView = GhostModeView()
     var distances = [0.0284, 0.071, 0.142, 0.284]
-    var distancesLabel = ["0.05", "0.20", "0.33", "1/2"]
+    var distancesLabel = ["right nearby", "1/5 mile", "1/3 mile", "1/2 mile"]
     
     var areaStudySelected: Bool = false
     var myCoursesSelected: Bool = false
@@ -124,15 +124,14 @@ class SearchUsersByDistancePage : APage, UITableViewDelegate
     }
     
     private func updateLableWhiteBox(_ value: Int) {
-        let string = "Showing who's within \(distancesLabel[value-1]) miles of you"
-        if let range = string.range(of: "0") {
-            let attributedString = NSMutableAttributedString(string: string)
-            let boldFont = UIFont.boldSystemFont(ofSize: 24)
-            attributedString.addAttributes([NSAttributedString.Key.font: boldFont], range: NSRange(range, in: string))
-            titleWhiteBoxLabel.attributedText = attributedString
+        let label = distancesLabel[value-1]
+        let string: String
+        if label == "right nearby" {
+            string = "Showing who's right nearby"
         } else {
-            titleWhiteBoxLabel.text = string
+            string = "Showing who's within \(label) of you"
         }
+        titleWhiteBoxLabel.text = string
     }
     
     override func viewWillAppear(_ animated: Bool) {
