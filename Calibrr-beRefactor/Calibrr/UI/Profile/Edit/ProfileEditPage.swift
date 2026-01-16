@@ -489,10 +489,11 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         }
         userUpdate?.myFriends = myFriends
         if let user = userUpdate {
-            print("=== Saving Profile to AWS ===")
+            print("=== Saving Profile to PHP API ===")
             print("Profile Picture URL: \(user.pictureProfile ?? "NIL")")
             print("Cover Picture URL: \(user.pictureCover ?? "NIL")")
-            ProfileAPI.updateUserProfileAWS(id: user.id, user: user).thenInAction{ userUpdated in
+            // Route through Laravel API instead of Lambda
+            ProfileAPI.updateUserProfile(id: user.id, user: user).thenInAction{ userUpdated in
                 print("=== Profile Saved Successfully ===")
                 print("Profile Picture URL: \(userUpdated.pictureProfile ?? "NIL")")
                 print("Cover Picture URL: \(userUpdated.pictureCover ?? "NIL")")

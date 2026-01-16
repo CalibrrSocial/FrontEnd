@@ -773,7 +773,8 @@ open class ProfileAPI {
      */
     public class func updateUserProfileAWS(id: String, user: User) -> Promise<User> {
         let deferred = Promise<User>.pending()
-        updateUserProfileAWSWithRequestBuilder(id: id, user: user).execute { result in
+        // Route via primary PHP API instead of AWS Lambda
+        updateUserProfileWithRequestBuilder(id: id, user: user).execute { result in
             switch result {
             case let .success(response):
                 deferred.resolver.fulfill(response.body)
@@ -793,28 +794,8 @@ open class ProfileAPI {
      - returns: RequestBuilder<User>
      */
     public class func updateUserProfileAWSWithRequestBuilder(id: String, user: User) -> RequestBuilder<User> {
-        var localVariablePath = "/profile/{id}"
-        let idPreEscape = "\(APIHelper.mapValueToPathItem(id))"
-        let idPostEscape = idPreEscape.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? ""
-        localVariablePath = localVariablePath.replacingOccurrences(of: "{id}", with: idPostEscape, options: .literal, range: nil)
-        
-        // Use AWS Lambda endpoint instead of the base path
-        let awsLambdaBaseURL = "https://x1oyeepmz2.execute-api.us-east-1.amazonaws.com/prod"
-        let localVariableURLString = awsLambdaBaseURL + localVariablePath
-        
-        let localVariableParameters = JSONEncodingHelper.encodingParameters(forEncodableObject: user)
-
-        let localVariableUrlComponents = URLComponents(string: localVariableURLString)
-
-        let localVariableNillableHeaders: [String: Any?] = [
-            :
-        ]
-
-        let localVariableHeaderParameters = APIHelper.rejectNilHeaders(localVariableNillableHeaders)
-
-        let localVariableRequestBuilder: RequestBuilder<User>.Type = OpenAPIClientAPI.requestBuilderFactory.getBuilder()
-
-        return localVariableRequestBuilder.init(method: "POST", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters)
+        // Delegate to primary PHP API builder
+        return updateUserProfileWithRequestBuilder(id: id, user: user)
     }
 
     /**
@@ -825,7 +806,8 @@ open class ProfileAPI {
      */
     public class func getUserAWS(id: String) -> Promise<User> {
         let deferred = Promise<User>.pending()
-        getUserAWSWithRequestBuilder(id: id).execute { result in
+        // Route via primary PHP API instead of AWS Lambda
+        getUserWithRequestBuilder(id: id).execute { result in
             switch result {
             case let .success(response):
                 deferred.resolver.fulfill(response.body)
@@ -844,27 +826,7 @@ open class ProfileAPI {
      - returns: RequestBuilder<User> 
      */
     public class func getUserAWSWithRequestBuilder(id: String) -> RequestBuilder<User> {
-        var localVariablePath = "/profile/{id}"
-        let idPreEscape = "\(APIHelper.mapValueToPathItem(id))"
-        let idPostEscape = idPreEscape.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? ""
-        localVariablePath = localVariablePath.replacingOccurrences(of: "{id}", with: idPostEscape, options: .literal, range: nil)
-        
-        // Use AWS Lambda endpoint instead of the base path
-        let awsLambdaBaseURL = "https://x1oyeepmz2.execute-api.us-east-1.amazonaws.com/prod"
-        let localVariableURLString = awsLambdaBaseURL + localVariablePath
-        
-        let localVariableParameters: [String: Any]? = nil
-
-        let localVariableUrlComponents = URLComponents(string: localVariableURLString)
-
-        let localVariableNillableHeaders: [String: Any?] = [
-            :
-        ]
-
-        let localVariableHeaderParameters = APIHelper.rejectNilHeaders(localVariableNillableHeaders)
-
-        let localVariableRequestBuilder: RequestBuilder<User>.Type = OpenAPIClientAPI.requestBuilderFactory.getBuilder()
-
-        return localVariableRequestBuilder.init(method: "GET", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters)
+        // Delegate to primary PHP API builder
+        return getUserWithRequestBuilder(id: id)
     }
 }
