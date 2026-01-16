@@ -12,6 +12,10 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="SearchUsersByDistancePage" customModule="Calibrr" customModuleProvider="target">
             <connections>
                 <outlet property="distanceSlider" destination="cMt-gW-SdK" id="E3e-tu-ZPS"/>
+                <outlet property="myAreaStudyButton" destination="7jy-WI-ZDh" id="zvT-cz-3fa"/>
+                <outlet property="myAreaStudyLabel" destination="Uhe-jg-flx" id="BcN-mV-MbQ"/>
+                <outlet property="myCoursesButton" destination="6gx-VX-wEQ" id="AWn-uj-OyY"/>
+                <outlet property="myCoursesLabel" destination="qxj-dc-GLB" id="7j4-lB-QzE"/>
                 <outlet property="resultsTable" destination="OKd-Z3-aAc" id="qEF-hQ-8mt"/>
                 <outlet property="searchButton" destination="csF-SX-9nD" id="syw-sn-0gZ"/>
                 <outlet property="titleWhiteBoxLabel" destination="ICR-HQ-AIN" id="syU-yz-GjJ"/>
@@ -83,8 +87,103 @@
                         <constraint firstItem="csF-SX-9nD" firstAttribute="leading" secondItem="cMt-gW-SdK" secondAttribute="trailing" constant="15" id="wXm-2S-9Rl"/>
                     </constraints>
                 </view>
+                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="yix-9p-Y4e">
+                    <rect key="frame" x="15" y="218" width="379" height="65"/>
+                    <subviews>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6T2-Ro-z9G">
+                            <rect key="frame" x="0.0" y="0.0" width="379" height="30"/>
+                            <subviews>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6gx-VX-wEQ">
+                                    <rect key="frame" x="0.0" y="0.0" width="30" height="30"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="30" id="K7g-0d-2cP"/>
+                                        <constraint firstAttribute="width" secondItem="6gx-VX-wEQ" secondAttribute="height" id="Tmi-aP-lKc"/>
+                                    </constraints>
+                                    <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <inset key="imageEdgeInsets" minX="3" minY="3" maxX="3" maxY="3"/>
+                                    <state key="normal" image="uncheckBox_20"/>
+                                    <state key="selected" image="checkBox_20"/>
+                                    <connections>
+                                        <action selector="myCourses:" destination="-1" eventType="touchUpInside" id="Wfa-mW-7zf"/>
+                                    </connections>
+                                </button>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Show people in 'my courses'" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qxj-dc-GLB">
+                                    <rect key="frame" x="40" y="5" width="216.5" height="20.5"/>
+                                    <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="17"/>
+                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6LZ-fO-wtL">
+                                    <rect key="frame" x="156.5" y="0.0" width="100" height="30"/>
+                                    <constraints>
+                                        <constraint firstAttribute="width" constant="100" id="bQk-er-zjJ"/>
+                                    </constraints>
+                                    <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                    <connections>
+                                        <action selector="myCoursesLink:" destination="-1" eventType="touchUpInside" id="KkJ-dA-wDd"/>
+                                    </connections>
+                                </button>
+                            </subviews>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="30" id="3RO-RR-ejw"/>
+                                <constraint firstItem="qxj-dc-GLB" firstAttribute="centerY" secondItem="6T2-Ro-z9G" secondAttribute="centerY" id="4Kh-y9-lJU"/>
+                                <constraint firstItem="qxj-dc-GLB" firstAttribute="leading" secondItem="6gx-VX-wEQ" secondAttribute="trailing" constant="10" id="Ka2-ML-ppi"/>
+                                <constraint firstItem="6gx-VX-wEQ" firstAttribute="centerY" secondItem="6T2-Ro-z9G" secondAttribute="centerY" id="NEg-06-R8c"/>
+                                <constraint firstItem="6gx-VX-wEQ" firstAttribute="leading" secondItem="6T2-Ro-z9G" secondAttribute="leading" id="VoQ-ul-PqW"/>
+                                <constraint firstItem="6LZ-fO-wtL" firstAttribute="centerY" secondItem="qxj-dc-GLB" secondAttribute="centerY" id="frT-RX-8MB"/>
+                                <constraint firstItem="6LZ-fO-wtL" firstAttribute="trailing" secondItem="qxj-dc-GLB" secondAttribute="trailing" id="hMU-2z-qvq"/>
+                            </constraints>
+                        </view>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4x6-Ip-ZVI">
+                            <rect key="frame" x="0.0" y="35" width="379" height="30"/>
+                            <subviews>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7jy-WI-ZDh">
+                                    <rect key="frame" x="0.0" y="0.0" width="30" height="30"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="30" id="cmv-gj-vvK"/>
+                                        <constraint firstAttribute="width" constant="30" id="mnp-xo-Sms"/>
+                                    </constraints>
+                                    <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <inset key="imageEdgeInsets" minX="3" minY="3" maxX="3" maxY="3"/>
+                                    <state key="normal" image="uncheckBox_20"/>
+                                    <state key="selected" image="checkBox_20"/>
+                                    <connections>
+                                        <action selector="myAreaStudyButton:" destination="-1" eventType="touchUpInside" id="GDs-2W-ON7"/>
+                                    </connections>
+                                </button>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Show people sharing 'my area of study'" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Uhe-jg-flx">
+                                    <rect key="frame" x="40" y="5" width="299" height="20.5"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mln-sQ-jIJ">
+                                    <rect key="frame" x="199" y="0.0" width="140" height="30"/>
+                                    <constraints>
+                                        <constraint firstAttribute="width" constant="140" id="PiU-qB-D6t"/>
+                                    </constraints>
+                                    <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                    <connections>
+                                        <action selector="areaStudyLink:" destination="-1" eventType="touchUpInside" id="t8K-i2-SLH"/>
+                                    </connections>
+                                </button>
+                            </subviews>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="30" id="0rf-f8-IUa"/>
+                                <constraint firstItem="7jy-WI-ZDh" firstAttribute="leading" secondItem="4x6-Ip-ZVI" secondAttribute="leading" id="CgH-nR-uQM"/>
+                                <constraint firstItem="mln-sQ-jIJ" firstAttribute="centerY" secondItem="Uhe-jg-flx" secondAttribute="centerY" id="F2d-Rp-tIk"/>
+                                <constraint firstItem="7jy-WI-ZDh" firstAttribute="centerY" secondItem="4x6-Ip-ZVI" secondAttribute="centerY" id="Fti-Ob-JOU"/>
+                                <constraint firstItem="Uhe-jg-flx" firstAttribute="centerY" secondItem="4x6-Ip-ZVI" secondAttribute="centerY" id="GCr-m7-4bo"/>
+                                <constraint firstItem="Uhe-jg-flx" firstAttribute="leading" secondItem="7jy-WI-ZDh" secondAttribute="trailing" constant="10" id="Wkq-DE-CQF"/>
+                                <constraint firstItem="mln-sQ-jIJ" firstAttribute="trailing" secondItem="Uhe-jg-flx" secondAttribute="trailing" id="rTs-Yh-p7I"/>
+                            </constraints>
+                        </view>
+                    </subviews>
+                </stackView>
                 <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" bouncesZoom="NO" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="OKd-Z3-aAc" userLabel="TableView" customClass="CBRTableView" customModule="Calibrr" customModuleProvider="target">
-                    <rect key="frame" x="0.0" y="218" width="414" height="644"/>
+                    <rect key="frame" x="0.0" y="293" width="414" height="569"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <connections>
                         <outlet property="delegate" destination="-1" id="07l-N3-1lw"/>
@@ -94,11 +193,13 @@
             <viewLayoutGuide key="safeArea" id="FxY-5J-pVG"/>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
-                <constraint firstItem="OKd-Z3-aAc" firstAttribute="top" secondItem="3re-aH-oDI" secondAttribute="bottom" constant="10" id="37t-y2-Pha"/>
+                <constraint firstItem="yix-9p-Y4e" firstAttribute="top" secondItem="3re-aH-oDI" secondAttribute="bottom" constant="10" id="2Ls-ug-Bad"/>
+                <constraint firstItem="OKd-Z3-aAc" firstAttribute="top" secondItem="yix-9p-Y4e" secondAttribute="bottom" constant="10" id="37t-y2-Pha"/>
                 <constraint firstItem="FxY-5J-pVG" firstAttribute="bottom" secondItem="OKd-Z3-aAc" secondAttribute="bottom" id="5JJ-Xs-LhR"/>
                 <constraint firstAttribute="bottom" secondItem="74N-hD-kqf" secondAttribute="bottom" id="6Xw-pz-EIp"/>
                 <constraint firstItem="FxY-5J-pVG" firstAttribute="trailing" secondItem="3re-aH-oDI" secondAttribute="trailing" id="HpE-GZ-hpJ"/>
                 <constraint firstItem="FxY-5J-pVG" firstAttribute="trailing" secondItem="OKd-Z3-aAc" secondAttribute="trailing" id="L49-Kv-S2y"/>
+                <constraint firstItem="yix-9p-Y4e" firstAttribute="leading" secondItem="FxY-5J-pVG" secondAttribute="leading" constant="15" id="MWF-Z1-pm1"/>
                 <constraint firstItem="3re-aH-oDI" firstAttribute="top" secondItem="7Dm-Nd-2kq" secondAttribute="bottom" constant="10" id="Qyn-0F-7RO"/>
                 <constraint firstItem="74N-hD-kqf" firstAttribute="trailing" secondItem="3mU-G5-wlR" secondAttribute="trailing" id="WuX-E8-DMD"/>
                 <constraint firstItem="3re-aH-oDI" firstAttribute="leading" secondItem="FxY-5J-pVG" secondAttribute="leading" id="ahd-9p-llO"/>
@@ -107,6 +208,7 @@
                 <constraint firstItem="OKd-Z3-aAc" firstAttribute="leading" secondItem="FxY-5J-pVG" secondAttribute="leading" id="qnK-7K-gv8"/>
                 <constraint firstItem="FxY-5J-pVG" firstAttribute="trailing" secondItem="7Dm-Nd-2kq" secondAttribute="trailing" constant="20" id="qwy-qn-8U2"/>
                 <constraint firstItem="7Dm-Nd-2kq" firstAttribute="leading" secondItem="FxY-5J-pVG" secondAttribute="leading" constant="20" id="tML-iQ-cyn"/>
+                <constraint firstItem="FxY-5J-pVG" firstAttribute="trailing" secondItem="yix-9p-Y4e" secondAttribute="trailing" constant="20" id="yUz-w8-I6H"/>
                 <constraint firstItem="7Dm-Nd-2kq" firstAttribute="top" secondItem="FxY-5J-pVG" secondAttribute="top" constant="10" id="z3X-6f-3Gt"/>
             </constraints>
             <point key="canvasLocation" x="34.782608695652179" y="34.821428571428569"/>
@@ -114,7 +216,9 @@
     </objects>
     <resources>
         <image name="background" width="1081" height="2003"/>
+        <image name="checkBox_20" width="42" height="43"/>
         <image name="refresh-page-option" width="64" height="64"/>
+        <image name="uncheckBox_20" width="42" height="41"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

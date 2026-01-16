@@ -19,6 +19,10 @@ class SearchUsersByDistancePage : APage, UITableViewDelegate
     @IBOutlet var resultsTable : CBRTableView!
     @IBOutlet weak var whiteBoxView: UIView!
     @IBOutlet weak var titleWhiteBoxLabel: UILabel!
+    @IBOutlet weak var myAreaStudyButton: UIButton!
+    @IBOutlet weak var myCoursesButton: UIButton!
+    @IBOutlet weak var myCoursesLabel: UILabel!
+    @IBOutlet weak var myAreaStudyLabel: UILabel!
     
     private let datasource = SearchUsersDistanceDatasource()
     
@@ -26,6 +30,15 @@ class SearchUsersByDistancePage : APage, UITableViewDelegate
     let ghostModeView = GhostModeView()
     var distances = [0.0284, 0.071, 0.142, 0.284]
     var distancesLabel = ["0.05", "0.20", "0.33", "1/2"]
+    
+    var areaStudySelected: Bool = false
+    var myCoursesSelected: Bool = false
+    var allUsers: [User] = [] // Store all users from API
+    
+    let myCourses = "Show people in 'my courses'"
+    let myArea = "Show people sharing 'my area of study'"
+    let myCoursesUnderLine = "'my courses'"
+    let myAreaUnderLine = "'my area of study'"
     
     var debounceTimer: Timer?
     
@@ -64,6 +77,12 @@ class SearchUsersByDistancePage : APage, UITableViewDelegate
         whiteBoxView.clipsToBounds = true
         searchButton.backgroundColor = .white
         searchButton.layer.cornerRadius = 20
+        
+        // Setup checkbox labels
+        myAreaStudyLabel.text = myArea
+        myAreaStudyLabel.underlineMyText(range: myAreaUnderLine)
+        myCoursesLabel.text = myCourses
+        myCoursesLabel.underlineMyText(range: myCoursesUnderLine)
     }
     
     private func updateLableWhiteBox(_ value: Int) {
@@ -92,16 +111,28 @@ class SearchUsersByDistancePage : APage, UITableViewDelegate
                 self.datasource.items.removeAll()
                 self.distanceSlider.isEnabled = false
                 self.searchButton.isEnabled = false
+                self.myCoursesButton.isEnabled = false
+                self.myAreaStudyButton.isEnabled = false
                 self.distanceSlider.alpha = 0.5
                 self.searchButton.alpha = 0.5
                 self.whiteBoxView.alpha = 0.5
+                self.myCoursesButton.alpha = 0.5
+                self.myAreaStudyButton.alpha = 0.5
+                self.myCoursesLabel.alpha = 0.5
+                self.myAreaStudyLabel.alpha = 0.5
             } else {
                 self.resultsTable.emptyView = nil
                 self.distanceSlider.isEnabled = true
                 self.searchButton.isEnabled = true
+                self.myCoursesButton.isEnabled = true
+                self.myAreaStudyButton.isEnabled = true
                 self.distanceSlider.alpha = 1
                 self.searchButton.alpha = 1
                 self.whiteBoxView.alpha = 1.0
+                self.myCoursesButton.alpha = 1.0
+                self.myAreaStudyButton.alpha = 1.0
+                self.myCoursesLabel.alpha = 1.0
+                self.myAreaStudyLabel.alpha = 1.0
                 self.search()
             }
             self.resultsTable.reloadData()
@@ -165,7 +196,8 @@ class SearchUsersByDistancePage : APage, UITableViewDelegate
                                        maxDistance: Distance(type: .miles, amount: Double(distances[Int(self.distanceSlider.value)-1])))
             .thenInActionVoid{ result in
                 self.resultsTable.endRefreshing()
-                self.datasource.items = result
+                self.allUsers = result
+                self.applyFilters()
                 self.refreshUI()
             }.ensure {
                 self.hideLoadingView()
@@ -188,6 +220,69 @@ class SearchUsersByDistancePage : APage, UITableViewDelegate
         searchButton.layer.removeAnimation(forKey: "rotationAnimation")
         
         searchButton.layer.setAffineTransform(.identity)
+    }
+    
+    private func applyFilters() {
+        var filteredUsers = allUsers
+        
+        if myCoursesSelected || areaStudySelected {
+            let currentUser = DatabaseService.singleton.getProfile().user
+            
+            filteredUsers = allUsers.filter { user in
+                var matchesCriteria = false
+                
+                if myCoursesSelected {
+                    // Check if user shares courses with current user
+                    let userCourses = user.myCourses
+                    let currentCourses = currentUser.myCourses
+                    
+                    if !userCourses.isEmpty && !currentCourses.isEmpty {
+                        let userCourseSet = Set(userCourses.compactMap { $0.name })
+                        let currentCourseSet = Set(currentCourses.compactMap { $0.name })
+                        matchesCriteria = matchesCriteria || !userCourseSet.intersection(currentCourseSet).isEmpty
+                    }
+                }
+                
+                if areaStudySelected {
+                    // Check if user shares area of study with current user
+                    if let userAreaOfStudy = user.personalInfo?.studying,
+                       let currentAreaOfStudy = currentUser.personalInfo?.studying,
+                       !userAreaOfStudy.isEmpty && !currentAreaOfStudy.isEmpty {
+                        matchesCriteria = matchesCriteria || userAreaOfStudy == currentAreaOfStudy
+                    }
+                }
+                
+                return matchesCriteria
+            }
+        }
+        
+        self.datasource.items = filteredUsers
+    }
+    
+    @IBAction func myCoursesLink(_ sender: Any) {
+        Alert.Choice(title: "Add your courses", message: "By adding your courses, you and your classmates can find each other's profiles") { [weak self] in
+            self?.nav.push(ProfileEditPage())
+        }
+    }
+    
+    @IBAction func areaStudyLink(_ sender: Any) {
+        Alert.Choice(title: "Add your area of study", message: "By adding your area of study, you and your classmates can find each other's profiles") { [weak self] in
+            self?.nav.push(ProfileEditPage())
+        }
+    }
+    
+    @IBAction func myCourses(_ sender: Any) {
+        myCoursesButton.isSelected = !myCoursesButton.isSelected
+        myCoursesSelected = myCoursesButton.isSelected
+        applyFilters()
+        refreshUI()
+    }
+    
+    @IBAction func myAreaStudyButton(_ sender: Any) {
+        myAreaStudyButton.isSelected = !myAreaStudyButton.isSelected
+        areaStudySelected = myAreaStudyButton.isSelected
+        applyFilters()
+        refreshUI()
     }
 }
 
