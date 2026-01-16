@@ -70,13 +70,11 @@ class ProfilePersonalInfoDatasource : AStandardItemsDatasource<ProfileCell, (Str
                 appendNonNull(title: "Postgraduate Plans:", value: postgraduate)
             }
             
-            if !myCourses.isEmpty {
-                var text: String = ""
-                for i in 0..<myCourses.count {
-                    let breakLine = i == myCourses.count - 1 ? "" : "\n"
-                    text = text + (myCourses[i].name ?? "") + breakLine
+            // Display each course as a separate likeable item
+            for course in myCourses {
+                if let courseName = course.name, !courseName.isEmpty {
+                    appendNonNull(title: "In Courses:", value: courseName)
                 }
-                appendNonNull(title: "In Courses:", value: text)
             }
             
             if let greekLife = profile.greekLife, !greekLife.isEmpty {
@@ -92,30 +90,42 @@ class ProfilePersonalInfoDatasource : AStandardItemsDatasource<ProfileCell, (Str
                 appendNonNull(title: "Team/Club:", value: text)
             }
             
-            if !bestFriends.isEmpty {
-                var text: String = ""
-                for i in 0..<bestFriends.count {
-                    let breakLine = i == bestFriends.count - 1 ? "" : "\n"
-                    let item = bestFriends[i]
-                    text = text + (item.firstName ?? "") + " " + (item.lastName ?? "") + breakLine
+            // Display each best friend as a separate likeable item
+            for friend in bestFriends {
+                let firstName = friend.firstName ?? ""
+                let lastName = friend.lastName ?? ""
+                if !firstName.isEmpty || !lastName.isEmpty {
+                    let fullName = "\(firstName) \(lastName)".trimmingCharacters(in: .whitespacesAndNewlines)
+                    appendNonNull(title: "Best Friends:", value: fullName)
                 }
-                appendNonNull(title: "Best Friends:", value: text)
             }
             
             if let politics = profile.politics, !politics.isEmpty {
                 appendNonNull(title: "Politics:", value: politics)
             }
             
+            // Display each music artist as a separate likeable item
             if let music = profile.favoriteMusic, !music.isEmpty {
-                appendNonNull(title: "Favorite Music:", value: music)
+                let musicArtists = music.components(separatedBy: CharacterSet(charactersIn: ",\n")).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+                for artist in musicArtists {
+                    appendNonNull(title: "Favorite Music:", value: artist)
+                }
             }
             
+            // Display each TV show as a separate likeable item
             if let tv = profile.favoriteTV, !tv.isEmpty {
-                appendNonNull(title: "Favorite TV:", value: tv)
+                let tvShows = tv.components(separatedBy: CharacterSet(charactersIn: ",\n")).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+                for show in tvShows {
+                    appendNonNull(title: "Favorite TV:", value: show)
+                }
             }
             
+            // Display each game as a separate likeable item
             if let game = profile.favoriteGame, !game.isEmpty {
-                appendNonNull(title: "Favorite Games:", value: game)
+                let games = game.components(separatedBy: CharacterSet(charactersIn: ",\n")).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+                for gameItem in games {
+                    appendNonNull(title: "Favorite Games:", value: gameItem)
+                }
             }
             
             if let religion = profile.religion, !religion.isEmpty {

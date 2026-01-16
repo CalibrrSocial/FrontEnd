@@ -38,11 +38,11 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
     @IBOutlet weak var heightTextViewBioContraint: NSLayoutConstraint!
     @IBOutlet weak var socialView: SocialLink!
     @IBOutlet weak var socialAccountMessage: UILabel!
-    @IBOutlet weak var favoriteMusicInput: CBRTextInputView!
+    @IBOutlet var favoriteMusicTextField: [UITextField]!
     @IBOutlet weak var studyingInput: CBRTextInputView!
     @IBOutlet weak var greekLifeInput: CBRTextInputView!
-    @IBOutlet weak var favoriteGamesInput: CBRTextInputView!
-    @IBOutlet weak var favoriteTVInput: CBRTextInputView!
+    @IBOutlet var favoriteGamesTextField: [UITextField]!
+    @IBOutlet var favoriteTVTextField: [UITextField]!
     
     @IBOutlet weak var jerseyNumber: UITextField!
     @IBOutlet weak var myClub: CBRTextInputView!
@@ -125,11 +125,19 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         relationshipInput.delegate = self
         politicsInput.delegate = self
         relationshipInput.delegate = self
-        favoriteMusicInput.delegate = self
         studyingInput.delegate = self
         greekLifeInput.delegate = self
-        favoriteGamesInput.delegate = self
-        favoriteTVInput.delegate = self
+        
+        // Set delegates for individual music, TV, and games text fields
+        for textField in favoriteMusicTextField {
+            textField.delegate = self
+        }
+        for textField in favoriteGamesTextField {
+            textField.delegate = self
+        }
+        for textField in favoriteTVTextField {
+            textField.delegate = self
+        }
         
         // New field delegates
         classYearInput.delegate = self
@@ -232,16 +240,34 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
             }
         }
         
+        // Load favorite TV shows (split by comma or newline)
         if let favoriteTV = profile.personalInfo?.favoriteTV {
-            favoriteTVInput.setupInput(favoriteTV)
+            let tvShows = favoriteTV.components(separatedBy: CharacterSet(charactersIn: ",\n")).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+            for (index, show) in tvShows.enumerated() {
+                if index < favoriteTVTextField.count {
+                    favoriteTVTextField[index].text = show
+                }
+            }
         }
         
+        // Load favorite games (split by comma or newline)
         if let favoriteGame = profile.personalInfo?.favoriteGame {
-            favoriteGamesInput.setupInput(favoriteGame)
+            let games = favoriteGame.components(separatedBy: CharacterSet(charactersIn: ",\n")).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+            for (index, game) in games.enumerated() {
+                if index < favoriteGamesTextField.count {
+                    favoriteGamesTextField[index].text = game
+                }
+            }
         }
         
+        // Load favorite music (split by comma or newline)
         if let favoriteMusic = profile.personalInfo?.favoriteMusic {
-            favoriteMusicInput.setupInput(favoriteMusic)
+            let musicArtists = favoriteMusic.components(separatedBy: CharacterSet(charactersIn: ",\n")).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+            for (index, artist) in musicArtists.enumerated() {
+                if index < favoriteMusicTextField.count {
+                    favoriteMusicTextField[index].text = artist
+                }
+            }
         }
         
         if let greekLife = profile.personalInfo?.greekLife {
@@ -406,10 +432,34 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         let relationship = relationshipInput.getInput() ?? ""
         let bio = bioInput.text ?? ""
         let greekLife = greekLifeInput.getInput() ?? ""
-        let favoriteGame = favoriteGamesInput.getInput() ?? ""
-        let favoriteTV = favoriteTVInput.getInput() ?? ""
-        let favoriteMusic = favoriteMusicInput.getInput() ?? ""
         let studying = studyingInput.getInput() ?? ""
+        
+        // Collect favorite games from individual text fields
+        var favoriteGames: [String] = []
+        for textField in favoriteGamesTextField {
+            if let text = textField.text, !text.isEmpty {
+                favoriteGames.append(text)
+            }
+        }
+        let favoriteGame = favoriteGames.joined(separator: ", ")
+        
+        // Collect favorite TV shows from individual text fields
+        var favoriteTVShows: [String] = []
+        for textField in favoriteTVTextField {
+            if let text = textField.text, !text.isEmpty {
+                favoriteTVShows.append(text)
+            }
+        }
+        let favoriteTV = favoriteTVShows.joined(separator: ", ")
+        
+        // Collect favorite music from individual text fields
+        var favoriteMusicArtists: [String] = []
+        for textField in favoriteMusicTextField {
+            if let text = textField.text, !text.isEmpty {
+                favoriteMusicArtists.append(text)
+            }
+        }
+        let favoriteMusic = favoriteMusicArtists.joined(separator: ", ")
         
         // Get new field values
         let classYear = classYearInput.getInput() ?? ""
@@ -641,9 +691,34 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         profile.personalInfo?.highSchool = updatedProfile.personalInfo?.highSchool ?? self.highSchoolInput.getInput()
         // Merge fields that backend may not echo back yet
         profile.personalInfo?.studying = updatedProfile.personalInfo?.studying ?? self.studyingInput.getInput()
-        profile.personalInfo?.favoriteTV = updatedProfile.personalInfo?.favoriteTV ?? self.favoriteTVInput.getInput()
-        profile.personalInfo?.favoriteGame = updatedProfile.personalInfo?.favoriteGame ?? self.favoriteGamesInput.getInput()
-        profile.personalInfo?.favoriteMusic = updatedProfile.personalInfo?.favoriteMusic ?? self.favoriteMusicInput.getInput()
+        
+        // Merge favorite TV shows from individual text fields
+        var tvShows: [String] = []
+        for textField in self.favoriteTVTextField {
+            if let text = textField.text, !text.isEmpty {
+                tvShows.append(text)
+            }
+        }
+        profile.personalInfo?.favoriteTV = updatedProfile.personalInfo?.favoriteTV ?? tvShows.joined(separator: ", ")
+        
+        // Merge favorite games from individual text fields
+        var games: [String] = []
+        for textField in self.favoriteGamesTextField {
+            if let text = textField.text, !text.isEmpty {
+                games.append(text)
+            }
+        }
+        profile.personalInfo?.favoriteGame = updatedProfile.personalInfo?.favoriteGame ?? games.joined(separator: ", ")
+        
+        // Merge favorite music from individual text fields
+        var musicArtists: [String] = []
+        for textField in self.favoriteMusicTextField {
+            if let text = textField.text, !text.isEmpty {
+                musicArtists.append(text)
+            }
+        }
+        profile.personalInfo?.favoriteMusic = updatedProfile.personalInfo?.favoriteMusic ?? musicArtists.joined(separator: ", ")
+        
         profile.personalInfo?.greekLife = updatedProfile.personalInfo?.greekLife ?? self.greekLifeInput.getInput()
         
         // Preserve image URLs if they exist in the current profile (uploaded during this session)
