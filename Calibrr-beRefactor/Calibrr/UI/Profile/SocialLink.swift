@@ -88,8 +88,7 @@ class SocialLink: UIView {
     private func setupView() {
         stackView.axis = .horizontal
         stackView.spacing = 8.0  // Fixed spacing to prevent overlap
-        // Use equalSpacing to avoid conflicting equal width constraints in small widths
-        stackView.distribution = .equalSpacing
+        stackView.distribution = .fillEqually  // Ensure equal width for all icons
         stackView.alignment = .center
         
         self.addSubview(stackView)
@@ -105,7 +104,7 @@ class SocialLink: UIView {
         
         // Calculate available social media platforms dynamically
         let availablePlatforms = 7  // instagram, facebook, snapchat, linkedin, x, vsco, tiktok
-        let numberOfItem = max(1, isEditMode ? availablePlatforms : items.count)
+        let numberOfItem = isEditMode ? availablePlatforms : items.count
         
         // Simplified spacing - use fixed spacing instead of complex calculation
         let fixedSpacing: CGFloat = 8.0
@@ -116,7 +115,7 @@ class SocialLink: UIView {
         let totalSpacing = max(0, CGFloat(numberOfItem - 1)) * fixedSpacing
         let currentWidth = bounds.width > 0 ? bounds.width : sizeScreen
         let availableWidth = currentWidth - margins - totalSpacing
-        let iconSize = max(min(availableWidth / CGFloat(numberOfItem), 44.0), 28.0)
+        let iconSize = numberOfItem > 0 ? max(min(availableWidth / CGFloat(numberOfItem), 50.0), 30.0) : 40.0
         
         for i in 0..<numberOfItem {
             let containerView = UIView()
@@ -163,9 +162,8 @@ class SocialLink: UIView {
             }
             
             // Set container size constraints
-            // Avoid forcing fixed width on arranged subviews; only constrain height for tappable target
             containerView.snp.makeConstraints { make in
-                make.height.equalTo(iconSize)
+                make.width.height.equalTo(iconSize)
             }
             
             stackView.addArrangedSubview(containerView)
