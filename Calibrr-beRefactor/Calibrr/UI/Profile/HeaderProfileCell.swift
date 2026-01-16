@@ -74,10 +74,16 @@ class HeaderProfileCell: UITableViewCell {
 
 	// MARK: - Public API
 	func setLikeUI(liked: Bool, count: Int, isEnabled: Bool) {
+		// ENSURE INSTANT UI UPDATES WITH NO ANIMATIONS
+		CATransaction.begin()
+		CATransaction.setDisableActions(true)
+		
 		self.isLiked = liked
 		self.likesCount = count
 		self.isLikeEnabled = isEnabled
 		heartButton.isEnabled = isEnabled
+		
+		CATransaction.commit()
 	}
 
 	func currentLikeState() -> Bool { return isLiked }
@@ -90,6 +96,11 @@ class HeaderProfileCell: UITableViewCell {
 		heartButton.addTarget(self, action: #selector(didTapHeart), for: .touchUpInside)
 		heartButton.setContentCompressionResistancePriority(.required, for: .horizontal)
 		heartButton.setContentHuggingPriority(.required, for: .horizontal)
+		
+		// DISABLE ALL BUTTON HIGHLIGHTING AND ANIMATIONS
+		heartButton.adjustsImageWhenHighlighted = false
+		heartButton.adjustsImageWhenDisabled = false
+		heartButton.showsTouchWhenHighlighted = false
 
 		// Count label
 		likeCountLabel.textColor = .label
@@ -128,18 +139,24 @@ class HeaderProfileCell: UITableViewCell {
 
 	private func updateHeartAppearance() {
 		// NO ANIMATIONS, NO PULSE, JUST INSTANT CHANGE
+		// DISABLE ALL LAYER ANIMATIONS FOR INSTANT UPDATES
+		CATransaction.begin()
+		CATransaction.setDisableActions(true)
+		
 		let filled = UIImage(systemName: "heart.fill")?.withRenderingMode(.alwaysTemplate)
 		let outline = UIImage(systemName: "heart")?.withRenderingMode(.alwaysTemplate)
 		
 		if isLiked {
-			// RED FILLED HEART
+			// RED FILLED HEART - INSTANT
 			self.heartButton.setImage(filled, for: .normal)
 			self.heartButton.tintColor = .systemRed
 		} else {
-			// GRAY OUTLINE HEART (NOT FILLED)
+			// GRAY OUTLINE HEART (NOT FILLED) - INSTANT
 			self.heartButton.setImage(outline, for: .normal)
 			self.heartButton.tintColor = .tertiaryLabel
 		}
+		
+		CATransaction.commit()
 	}
 
 	@objc private func didTapHeart() {
