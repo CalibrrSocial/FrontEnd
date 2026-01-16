@@ -1,0 +1,84 @@
+name: Deploy to EC2
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10  # Add overall job timeout
+    steps:
+      - name: SSH deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          timeout: 60s  # SSH connection timeout
+          command_timeout: 5m  # Command execution timeout
+          script: |
+            set -e
+            
+            # Setup SSH config for GitHub
+            mkdir -p ~/.ssh
+            printf "Host github.com\n  User git\n  IdentityFile ~/.ssh/ec2-github\n  StrictHostKeyChecking accept-new\n" > ~/.ssh/config
+            chmod 600 ~/.ssh/config
+            git config --global core.sshCommand 'ssh -i ~/.ssh/ec2-github -o StrictHostKeyChecking=accept-new'
+            
+            # Navigate to project directory
+            cd ${{ secrets.PROJECT_DIR }}
+            
+            # Handle local changes - stash them before pulling
+            echo "Handling local changes..."
+            git stash push -m "Auto-stash before deployment $(date)" || true
+            
+            # Clean up any untracked files that might cause issues (be careful with this)
+            # Only remove .gitignore files that are causing issues
+            git clean -fd AdminPanel/storage/ || true
+            git clean -fd AdminPanel/bootstrap/cache/ || true
+            
+            # Ensure required PHP extensions are present (DOM, SimpleXML, cURL)
+            echo "Installing PHP dependencies..."
+            sudo apt-get update -y || sudo apt-get update --allow-releaseinfo-change -y
+            sudo apt-get install -y software-properties-common || true
+            sudo add-apt-repository -y ppa:ondrej/php || true
+            sudo apt-get update -y || true
+            PHPV=$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')
+            sudo apt-get install -y "php${PHPV}-xml" "php${PHPV}-curl" || sudo apt-get install -y php-xml php-curl
+            php -m | grep -E 'dom|SimpleXML|curl' || true
+            
+            # Git operations
+            echo "Setting up git remotes..."
+            (git remote -v | grep -q 'myrepo') || git remote add myrepo git@github.com:EYoung21/calibrr-social-backend.git
+            git remote set-url myrepo git@github.com:EYoung21/calibrr-social-backend.git
+            
+            echo "Fetching latest changes..."
+            git fetch myrepo
+            
+            # Force checkout to ensure we have the latest code
+            echo "Checking out branch..."
+            git checkout -B ${{ secrets.BRANCH }} myrepo/${{ secrets.BRANCH }} --force
+            
+            # Deploy Laravel application
+            echo "Running composer install..."
+            composer --version || true
+            composer install --no-dev --optimize-autoloader --ignore-platform-req=ext-dom --ignore-platform-req=ext-simplexml
+            
+            echo "Running Laravel migrations..."
+            php artisan migrate --force
+            
+            echo "Clearing and caching configs..."
+            php artisan config:clear 
+            php artisan cache:clear 
+            php artisan config:cache 
+            php artisan route:cache
+            
+            # Set proper permissions for storage and cache directories
+            echo "Setting permissions..."
+            chmod -R 775 storage bootstrap/cache || true
+            chown -R www-data:www-data storage bootstrap/cache || true
+            
+            echo "Reloading Apache..."
+            sudo systemctl reload apache2 || sudo service apache2 reload
+            
+            echo "Deployment completed successfully!"
