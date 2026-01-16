@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="WebPage" customModule="Calibrr" customModuleProvider="target">
+            <connections>
+                <outlet property="backgroundButton" destination="NFF-Hi-Nik" id="0fZ-Js-HFo"/>
+                <outlet property="view" destination="uzN-GJ-ivl" id="gGW-gV-xEH"/>
+                <outlet property="webView" destination="1eM-Il-6RQ" id="sYz-T2-0YE"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="uzN-GJ-ivl">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nsP-1C-zIe" userLabel="Background">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                    <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+                </view>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NFF-Hi-Nik" userLabel="BackgroundButton">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <state key="normal">
+                        <color key="titleColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </state>
+                    <connections>
+                        <action selector="closeWithSender:" destination="-1" eventType="touchUpInside" id="7aO-dV-pFe"/>
+                    </connections>
+                </button>
+                <wkWebView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1eM-Il-6RQ" userLabel="WebView">
+                    <rect key="frame" x="20" y="50" width="374" height="796"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <wkWebViewConfiguration key="configuration">
+                        <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
+                        <wkPreferences key="preferences"/>
+                    </wkWebViewConfiguration>
+                </wkWebView>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2rM-TI-YhP" userLabel="CloseButton">
+                    <rect key="frame" x="20" y="50" width="50" height="50"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="50" id="TWk-A9-xjd"/>
+                        <constraint firstAttribute="height" constant="50" id="rdb-7S-A8n"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="26"/>
+                    <state key="normal" title="X">
+                        <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </state>
+                    <connections>
+                        <action selector="closeWithSender:" destination="-1" eventType="touchUpInside" id="RYz-aV-jRF"/>
+                    </connections>
+                </button>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="nsP-1C-zIe" firstAttribute="leading" secondItem="uzN-GJ-ivl" secondAttribute="leading" id="80G-Yk-6aA"/>
+                <constraint firstItem="NFF-Hi-Nik" firstAttribute="top" secondItem="uzN-GJ-ivl" secondAttribute="top" id="D6b-WK-R4X"/>
+                <constraint firstItem="2rM-TI-YhP" firstAttribute="top" secondItem="1eM-Il-6RQ" secondAttribute="top" id="Ls6-Gb-qg1"/>
+                <constraint firstItem="NFF-Hi-Nik" firstAttribute="leading" secondItem="uzN-GJ-ivl" secondAttribute="leading" id="TAK-sm-hA0"/>
+                <constraint firstAttribute="bottom" secondItem="1eM-Il-6RQ" secondAttribute="bottom" constant="50" id="USO-gd-T4A"/>
+                <constraint firstAttribute="trailing" secondItem="1eM-Il-6RQ" secondAttribute="trailing" constant="20" id="YIr-kD-hw8"/>
+                <constraint firstItem="nsP-1C-zIe" firstAttribute="top" secondItem="uzN-GJ-ivl" secondAttribute="top" id="Z6q-zV-SN1"/>
+                <constraint firstItem="nsP-1C-zIe" firstAttribute="bottom" secondItem="uzN-GJ-ivl" secondAttribute="bottom" id="dGI-VH-qSO"/>
+                <constraint firstItem="2rM-TI-YhP" firstAttribute="leading" secondItem="1eM-Il-6RQ" secondAttribute="leading" id="m4p-5v-OuA"/>
+                <constraint firstItem="1eM-Il-6RQ" firstAttribute="top" secondItem="uzN-GJ-ivl" secondAttribute="top" constant="50" id="nNz-TE-H3p"/>
+                <constraint firstAttribute="trailing" secondItem="NFF-Hi-Nik" secondAttribute="trailing" id="pjz-i7-M5s"/>
+                <constraint firstItem="1eM-Il-6RQ" firstAttribute="leading" secondItem="uzN-GJ-ivl" secondAttribute="leading" constant="20" id="qKd-m9-Zre"/>
+                <constraint firstAttribute="bottom" secondItem="NFF-Hi-Nik" secondAttribute="bottom" id="sPk-au-31i"/>
+                <constraint firstAttribute="trailing" secondItem="nsP-1C-zIe" secondAttribute="trailing" id="x6A-3J-xp3"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="ygb-mJ-hzS"/>
+            <point key="canvasLocation" x="25.5" y="51.5"/>
+        </view>
+    </objects>
+</document>

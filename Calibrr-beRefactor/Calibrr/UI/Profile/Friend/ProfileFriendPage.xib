@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ProfileFriendPage" customModule="Calibrr" customModuleProvider="target">
+            <connections>
+                <outlet property="personalInfoTableView" destination="Is2-7M-OwU" id="KLe-Km-IdM"/>
+                <outlet property="socialInfoCollectionView" destination="taz-mj-6fP" id="aYa-6x-qRg"/>
+                <outlet property="view" destination="Wgd-Hh-wJZ" id="GYS-Zx-Y6M"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="Wgd-Hh-wJZ">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="background" translatesAutoresizingMaskIntoConstraints="NO" id="XRG-ng-fRX" userLabel="Background">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="796"/>
+                </imageView>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" bouncesZoom="NO" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Is2-7M-OwU" userLabel="PersonalInfoTableView" customClass="CBRTableView" customModule="Calibrr" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="44" width="414" height="818"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <connections>
+                        <outlet property="delegate" destination="-1" id="sts-xn-tJU"/>
+                    </connections>
+                </tableView>
+                <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="taz-mj-6fP" userLabel="SocialInfoCollectionView" customClass="CBRCollectionView" customModule="Calibrr" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="862" width="414" height="0.0"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="height" id="y3G-Hy-ZBl"/>
+                    </constraints>
+                    <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="xPr-wl-tqc">
+                        <size key="itemSize" width="50" height="50"/>
+                        <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                        <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                        <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                    </collectionViewFlowLayout>
+                    <connections>
+                        <outlet property="delegate" destination="-1" id="Fvx-l7-qTX"/>
+                    </connections>
+                </collectionView>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="fgh-DI-QU6"/>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="XRG-ng-fRX" firstAttribute="top" secondItem="Wgd-Hh-wJZ" secondAttribute="top" id="0j7-T4-AzU"/>
+                <constraint firstItem="XRG-ng-fRX" firstAttribute="leading" secondItem="Wgd-Hh-wJZ" secondAttribute="leading" id="27w-JQ-sFv"/>
+                <constraint firstItem="Is2-7M-OwU" firstAttribute="leading" secondItem="fgh-DI-QU6" secondAttribute="leading" id="4h4-qi-L91"/>
+                <constraint firstItem="fgh-DI-QU6" firstAttribute="trailing" secondItem="taz-mj-6fP" secondAttribute="trailing" id="8Jd-vm-ldK"/>
+                <constraint firstItem="taz-mj-6fP" firstAttribute="bottom" secondItem="fgh-DI-QU6" secondAttribute="bottom" id="8kM-Rl-mOh"/>
+                <constraint firstAttribute="bottom" secondItem="XRG-ng-fRX" secondAttribute="bottom" constant="100" id="CGM-Ee-YXu"/>
+                <constraint firstItem="fgh-DI-QU6" firstAttribute="trailing" secondItem="Is2-7M-OwU" secondAttribute="trailing" id="LfN-zJ-zte"/>
+                <constraint firstItem="XRG-ng-fRX" firstAttribute="trailing" secondItem="Wgd-Hh-wJZ" secondAttribute="trailing" id="M79-cU-6ma"/>
+                <constraint firstItem="taz-mj-6fP" firstAttribute="leading" secondItem="fgh-DI-QU6" secondAttribute="leading" id="MZQ-vF-R3H"/>
+                <constraint firstItem="Is2-7M-OwU" firstAttribute="top" secondItem="fgh-DI-QU6" secondAttribute="top" id="cCL-pC-mHl"/>
+                <constraint firstItem="taz-mj-6fP" firstAttribute="top" secondItem="Is2-7M-OwU" secondAttribute="bottom" id="m5I-93-JP9"/>
+            </constraints>
+            <point key="canvasLocation" x="34.782608695652179" y="34.821428571428569"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="background" width="375" height="666"/>
+    </resources>
+</document>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="LoadingTransparentPage" customModule="Calibrr" customModuleProvider="target">
+            <connections>
+                <outlet property="background" destination="ltX-Nx-gzt" id="k24-Be-AsD"/>
+                <outlet property="spinner" destination="I4U-xS-ekL" id="z6V-zS-Gac"/>
+                <outlet property="view" destination="iN0-l3-epB" id="TIu-eb-z9X"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view opaque="NO" contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ltX-Nx-gzt" userLabel="background">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                    <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="displayP3"/>
+                </view>
+                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="I4U-xS-ekL" userLabel="spinner" customClass="CBRActivityIndicatorView" customModule="Calibrr" customModuleProvider="target">
+                    <rect key="frame" x="167.5" y="413.5" width="40" height="40"/>
+                    <color key="tintColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="40" id="FId-Sg-QJN"/>
+                        <constraint firstAttribute="height" constant="40" id="tRX-6i-ej7"/>
+                    </constraints>
+                    <color key="color" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                </activityIndicatorView>
+            </subviews>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="ltX-Nx-gzt" secondAttribute="bottom" id="AlC-Id-77l"/>
+                <constraint firstItem="I4U-xS-ekL" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="GNd-FQ-XDh"/>
+                <constraint firstAttribute="trailing" secondItem="ltX-Nx-gzt" secondAttribute="trailing" id="JeZ-41-LP4"/>
+                <constraint firstItem="ltX-Nx-gzt" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="f2s-AZ-Hw1"/>
+                <constraint firstItem="I4U-xS-ekL" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" constant="100" id="f65-BK-Jt6"/>
+                <constraint firstItem="ltX-Nx-gzt" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="sCU-xf-FiA"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+        </view>
+    </objects>
+</document>

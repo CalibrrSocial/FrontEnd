@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="BlockUsersPage" customModule="Calibrr" customModuleProvider="target">
+            <connections>
+                <outlet property="resultsTable" destination="wPD-9b-HNG" id="m2H-x1-Usf"/>
+                <outlet property="view" destination="3Vn-Nz-cbM" id="0Dz-Eh-vWX"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="3Vn-Nz-cbM">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="background" translatesAutoresizingMaskIntoConstraints="NO" id="aKd-58-GKg" userLabel="Background">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                </imageView>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" bouncesZoom="NO" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="wPD-9b-HNG" userLabel="TableView" customClass="CBRTableView" customModule="Calibrr" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="44" width="414" height="818"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <connections>
+                        <outlet property="delegate" destination="-1" id="on0-oU-qz6"/>
+                    </connections>
+                </tableView>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="aKd-58-GKg" firstAttribute="leading" secondItem="3Vn-Nz-cbM" secondAttribute="leading" id="1Sx-5R-Gto"/>
+                <constraint firstItem="aKd-58-GKg" firstAttribute="top" secondItem="3Vn-Nz-cbM" secondAttribute="top" id="7zM-yb-va7"/>
+                <constraint firstItem="aKd-58-GKg" firstAttribute="trailing" secondItem="3Vn-Nz-cbM" secondAttribute="trailing" id="M53-Gc-mqi"/>
+                <constraint firstAttribute="bottom" secondItem="aKd-58-GKg" secondAttribute="bottom" id="gPL-pC-XmN"/>
+                <constraint firstItem="HUU-aY-8Og" firstAttribute="bottom" secondItem="wPD-9b-HNG" secondAttribute="bottom" id="le8-bm-QyU"/>
+                <constraint firstItem="wPD-9b-HNG" firstAttribute="top" secondItem="HUU-aY-8Og" secondAttribute="top" id="o1V-xP-Nfh"/>
+                <constraint firstItem="HUU-aY-8Og" firstAttribute="trailing" secondItem="wPD-9b-HNG" secondAttribute="trailing" id="qwm-4E-ZDf"/>
+                <constraint firstItem="wPD-9b-HNG" firstAttribute="leading" secondItem="HUU-aY-8Og" secondAttribute="leading" id="rn4-2Z-xvz"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="HUU-aY-8Og"/>
+            <point key="canvasLocation" x="34.782608695652179" y="34.821428571428569"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="background" width="375" height="666"/>
+    </resources>
+</document>

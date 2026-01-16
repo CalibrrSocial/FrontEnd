@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" rowHeight="60" id="qSl-us-47z" userLabel="SettingsCell" customClass="SingleLineCell" customModule="Calibrr" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="60"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="qSl-us-47z" id="Wdh-Wp-jjk">
+                <rect key="frame" x="0.0" y="0.0" width="375" height="60"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ilf-tg-42f" userLabel="TitleLabel">
+                        <rect key="frame" x="25" y="10" width="325" height="30"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="30" id="hOb-P2-DLz"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <color key="textColor" red="0.51372549020000002" green="0.51372549020000002" blue="0.58431372550000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="i5A-UV-NlS" userLabel="Underline">
+                        <rect key="frame" x="25" y="45" width="325" height="1"/>
+                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.064040492960000001" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="tintColor" red="0.51372549020000002" green="0.51372549020000002" blue="0.58431372550000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="1" id="RTs-z5-Gns"/>
+                        </constraints>
+                    </view>
+                    <switch hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Xck-N6-1Jk">
+                        <rect key="frame" x="301" y="9.5" width="51" height="31"/>
+                        <color key="onTintColor" systemColor="systemGreenColor"/>
+                        <connections>
+                            <action selector="switchValueChanged:" destination="-1" eventType="valueChanged" id="IPy-ga-mHJ"/>
+                        </connections>
+                    </switch>
+                </subviews>
+                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                <constraints>
+                    <constraint firstAttribute="trailingMargin" secondItem="i5A-UV-NlS" secondAttribute="trailing" constant="5" id="5H5-bD-op4"/>
+                    <constraint firstItem="ilf-tg-42f" firstAttribute="top" secondItem="Wdh-Wp-jjk" secondAttribute="top" constant="10" id="6Ca-c6-Pxo"/>
+                    <constraint firstItem="Xck-N6-1Jk" firstAttribute="trailing" secondItem="i5A-UV-NlS" secondAttribute="trailing" id="6Zq-7S-TUT"/>
+                    <constraint firstItem="i5A-UV-NlS" firstAttribute="trailing" secondItem="ilf-tg-42f" secondAttribute="trailing" id="DH2-ne-Gac"/>
+                    <constraint firstItem="i5A-UV-NlS" firstAttribute="leading" secondItem="ilf-tg-42f" secondAttribute="leading" id="Q1s-t5-340"/>
+                    <constraint firstItem="i5A-UV-NlS" firstAttribute="top" secondItem="ilf-tg-42f" secondAttribute="bottom" constant="5" id="ZkX-RP-k4h"/>
+                    <constraint firstItem="i5A-UV-NlS" firstAttribute="leading" secondItem="Wdh-Wp-jjk" secondAttribute="leadingMargin" constant="5" id="grT-s0-wys"/>
+                    <constraint firstAttribute="bottomMargin" secondItem="i5A-UV-NlS" secondAttribute="bottom" id="uB1-qQ-1Gq"/>
+                    <constraint firstItem="Xck-N6-1Jk" firstAttribute="centerY" secondItem="ilf-tg-42f" secondAttribute="centerY" id="xbf-Af-xZJ"/>
+                </constraints>
+            </tableViewCellContentView>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <connections>
+                <outlet property="switchControl" destination="Xck-N6-1Jk" id="Myk-zB-Cqg"/>
+                <outlet property="titleLabel" destination="ilf-tg-42f" id="Atv-V1-ySr"/>
+                <outlet property="underline" destination="i5A-UV-NlS" id="Uc2-cX-cof"/>
+            </connections>
+            <point key="canvasLocation" x="133" y="129"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <systemColor name="systemGreenColor">
+            <color red="0.20392156862745098" green="0.7803921568627451" blue="0.34901960784313724" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>

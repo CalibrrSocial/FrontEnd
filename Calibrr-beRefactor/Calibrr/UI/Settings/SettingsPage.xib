@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="SettingsPage" customModule="Calibrr" customModuleProvider="target">
+            <connections>
+                <outlet property="tableView" destination="gxg-4l-Hqr" id="KW8-nZ-RGW"/>
+                <outlet property="view" destination="X5u-G4-QGn" id="zLR-WB-pVh"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="X5u-G4-QGn">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="background" translatesAutoresizingMaskIntoConstraints="NO" id="yIE-wJ-wce" userLabel="Background">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                </imageView>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="gxg-4l-Hqr" customClass="CBRTableView" customModule="Calibrr" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="44" width="414" height="818"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <connections>
+                        <outlet property="dataSource" destination="-1" id="mtJ-QF-X7s"/>
+                        <outlet property="delegate" destination="-1" id="2eV-ff-rYW"/>
+                    </connections>
+                </tableView>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+            <accessibility key="accessibilityConfiguration" identifier=""/>
+            <constraints>
+                <constraint firstItem="gxg-4l-Hqr" firstAttribute="bottom" secondItem="bOv-Qx-sCm" secondAttribute="bottom" id="5wT-cP-IFd"/>
+                <constraint firstAttribute="bottom" secondItem="yIE-wJ-wce" secondAttribute="bottom" id="RMk-3Y-msq"/>
+                <constraint firstItem="gxg-4l-Hqr" firstAttribute="trailing" secondItem="bOv-Qx-sCm" secondAttribute="trailing" id="UWd-PW-Vaq"/>
+                <constraint firstItem="yIE-wJ-wce" firstAttribute="top" secondItem="X5u-G4-QGn" secondAttribute="top" id="YiU-y4-H6b"/>
+                <constraint firstItem="yIE-wJ-wce" firstAttribute="trailing" secondItem="X5u-G4-QGn" secondAttribute="trailing" id="oqS-aX-RV0"/>
+                <constraint firstItem="yIE-wJ-wce" firstAttribute="leading" secondItem="X5u-G4-QGn" secondAttribute="leading" id="uTO-WM-Jlc"/>
+                <constraint firstItem="gxg-4l-Hqr" firstAttribute="leading" secondItem="bOv-Qx-sCm" secondAttribute="leading" id="ytd-n8-YxF"/>
+                <constraint firstItem="gxg-4l-Hqr" firstAttribute="top" secondItem="bOv-Qx-sCm" secondAttribute="top" id="zY0-3L-xjz"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="bOv-Qx-sCm"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="background" width="375" height="666"/>
+    </resources>
+</document>

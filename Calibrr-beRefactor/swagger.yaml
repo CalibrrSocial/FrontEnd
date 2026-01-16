@@ -1,0 +1,1004 @@
+openapi: "3.0.0"
+info:
+  version: "0.1.1"
+  title: "Calibrr API"
+
+servers:
+  # - url: https://dev.calibrr.com
+  #   description: Development server
+  # - url: https://staging.calibrr.com
+  #   description: Staging server
+  # - url: https://api.calibrr.com
+  - url: https://x1oyeepmz2.execute-api.us-east-1.amazonaws.com/prod
+    description: Production server
+
+tags:
+  - name: Authentication
+  - name: Search
+  - name: Profile
+
+paths:
+
+  #Authentication
+
+  /auth/register:
+    post:
+      operationId: registerUser
+      summary: "Registers user"
+      tags:
+        - Authentication
+      requestBody:
+        $ref: '#/components/requestBodies/RegisterUser'
+      responses:
+        "200":
+          $ref: '#/components/responses/LoginUser'
+        "400":
+          $ref: '#/components/responses/GeneralError'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:046285933615:function:registerUser/invocations"
+        type: "aws"
+        httpMethod: "POST"
+        responses:
+          default:
+            statusCode: "200"
+        credentials: "arn:aws:iam::046285933615:role/CalibrrLambda"
+
+  /auth/login:
+    post:
+      operationId: loginUser
+      summary: "Login user"
+      tags:
+        - Authentication
+      requestBody:
+        $ref: '#/components/requestBodies/LoginAuth'
+      responses:
+        "200":
+          $ref: '#/components/responses/LoginUser'
+        "400":
+          $ref: '#/components/responses/GeneralError'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:046285933615:function:loginUser/invocations"
+        type: "aws"
+        httpMethod: "POST"
+        responses:
+          default:
+            statusCode: "200"
+        credentials: "arn:aws:iam::046285933615:role/CalibrrLambda"
+
+  /auth/refresh:
+    post:
+      operationId: refreshToken
+      summary: "Refresh user token"
+      tags:
+        - Authentication
+      requestBody:
+        $ref: '#/components/requestBodies/TokenAuth'
+      responses:
+        "200":
+          $ref: '#/components/responses/Token'
+        "400":
+          $ref: '#/components/responses/GeneralError'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:046285933615:function:refreshToken/invocations"
+        type: "aws"
+        httpMethod: "POST"
+        responses:
+          default:
+            statusCode: "200"
+        credentials: "arn:aws:iam::046285933615:role/CalibrrLambda"
+
+  /auth/forgotpassword:
+    post:
+      operationId: forgotPassword
+      summary: "Forgot password"
+      tags:
+        - Authentication
+      parameters:
+        - in: query
+          name: username
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          $ref: '#/components/responses/OK'
+        "400":
+          $ref: '#/components/responses/GeneralError'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:046285933615:function:forgotPassword/invocations"
+        type: "aws_proxy"
+        httpMethod: "POST"
+        responses:
+          default:
+            statusCode: "200"
+        credentials: "arn:aws:iam::046285933615:role/CalibrrLambda"
+
+  /auth/changepassword:
+    post:
+      operationId: changePassword
+      summary: "Change password"
+      tags:
+        - Authentication
+      requestBody:
+        $ref: '#/components/requestBodies/ChangePassword'
+      responses:
+        "200":
+          $ref: '#/components/responses/OK'
+        "400":
+          $ref: '#/components/responses/GeneralError'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:046285933615:function:changePassword/invocations"
+        type: "aws"
+        httpMethod: "POST"
+        responses:
+          default:
+            statusCode: "200"
+        credentials: "arn:aws:iam::046285933615:role/CalibrrLambda"
+
+  # Profile
+
+  /profile/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          $ref: '#/components/schemas/ID'
+        required: true
+    get:
+      operationId: getUser
+      summary: "Get a user's profile"
+      tags:
+        - Profile
+      security:
+        - CalibrrAuthorizer: []
+      responses:
+        "200":
+          $ref: '#/components/responses/User'
+        "404":
+          $ref: '#/components/responses/IdNotFound'
+        "400":
+          $ref: '#/components/responses/GeneralError'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:046285933615:function:getUser/invocations"
+        type: "aws_proxy"
+        httpMethod: "POST"
+        responses:
+          default:
+            statusCode: "200"
+        credentials: "arn:aws:iam::046285933615:role/CalibrrLambda"
+    post:
+      operationId: updateUserProfile
+      summary: "Update a user's personalInfo and socialInfo"
+      tags:
+        - Profile
+      security:
+        - CalibrrAuthorizer: []
+      requestBody:
+        $ref: '#/components/requestBodies/User'
+      responses:
+        "200":
+          $ref: '#/components/responses/User'
+        "404":
+          $ref: '#/components/responses/IdNotFound'
+        "400":
+          $ref: '#/components/responses/GeneralError'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:046285933615:function:updateUserProfile/invocations"
+        type: "aws_proxy"
+        httpMethod: "POST"
+        responses:
+          default:
+            statusCode: "200"
+        credentials: "arn:aws:iam::046285933615:role/CalibrrLambda"
+    delete:
+      operationId: removeUser
+      summary: "Removes a user's account"
+      tags:
+        - Authentication
+      security:
+        - CalibrrAuthorizer: []
+      responses:
+        "200":
+          $ref: '#/components/responses/OK'
+        "400":
+          $ref: '#/components/responses/GeneralError'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:046285933615:function:removeUser/invocations"
+        type: "aws_proxy"
+        httpMethod: "POST"
+        responses:
+          default:
+            statusCode: "200"
+        credentials: "arn:aws:iam::046285933615:role/CalibrrLambda"
+
+  /profile/{id}/location:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          $ref: '#/components/schemas/ID'
+        required: true
+    post:
+      operationId: updateUserLocation
+      summary: "Update a user's location"
+      tags:
+        - Profile
+      security:
+        - CalibrrAuthorizer: []
+      requestBody:
+        $ref: '#/components/requestBodies/Position'
+      responses:
+        "200":
+          $ref: '#/components/responses/User'
+        "404":
+          $ref: '#/components/responses/IdNotFound'
+        "400":
+          $ref: '#/components/responses/GeneralError'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:046285933615:function:updateUserLocation/invocations"
+        type: "aws_proxy"
+        httpMethod: "POST"
+        responses:
+          default:
+            statusCode: "200"
+        credentials: "arn:aws:iam::046285933615:role/CalibrrLambda"
+
+  /profile/{id}/relationships:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          $ref: '#/components/schemas/ID'
+        required: true
+    get:
+      operationId: getUserRelationships
+      summary: "Gets user's relationships"
+      tags:
+        - Profile
+      security:
+        - CalibrrAuthorizer: []
+      responses:
+        "200":
+          $ref: '#/components/responses/Relationships'
+        "400":
+          $ref: '#/components/responses/GeneralError'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:046285933615:function:getUserRelationships/invocations"
+        type: "aws_proxy"
+        httpMethod: "POST"
+        responses:
+          default:
+            statusCode: "200"
+        credentials: "arn:aws:iam::046285933615:role/CalibrrLambda"
+
+  /profile/{id}/relationships/{friendId}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          $ref: '#/components/schemas/ID'
+        required: true
+      - in: path
+        name: friendId
+        schema:
+          $ref: '#/components/schemas/ID'
+        required: true
+    get:
+      operationId: getRelationship
+      summary: "Gets the relationship"
+      tags:
+        - Profile
+      security:
+        - CalibrrAuthorizer: []
+      responses:
+        "200":
+          $ref: '#/components/responses/Relationship'
+        "204":
+          $ref: '#/components/responses/NoContent'
+        "400":
+          $ref: '#/components/responses/GeneralError'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:046285933615:function:getRelationship/invocations"
+        type: "aws_proxy"
+        httpMethod: "POST"
+        responses:
+          default:
+            statusCode: "200"
+        credentials: "arn:aws:iam::046285933615:role/CalibrrLambda"
+    put:
+      operationId: requestFriend
+      summary: "Request user as friend"
+      tags:
+        - Profile
+      security:
+        - CalibrrAuthorizer: []
+      responses:
+        "200":
+          $ref: '#/components/responses/OK'
+        "400":
+          $ref: '#/components/responses/GeneralError'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:046285933615:function:requestFriend/invocations"
+        type: "aws_proxy"
+        httpMethod: "POST"
+        responses:
+          default:
+            statusCode: "200"
+        credentials: "arn:aws:iam::046285933615:role/CalibrrLambda"
+    post:
+      operationId: updateFriend
+      summary: "Update user's friend status - accept/reject/block"
+      tags:
+        - Profile
+      security:
+        - CalibrrAuthorizer: []
+      responses:
+        "200":
+          $ref: '#/components/responses/OK'
+        "400":
+          $ref: '#/components/responses/GeneralError'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:046285933615:function:updateFriend/invocations"
+        type: "aws_proxy"
+        httpMethod: "POST"
+        responses:
+          default:
+            statusCode: "200"
+        credentials: "arn:aws:iam::046285933615:role/CalibrrLambda"
+    delete:
+      operationId: unblockUser
+      summary: "Unblock user's friend - removing their relationship"
+      tags:
+        - Profile
+      security:
+        - CalibrrAuthorizer: []
+      responses:
+        "200":
+          $ref: '#/components/responses/OK'
+        "400":
+          $ref: '#/components/responses/GeneralError'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:046285933615:function:unblockUser/invocations"
+        type: "aws_proxy"
+        httpMethod: "POST"
+        responses:
+          default:
+            statusCode: "200"
+        credentials: "arn:aws:iam::046285933615:role/CalibrrLambda"
+
+  /profile/{id}/likes:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          $ref: '#/components/schemas/ID'
+        required: true
+    get:
+      operationId: getLikes
+      summary: "Gets the number of likes a user's profile has"
+      tags:
+        - Profile
+      security:
+        - CalibrrAuthorizer: []
+      responses:
+        "200":
+          $ref: '#/components/responses/Count'
+        "400":
+          $ref: '#/components/responses/GeneralError'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:046285933615:function:getLikes/invocations"
+        type: "aws_proxy"
+        httpMethod: "POST"
+        responses:
+          default:
+            statusCode: "200"
+        credentials: "arn:aws:iam::046285933615:role/CalibrrLambda"
+    post:
+      operationId: likeProfile
+      summary: "Like user profile"
+      tags:
+        - Profile
+      security:
+        - CalibrrAuthorizer: []
+      parameters:
+        - in: query
+          name: profileLikedId
+          schema:
+            $ref: '#/components/schemas/ID'
+          required: true
+      responses:
+        "200":
+          $ref: '#/components/responses/OK'
+        "400":
+          $ref: '#/components/responses/GeneralError'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:046285933615:function:likeProfile/invocations"
+        type: "aws_proxy"
+        httpMethod: "POST"
+        responses:
+          default:
+            statusCode: "200"
+        credentials: "arn:aws:iam::046285933615:role/CalibrrLambda"
+    delete:
+      operationId: unlikeProfile
+      summary: "Unlike user profile"
+      tags:
+        - Profile
+      security:
+        - CalibrrAuthorizer: []
+      parameters:
+        - in: query
+          name: profileLikedId
+          schema:
+            $ref: '#/components/schemas/ID'
+          required: true
+      responses:
+        "200":
+          $ref: '#/components/responses/OK'
+        "400":
+          $ref: '#/components/responses/GeneralError'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:046285933615:function:unlikeProfile/invocations"
+        type: "aws_proxy"
+        httpMethod: "POST"
+        responses:
+          default:
+            statusCode: "200"
+        credentials: "arn:aws:iam::046285933615:role/CalibrrLambda"
+
+  /profile/{id}/reports:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          $ref: '#/components/schemas/ID'
+        required: true
+    get:
+      operationId: getUserReports
+      summary: "Gets the reports that were submitted by the user"
+      tags:
+        - Profile
+      security:
+        - CalibrrAuthorizer: []
+      responses:
+        "200":
+          $ref: '#/components/responses/UserReports'
+        "400":
+          $ref: '#/components/responses/GeneralError'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:046285933615:function:getUserReports/invocations"
+        type: "aws_proxy"
+        httpMethod: "POST"
+        responses:
+          default:
+            statusCode: "200"
+        credentials: "arn:aws:iam::046285933615:role/CalibrrLambda"
+    put:
+      operationId: reportUser
+      summary: "Report a user"
+      tags:
+        - Profile
+      security:
+        - CalibrrAuthorizer: []
+      requestBody:
+        $ref: '#/components/requestBodies/UserReport'
+      responses:
+        "200":
+          $ref: '#/components/responses/OK'
+        "404":
+          $ref: '#/components/responses/IdNotFound'
+        "400":
+          $ref: '#/components/responses/GeneralError'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:046285933615:function:reportUser/invocations"
+        type: "aws_proxy"
+        httpMethod: "POST"
+        responses:
+          default:
+            statusCode: "200"
+        credentials: "arn:aws:iam::046285933615:role/CalibrrLambda"
+
+  # Search
+
+  /search/distance:
+    post:
+      operationId: searchByDistance
+      summary: "Searches users by distance from given point"
+      tags:
+        - Search
+      security:
+        - CalibrrAuthorizer: []
+      parameters:
+        - in: query
+          name: position
+          schema:
+            $ref: '#/components/schemas/Position'
+          required: true
+        - in: query
+          name: minDistance
+          schema:
+            $ref: '#/components/schemas/Distance'
+          required: true
+        - in: query
+          name: maxDistance
+          schema:
+            $ref: '#/components/schemas/Distance'
+          required: true
+      responses:
+        "200":
+          $ref: '#/components/responses/Users'
+        "400":
+          $ref: '#/components/responses/GeneralError'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:046285933615:function:searchByDistance/invocations"
+        type: "aws"
+        httpMethod: "POST"
+        responses:
+          default:
+            statusCode: "200"
+        credentials: "arn:aws:iam::046285933615:role/CalibrrLambda"
+
+  /search/name:
+    post:
+      operationId: searchByName
+      summary: "Searches users by name"
+      tags:
+        - Search
+      security:
+        - CalibrrAuthorizer: []
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          $ref: '#/components/responses/Users'
+        "400":
+          $ref: '#/components/responses/GeneralError'
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:046285933615:function:searchByName/invocations"
+        type: "aws"
+        httpMethod: "POST"
+        responses:
+          default:
+            statusCode: "200"
+        credentials: "arn:aws:iam::046285933615:role/CalibrrLambda"
+
+
+components:
+
+  securitySchemes:
+
+    CalibrrAuthorizer:
+          type: apiKey
+          name: Authorization
+          in: header
+          x-amazon-apigateway-authtype: cognito_user_pools
+          x-amazon-apigateway-authorizer:
+            providerARNs:
+              - "arn:aws:cognito-idp:us-east-1:046285933615:userpool/us-east-1_RFzslV52o"
+            type: cognito_user_pools
+
+  responses:
+
+    OK:
+      description: Success
+    NoContent:
+      description: No Content
+    GeneralError:
+      description: General Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralError'
+    IdNotFound:
+      description: Id not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralError'
+
+    LoginUser:
+      description: Login Payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LoginUser'
+    Token:
+      description: Auth Token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Token'
+
+    User:
+      description: User
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/User'
+    Users:
+      description: Users
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/User'
+    Relationship:
+      description: Relationship
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Relationship'
+    Relationships:
+      description: Relationships
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Relationship'
+
+    UserReport:
+      description: UserReport
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserReport'
+    UserReports:
+      description: UserReports
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/UserReport'
+
+    Count:
+      description: Count
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Count'
+
+
+  requestBodies:
+
+    RegisterUser:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RegisterUser'
+    LoginAuth:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LoginAuth'
+    TokenAuth:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TokenAuth'
+
+    ChangePassword:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ChangePassword'
+
+    User:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/User'
+
+    SocialInfo:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SocialInfo'
+
+    Position:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/User'
+
+    UserReport:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserReport'
+
+
+  schemas:
+
+    RegisterUser:
+      type: object
+      required:
+        - email
+        - phone
+        - password
+        - firstName
+        - lastName
+      properties:
+        email:
+          type: string
+        phone:
+          type: string
+        password:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+
+    LoginAuth:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    TokenAuth:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+
+    ChangePassword:
+      type: object
+      required:
+        - oldPassword
+        - newPassword
+      properties:
+        oldPassword:
+          type: string
+        newPassword:
+          type: string
+
+    LoginUser:
+      type: object
+      required:
+        - token
+        - refreshToken
+        - user
+      properties:
+        token:
+          type: string
+        refreshToken:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      required:
+        - id
+        - email
+        - phone
+        - firstName
+        - lastName
+        - ghostMode
+        - personalInfo
+        - socialInfo
+        - likeCount
+        - visitCount
+      properties:
+        id:
+          $ref: '#/components/schemas/ID'
+        email:
+          type: string
+          readOnly: true
+        phone:
+          type: string
+          readOnly: true
+        firstName:
+          type: string
+          readOnly: true
+        lastName:
+          type: string
+          readOnly: true
+        ghostMode:
+          type: boolean
+          readOnly: true
+        subscription:
+          type: string
+          readOnly: true
+        location:
+          $ref: '#/components/schemas/Position'
+          readOnly: true
+        locationTimestamp:
+          type: string
+          format: date-time
+          readOnly: true
+        pictureProfile:
+          type: string
+          readOnly: true
+        pictureCover:
+          type: string
+          readOnly: true
+        personalInfo:
+          $ref: '#/components/schemas/UserPersonalInfo'
+          readOnly: true
+        socialInfo:
+          $ref: '#/components/schemas/UserSocialInfo'
+          readOnly: true
+        liked:
+          type: boolean
+          readOnly: true
+        likeCount:
+          type: integer
+          readOnly: true
+        visitCount:
+          type: integer
+          readOnly: true
+
+    UserPersonalInfo:
+      type: object
+      properties:
+        dob:
+          type: string
+          format: date
+          readOnly: true
+        gender:
+          type: string
+          enum: &Gender [Male, Female, Other]
+          readOnly: true
+        bio:
+          type: string
+          readOnly: true
+        education:
+          type: string
+          readOnly: true
+        politics:
+          type: string
+          enum: &Politics [PreferNotToSay, Independent, Centrist, PopulistLeft, FarLeft, LeftWing, Green, Liberal, CenterLeft, Democrat, Republican, CenterRight, Conservative, Libertarian, RightWing, FarRight, PopulistRight]
+          readOnly: true
+        religion:
+          type: string
+          enum: &Religion [PreferNotToSay, Christianity, Islam, Buddhism, Judaism, Hinduism, None, Agnostic, Atheist]
+          readOnly: true
+        occupation:
+          type: string
+          readOnly: true
+        sexuality:
+          type: string
+          enum: &Sexuality [PreferNotToSay, Heterosexual, Bisexual, Homosexual]
+          readOnly: true
+        relationship:
+          type: string
+          enum: &Relationship [PreferNotToSay, Single, HappySingle, InARelationship, Married, Separated, Divorced, Widowed]
+          readOnly: true
+
+    UserSocialInfo:
+      type: object
+      properties:
+        facebook:
+          type: string
+        instagram:
+          type: string
+        snapchat:
+          type: string
+        linkedIn:
+          type: string
+        twitter:
+          type: string
+        resume:
+          type: string
+        coverLetter:
+          type: string
+        email:
+          type: string
+        website:
+          type: string
+        contact:
+          type: string
+
+    Position:
+      type: object
+      required:
+        - latitude
+        - longitude
+      properties:
+        latitude:
+          type: number
+        longitude:
+          type: number
+
+    Distance:
+      type: object
+      required:
+        - type
+        - amount
+      properties:
+        type:
+          type: string
+          enum: &DistanceType [Feet, Miles]
+        amount:
+          type: integer
+
+    UserReport:
+      type: object
+      required:
+        - userId
+        - info
+        - dateCreated
+      properties:
+        userId:
+          $ref: '#/components/schemas/ID'
+        info:
+          type: string
+        dateCreated:
+          $ref: '#/components/schemas/Date'
+
+    Token:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+
+    GeneralError:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+        details:
+          type: string
+
+    Date:
+      type: string
+      format: date-time
+
+    ID:
+      type: string
+      # format: uuid
+      readOnly: true
+
+    Count:
+      type: integer
+
+    Relationship:
+      type: object
+      required:
+        - userId
+        - friendId
+        - status
+        - dateRequested
+      properties:
+        userId:
+          $ref: '#/components/schemas/ID'
+        friendId:
+          $ref: '#/components/schemas/ID'
+        status:
+          type: string
+          enum: &RelationshipStatus [requested, accepted, rejected, blocked]
+        dateRequested:
+          $ref: '#/components/schemas/Date'
+        dateAccepted:
+          $ref: '#/components/schemas/Date'
+        dateRejected:
+          $ref: '#/components/schemas/Date'
+        dateBlocked:
+          $ref: '#/components/schemas/Date'
