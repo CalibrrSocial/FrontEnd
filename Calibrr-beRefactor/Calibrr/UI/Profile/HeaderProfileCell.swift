@@ -135,8 +135,8 @@ class HeaderProfileCell: UITableViewCell {
 		let listImage = UIImage(systemName: "line.3.horizontal")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
 		listButton.setImage(listImage, for: .normal)
 
-		// Likes stack: heart + count, placed directly next to the name (no space between name and heart)
-		let likesStack = UIStackView(arrangedSubviews: [heartButton, likeCountLabel])
+		// Likes stack
+		let likesStack = UIStackView(arrangedSubviews: [heartButton, likeCountLabel, listButton])
 		likesStack.axis = .horizontal
 		likesStack.alignment = .center
 		likesStack.spacing = 4
@@ -144,8 +144,8 @@ class HeaderProfileCell: UITableViewCell {
 		likesStack.setContentCompressionResistancePriority(.required, for: .horizontal)
 		likesStack.setContentHuggingPriority(.required, for: .horizontal)
 
-		// Right-aligned actions: block, report, list
-		let rightStack = UIStackView(arrangedSubviews: [blockButton, reportButton, listButton])
+		// Right-aligned actions
+		let rightStack = UIStackView(arrangedSubviews: [blockButton, reportButton])
 		rightStack.axis = .horizontal
 		rightStack.alignment = .center
 		rightStack.spacing = 8
