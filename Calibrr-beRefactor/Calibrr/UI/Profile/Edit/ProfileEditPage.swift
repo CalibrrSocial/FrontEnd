@@ -536,13 +536,14 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         var socialAccount = UserSocialInfo()
         
         if isUpdate {
-            socialAccount.facebook = ""
-            socialAccount.instagram = ""
-            socialAccount.tiktok = ""
-            socialAccount.snapchat = ""
-            socialAccount.twitter = ""
-            socialAccount.linkedIn = ""
-            socialAccount.vsco = ""
+            // Preserve existing social media data instead of clearing it
+            socialAccount.facebook = userProfile?.socialInfo?.facebook ?? ""
+            socialAccount.instagram = userProfile?.socialInfo?.instagram ?? ""
+            socialAccount.tiktok = userProfile?.socialInfo?.tiktok ?? ""
+            socialAccount.snapchat = userProfile?.socialInfo?.snapchat ?? ""
+            socialAccount.twitter = userProfile?.socialInfo?.twitter ?? ""
+            socialAccount.linkedIn = userProfile?.socialInfo?.linkedIn ?? ""
+            socialAccount.vsco = userProfile?.socialInfo?.vsco ?? ""
         }
         for item in self.socialView.getValidAccount() {
             switch item.type {
