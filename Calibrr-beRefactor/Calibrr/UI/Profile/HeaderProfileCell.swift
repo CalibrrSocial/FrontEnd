@@ -22,8 +22,14 @@ class HeaderProfileCell: UITableViewCell {
 	private var likeCountLabel: UILabel = UILabel()
 	private var listButton: UIButton = UIButton(type: .system)
 
+	// MARK: - Block/Report UI
+	private var blockButton: UIButton = UIButton(type: .system)
+	private var reportButton: UIButton = UIButton(type: .system)
+
 	var onToggleLike: (() -> Void)?
 	var onOpenLikes: (() -> Void)?
+	var onBlockUser: (() -> Void)?
+	var onReportUser: (() -> Void)?
 
 	private var isLikeEnabled: Bool = true
 	private var isLiked: Bool = false {
@@ -44,8 +50,8 @@ class HeaderProfileCell: UITableViewCell {
         nameLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         nameLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
 
-		// Configure likes UI (programmatically to avoid XIB changes)
-		setupLikesUI()
+		// Configure action buttons UI (programmatically to avoid XIB changes)
+		setupActionButtons()
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -88,9 +94,18 @@ class HeaderProfileCell: UITableViewCell {
 
 	func currentLikeState() -> Bool { return isLiked }
 	func currentLikesCount() -> Int { return likesCount }
+	
+	func hideBlockReportButtons() {
+		blockButton.isHidden = true
+		reportButton.isHidden = true
+	}
 
 	// MARK: - Private helpers
-	private func setupLikesUI() {
+	private func setupActionButtons() {
+		// Setup Block and Report buttons first
+		setupBlockReportButtons()
+		
+		// Setup existing likes UI
 		// Heart button - starts gray (will be updated based on like state)
 		heartButton.tintColor = .tertiaryLabel
 		heartButton.addTarget(self, action: #selector(didTapHeart), for: .touchUpInside)
@@ -121,10 +136,11 @@ class HeaderProfileCell: UITableViewCell {
 		listButton.setImage(listImage, for: .normal)
 
 		// Container stack (to the right of the user's name)
-		let stack = UIStackView(arrangedSubviews: [heartButton, likeCountLabel, listButton])
+		// Order: Block, Report, Heart, Count, List
+		let stack = UIStackView(arrangedSubviews: [blockButton, reportButton, heartButton, likeCountLabel, listButton])
 		stack.axis = .horizontal
 		stack.alignment = .center
-		stack.spacing = 6
+		stack.spacing = 8
 		stack.translatesAutoresizingMaskIntoConstraints = false
 
 		contentView.addSubview(stack)
@@ -166,6 +182,34 @@ class HeaderProfileCell: UITableViewCell {
 
 	@objc private func didTapList() {
 		onOpenLikes?()
+	}
+
+	private func setupBlockReportButtons() {
+		// Block button
+		blockButton.tintColor = .systemOrange
+		blockButton.addTarget(self, action: #selector(didTapBlock), for: .touchUpInside)
+		blockButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+		blockButton.setContentHuggingPriority(.required, for: .horizontal)
+		
+		let blockImage = UIImage(systemName: "hand.raised.fill")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
+		blockButton.setImage(blockImage, for: .normal)
+		
+		// Report button
+		reportButton.tintColor = .systemRed
+		reportButton.addTarget(self, action: #selector(didTapReport), for: .touchUpInside)
+		reportButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+		reportButton.setContentHuggingPriority(.required, for: .horizontal)
+		
+		let reportImage = UIImage(systemName: "exclamationmark.triangle.fill")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
+		reportButton.setImage(reportImage, for: .normal)
+	}
+
+	@objc private func didTapBlock() {
+		onBlockUser?()
+	}
+
+	@objc private func didTapReport() {
+		onReportUser?()
 	}
     
 }

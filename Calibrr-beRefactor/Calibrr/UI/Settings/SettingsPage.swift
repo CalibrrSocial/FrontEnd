@@ -87,7 +87,7 @@ class SettingsPage : APage, UITableViewDataSource, UITableViewDelegate, MFMailCo
             present(p, animated: true)
         }else if indexPath.section == 2 {
             if indexPath.row == 0 {
-                //                nav.push(BlockUsersPage())
+                // Ghost Mode - handled by switch in cell
             }else if indexPath.row == 1 {
                 nav.push(MyAccountPage())
             }

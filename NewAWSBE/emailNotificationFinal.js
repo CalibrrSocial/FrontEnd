@@ -57,6 +57,70 @@ exports.handler = async (event) => {
       return response(200, { ok: true, messageId: res.MessageId });
     }
 
+    if (notificationType === "user_reported") {
+      const reportData = payload.reportData || {};
+      const adminEmails = reportData.adminEmails || [];
+      
+      if (!adminEmails.length) {
+        console.error("Missing adminEmails in reportData");
+        return response(400, { error: "adminEmails missing" });
+      }
+
+      const subject = `🚨 User Report: ${reportData.reportedUserName || 'Unknown User'}`;
+      const htmlBody = baseHtml().replace(
+        "{{CONTENT}}",
+        `
+          <h3>🚨 User Report Notification</h3>
+          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
+            <h4>Report Details:</h4>
+            <p><strong>Report ID:</strong> ${reportData.reportId || 'N/A'}</p>
+            <p><strong>Reported At:</strong> ${reportData.reportedAt || 'N/A'}</p>
+            <p><strong>Reason:</strong> ${reportData.reasonCategory || 'No reason provided'}</p>
+            ${reportData.description ? `<p><strong>Additional Info:</strong> ${reportData.description}</p>` : ''}
+          </div>
+          <div style="background-color: #fff3cd; padding: 20px; border-radius: 5px; margin: 20px 0;">
+            <h4>👤 Reporter Information:</h4>
+            <p><strong>Name:</strong> ${reportData.reporterName || 'Unknown'}</p>
+            <p><strong>Email:</strong> ${reportData.reporterEmail || 'Unknown'}</p>
+          </div>
+          <div style="background-color: #f8d7da; padding: 20px; border-radius: 5px; margin: 20px 0;">
+            <h4>⚠️ Reported User Information:</h4>
+            <p><strong>Name:</strong> ${reportData.reportedUserName || 'Unknown'}</p>
+            <p><strong>Email:</strong> ${reportData.reportedUserEmail || 'Unknown'}</p>
+          </div>
+          <p><em>This user has been automatically blocked from the reporter's view.</em></p>
+        `.trim()
+      );
+      
+      const textBody = `
+USER REPORT NOTIFICATION
+
+Report ID: ${reportData.reportId || 'N/A'}
+Reported At: ${reportData.reportedAt || 'N/A'}
+Reason: ${reportData.reasonCategory || 'No reason provided'}
+${reportData.description ? `Additional Info: ${reportData.description}` : ''}
+
+Reporter: ${reportData.reporterName || 'Unknown'} (${reportData.reporterEmail || 'Unknown'})
+Reported User: ${reportData.reportedUserName || 'Unknown'} (${reportData.reportedUserEmail || 'Unknown'})
+
+The reported user has been automatically blocked from the reporter's view.
+      `.trim();
+
+      // Send email to all admin addresses
+      const results = [];
+      for (const adminEmail of adminEmails) {
+        try {
+          const res = await sendEmail(adminEmail, subject, htmlBody, textBody);
+          results.push({ email: adminEmail, messageId: res.MessageId, success: true });
+        } catch (error) {
+          console.error(`Failed to send report email to ${adminEmail}:`, error);
+          results.push({ email: adminEmail, error: error.message, success: false });
+        }
+      }
+      
+      return response(200, { ok: true, results });
+    }
+
     console.log(`ℹ️ Unknown or unsupported notificationType: ${notificationType}`);
     return response(200, { ok: true, skipped: true });
   } catch (e) {

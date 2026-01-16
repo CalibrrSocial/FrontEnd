@@ -213,6 +213,15 @@ extension ProfileFriendPage: UITableViewDataSource {
                     vc.configure(for: userId, viewingOwnProfile: false)
                     self.nav.push(vc)
                 }
+                
+                // Block and Report functionality
+                cell.onBlockUser = { [weak self] in
+                    self?.showBlockConfirmation()
+                }
+                
+                cell.onReportUser = { [weak self] in
+                    self?.showReportDialog()
+                }
             }
             return cell
         } else if indexPath.row == 1, isValidSocialAccount {
@@ -243,5 +252,209 @@ extension ProfileFriendPage: UIScrollViewDelegate {
         }
         
         self.setNeedsStatusBarAppearanceUpdate()
+    }
+    
+    // MARK: - Block and Report functionality
+    
+    private func showBlockConfirmation() {
+        guard let friendId = self.friendId,
+              let friendName = self.profile?.firstName else { return }
+        
+        let alert = UIAlertController(
+            title: "Block \(friendName)?",
+            message: "You and \(friendName) will no longer be able to see each other on the app. You can unblock them later in Settings.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Block", style: .destructive) { [weak self] _ in
+            self?.blockUser()
+        })
+        
+        present(alert, animated: true)
+    }
+    
+    private func showReportDialog() {
+        guard let friendId = self.friendId,
+              let friendName = self.profile?.firstName else { return }
+        
+        let alert = UIAlertController(
+            title: "Report \(friendName)",
+            message: "Please describe why you're reporting this user. They will also be blocked automatically.",
+            preferredStyle: .alert
+        )
+        
+        alert.addTextField { textField in
+            textField.placeholder = "Reason for reporting..."
+            textField.autocapitalizationType = .sentences
+        }
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Report & Block", style: .destructive) { [weak self] _ in
+            let reason = alert.textFields?.first?.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            if reason.isEmpty {
+                self?.showErrorAlert(message: "Please provide a reason for reporting.")
+                return
+            }
+            self?.reportUser(reason: reason)
+        })
+        
+        present(alert, animated: true)
+    }
+    
+    private func blockUser() {
+        guard let friendId = self.friendId else { 
+            print("❌ [BLOCK USER] No friendId available")
+            return 
+        }
+        let myId = DatabaseService.singleton.getProfile().user.id
+        
+        print("🚫 [BLOCK USER] Starting block process")
+        print("🚫 [BLOCK USER] My ID: \(myId)")
+        print("🚫 [BLOCK USER] Blocking user ID: \(friendId)")
+        
+        // Show loading
+        let loadingAlert = UIAlertController(title: "Blocking user...", message: nil, preferredStyle: .alert)
+        present(loadingAlert, animated: true)
+        
+        self.blockUserAPI(myId: myId, userToBlockId: friendId).done { [weak self] in
+            print("✅ [BLOCK USER] Block API call successful")
+            loadingAlert.dismiss(animated: true) {
+                self?.showSuccessAlert(message: "User has been blocked successfully.") {
+                    self?.navigationController?.popViewController(animated: true)
+                }
+            }
+        }.catch { [weak self] (error: Error) in
+            print("❌ [BLOCK USER] Block API call failed: \(error)")
+            loadingAlert.dismiss(animated: true) {
+                self?.showErrorAlert(message: "Failed to block user. Please try again.")
+            }
+        }
+    }
+    
+    private func reportUser(reason: String) {
+        guard let friendId = self.friendId else { return }
+        let myId = DatabaseService.singleton.getProfile().user.id
+        
+        // Show loading
+        let loadingAlert = UIAlertController(title: "Reporting user...", message: nil, preferredStyle: .alert)
+        present(loadingAlert, animated: true)
+        
+        self.reportUserAPI(myId: myId, reportedUserId: friendId, reason: reason).done { [weak self] in
+            loadingAlert.dismiss(animated: true) {
+                self?.showSuccessAlert(message: "User has been reported and blocked successfully.") {
+                    self?.navigationController?.popViewController(animated: true)
+                }
+            }
+        }.catch { [weak self] (error: Error) in
+            loadingAlert.dismiss(animated: true) {
+                self?.showErrorAlert(message: "Failed to report user. Please try again.")
+            }
+        }
+    }
+    
+    private func showSuccessAlert(message: String, completion: @escaping () -> Void) {
+        let alert = UIAlertController(title: "Success", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
+            completion()
+        })
+        present(alert, animated: true)
+    }
+    
+    private func showErrorAlert(message: String) {
+        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+    
+    // MARK: - API Methods
+    
+    private func blockUserAPI(myId: String, userToBlockId: String) -> Promise<Void> {
+        return Promise { seal in
+            let url = "\(APIKeys.BASE_API_URL)/profile/\(userToBlockId)/block"
+            
+            var request = URLRequest(url: URL(string: url)!)
+            request.httpMethod = "POST"
+            request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+            
+            // Add authorization header
+            let token = DatabaseService.singleton.getProfile().token
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            
+            // Add empty body for consistency
+            request.httpBody = "".data(using: .utf8)
+            
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                DispatchQueue.main.async {
+                    if let error = error {
+                        print("Block API Error: \(error)")
+                        seal.reject(error)
+                        return
+                    }
+                    
+                    if let httpResponse = response as? HTTPURLResponse {
+                        print("Block API Response Code: \(httpResponse.statusCode)")
+                        if let data = data, let responseString = String(data: data, encoding: .utf8) {
+                            print("Block API Response Body: \(responseString)")
+                        }
+                        
+                        if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
+                            seal.fulfill(())
+                        } else {
+                            let errorMessage = "Failed to block user (HTTP \(httpResponse.statusCode))"
+                            seal.reject(NSError(domain: "BlockUserError", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorMessage]))
+                        }
+                    } else {
+                        seal.reject(NSError(domain: "BlockUserError", code: 0, userInfo: [NSLocalizedDescriptionKey: "No HTTP response"]))
+                    }
+                }
+            }
+            task.resume()
+        }
+    }
+    
+    private func reportUserAPI(myId: String, reportedUserId: String, reason: String) -> Promise<Void> {
+        return Promise { seal in
+            let url = "\(APIKeys.BASE_API_URL)/profile/\(reportedUserId)/report"
+            
+            var request = URLRequest(url: URL(string: url)!)
+            request.httpMethod = "POST"
+            request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+            
+            // Add authorization header
+            let token = DatabaseService.singleton.getProfile().token
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            
+            // Add request body as form data
+            let bodyString = "reason_category=\(reason.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
+            request.httpBody = bodyString.data(using: .utf8)
+            
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                DispatchQueue.main.async {
+                    if let error = error {
+                        print("Report API Error: \(error)")
+                        seal.reject(error)
+                        return
+                    }
+                    
+                    if let httpResponse = response as? HTTPURLResponse {
+                        print("Report API Response Code: \(httpResponse.statusCode)")
+                        if let data = data, let responseString = String(data: data, encoding: .utf8) {
+                            print("Report API Response Body: \(responseString)")
+                        }
+                        
+                        if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
+                            seal.fulfill(())
+                        } else {
+                            let errorMessage = "Failed to report user (HTTP \(httpResponse.statusCode))"
+                            seal.reject(NSError(domain: "ReportUserError", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorMessage]))
+                        }
+                    } else {
+                        seal.reject(NSError(domain: "ReportUserError", code: 0, userInfo: [NSLocalizedDescriptionKey: "No HTTP response"]))
+                    }
+                }
+            }
+            task.resume()
+        }
     }
 }

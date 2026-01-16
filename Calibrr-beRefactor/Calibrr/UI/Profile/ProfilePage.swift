@@ -227,6 +227,9 @@ extension ProfilePage: UITableViewDataSource {
                     vc.configure(for: userId, viewingOwnProfile: true)
                     self.nav.push(vc)
                 }
+                
+                // Hide Block and Report buttons on own profile
+                cell.hideBlockReportButtons()
             }
             return cell
         } else if indexPath.row == 1, isValidSocialAccount {
