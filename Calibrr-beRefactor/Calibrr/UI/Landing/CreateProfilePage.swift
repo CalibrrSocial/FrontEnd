@@ -49,8 +49,11 @@ class CreateProfilePage: ProfileEditPage {
         profilePicImage?.image = UIImage(named: "icon_avatar_placeholder")
         coverPicImage?.image = UIImage(named: "background")
         
+        // Setup social view with edit mode and empty items
         socialView?.isEditMode = true
         socialView?.delegate = self
+        socialView?.items = []  // Start with empty items
+        socialView?.reloadData()  // This will show the plus icons for all 7 platforms
         
         headerErrorLabel?.setupRed(textSize: 12, bold: true)
         avatarErrorLabel?.setupRed(textSize: 12, bold: true)
