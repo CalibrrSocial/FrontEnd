@@ -682,24 +682,7 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
             preferredStyle: .alert
         )
         
-        alert.addAction(UIAlertAction(title: "Test My Links", style: .default) { _ in
-            // Open the user's own profile so they can test their links
-            if let navc = self.navigationController {
-                navc.popViewController(animated: false)
-                // Give a moment for the pop to complete, then push profile page
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    let profilePage = ProfilePage()
-                    navc.pushViewController(profilePage, animated: true)
-                }
-            } else {
-                self.nav.pop(animated: false)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    self.nav.push(ProfilePage())
-                }
-            }
-        })
-        
-        alert.addAction(UIAlertAction(title: "Later", style: .cancel) { _ in
+        alert.addAction(UIAlertAction(title: "Okay", style: .default) { _ in
             self.popBackAfterSave()
         })
         
