@@ -130,7 +130,7 @@
                                         <outlet property="titleLabelBotConstraint" destination="dL7-ai-evb" id="v3O-My-rjq"/>
                                     </connections>
                                 </view>
-                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="OR" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jIi-h6-v6d" userLabel="OrLabel">
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="AND" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jIi-h6-v6d" userLabel="OrLabel">
                                     <rect key="frame" x="0.0" y="80" width="374" height="20"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="20" id="XsW-hB-VtW"/>

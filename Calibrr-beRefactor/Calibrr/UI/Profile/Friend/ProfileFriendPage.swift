@@ -643,6 +643,8 @@ extension ProfileFriendPage: UIScrollViewDelegate {
             print("✅ [BLOCK USER] Block API call successful")
             loadingAlert.dismiss(animated: true) {
                 self?.showSuccessAlert(message: "User has been blocked successfully.") {
+                    // Notify other parts of the app that a user has been blocked
+                    NotificationCenter.default.post(name: NSNotification.Name("UserBlocked"), object: nil, userInfo: ["blockedUserId": friendId])
                     self?.navigationController?.popViewController(animated: true)
                 }
             }

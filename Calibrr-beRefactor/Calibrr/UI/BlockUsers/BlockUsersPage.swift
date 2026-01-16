@@ -105,6 +105,9 @@ class BlockUsersPage : APage, UITableViewDelegate
             loadingAlert.dismiss(animated: true) {
                 self?.showSuccessAlert(message: "User unblocked successfully.") {
                     self?.refreshUI() // Refresh the list
+                    
+                    // Notify other parts of the app that a user has been unblocked
+                    NotificationCenter.default.post(name: NSNotification.Name("UserUnblocked"), object: nil, userInfo: ["unblockedUserId": userToUnblockId])
                 }
             }
         }.catch { [weak self] error in

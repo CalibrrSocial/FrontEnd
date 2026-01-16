@@ -68,6 +68,40 @@ class SearchUsersByDistancePage : APage, UITableViewDelegate
             self.updateUIGhostMode()
         }
         setupUI()
+        
+        // Listen for user block/unblock notifications to refresh search results
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(onUserUnblocked),
+            name: NSNotification.Name("UserUnblocked"),
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(onUserBlocked),
+            name: NSNotification.Name("UserBlocked"),
+            object: nil
+        )
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    @objc private func onUserUnblocked(_ notification: Notification) {
+        print("🔓 [SEARCH BY DISTANCE] User unblocked notification received, refreshing search results")
+        // Refresh the search to show the unblocked user
+        DispatchQueue.main.async {
+            self.search()
+        }
+    }
+    
+    @objc private func onUserBlocked(_ notification: Notification) {
+        print("🚫 [SEARCH BY DISTANCE] User blocked notification received, refreshing search results")
+        // Refresh the search to hide the blocked user
+        DispatchQueue.main.async {
+            self.search()
+        }
     }
  
     private func setupUI() {

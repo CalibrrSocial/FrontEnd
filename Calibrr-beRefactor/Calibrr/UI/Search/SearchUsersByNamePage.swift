@@ -37,6 +37,42 @@ class SearchUsersByNamePage : APage, UITableViewDelegate, UITextFieldDelegate
     {
         super.viewDidLoad()
         setupUI()
+        
+        // Listen for user block/unblock notifications to refresh search results
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(onUserUnblocked),
+            name: NSNotification.Name("UserUnblocked"),
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(onUserBlocked),
+            name: NSNotification.Name("UserBlocked"),
+            object: nil
+        )
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    @objc private func onUserUnblocked(_ notification: Notification) {
+        print("🔓 [SEARCH BY NAME] User unblocked notification received, clearing cached results")
+        // Clear cached results so next search will include unblocked users
+        DispatchQueue.main.async {
+            self.datasource.items = []
+            self.resultsTable.reloadData()
+        }
+    }
+    
+    @objc private func onUserBlocked(_ notification: Notification) {
+        print("🚫 [SEARCH BY NAME] User blocked notification received, clearing cached results")
+        // Clear cached results so next search will exclude blocked users
+        DispatchQueue.main.async {
+            self.datasource.items = []
+            self.resultsTable.reloadData()
+        }
     }
     
     private func setupUI() {
