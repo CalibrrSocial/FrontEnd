@@ -740,4 +740,55 @@ open class ProfileAPI {
 
         return localVariableRequestBuilder.init(method: "POST", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters)
     }
+
+    /**
+     Get a user's profile - AWS Lambda Version
+     
+     - parameter id: (path) User ID  
+     - returns: Promise<User>
+     */
+    public class func getUserAWS(id: String) -> Promise<User> {
+        let deferred = Promise<User>.pending()
+        getUserAWSWithRequestBuilder(id: id).execute { result in
+            switch result {
+            case let .success(response):
+                deferred.resolver.fulfill(response.body)
+            case let .failure(error):
+                deferred.resolver.reject(error)
+            }
+        }
+        return deferred.promise
+    }
+
+    /**
+     Get a user's profile - AWS Lambda Version
+     - GET /profile/{id}
+     - Uses AWS Lambda endpoint instead of api.calibrr.com
+     - parameter id: (path) User ID
+     - returns: RequestBuilder<User> 
+     */
+    public class func getUserAWSWithRequestBuilder(id: String) -> RequestBuilder<User> {
+        var localVariablePath = "/profile/{id}"
+        let idPreEscape = "\(APIHelper.mapValueToPathItem(id))"
+        let idPostEscape = idPreEscape.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? ""
+        localVariablePath = localVariablePath.replacingOccurrences(of: "{id}", with: idPostEscape, options: .literal, range: nil)
+        
+        // Use AWS Lambda endpoint instead of the base path
+        let awsLambdaBaseURL = "https://x1oyeepmz2.execute-api.us-east-1.amazonaws.com/prod"
+        let localVariableURLString = awsLambdaBaseURL + localVariablePath
+        
+        let localVariableParameters: [String: Any]? = nil
+
+        let localVariableUrlComponents = URLComponents(string: localVariableURLString)
+
+        let localVariableNillableHeaders: [String: Any?] = [
+            :
+        ]
+
+        let localVariableHeaderParameters = APIHelper.rejectNilHeaders(localVariableNillableHeaders)
+
+        let localVariableRequestBuilder: RequestBuilder<User>.Type = OpenAPIClientAPI.requestBuilderFactory.getBuilder()
+
+        return localVariableRequestBuilder.init(method: "GET", URLString: (localVariableUrlComponents?.string ?? localVariableURLString), parameters: localVariableParameters, headers: localVariableHeaderParameters)
+    }
 }

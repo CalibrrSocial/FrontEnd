@@ -68,7 +68,13 @@ class AutoLoginPage : APage
         OpenAPIClientAPI.customHeaders[APIKeys.HTTP_AUTHORIZATION_HEADER] = APIKeys.HTTP_AUTHORIZATION_PREFIX + result.token
         var user: LoginUser
         user = result
-        return ProfileAPI.getUser(id: user.user.id).map { profile in
+        return ProfileAPI.getUserAWS(id: user.user.id).recover { error -> Promise<User> in
+            // If user doesn't exist in AWS DynamoDB yet (404), use the basic profile from login
+            if case let ErrorResponse.error(statusCode, _, _, _) = error, statusCode == 404 {
+                return Promise.value(result.user)
+            }
+            throw error
+        }.map { profile in
             return (result, profile)
         }
     }

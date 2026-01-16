@@ -158,6 +158,24 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
     
     func setupProfilePage() {
         let profile = databaseService.getProfile().user
+
+        // Add comprehensive debug logging
+        print("=== DEBUG: Profile loaded on startup ===")
+        print("Profile ID: \(profile.id)")
+        print("Full PersonalInfo: \(profile.personalInfo ?? UserPersonalInfo())")
+        print("Class Year: \(profile.personalInfo?.classYear ?? "NIL")")
+        print("Campus: \(profile.personalInfo?.campus ?? "NIL")")
+        print("Education: \(profile.personalInfo?.education ?? "NIL")")
+        print("Studying: \(profile.personalInfo?.studying ?? "NIL")")
+        print("Gender: \(profile.personalInfo?.gender ?? "NIL")")
+        print("City: \(profile.personalInfo?.city ?? "NIL")")
+        print("Postgraduate: \(profile.personalInfo?.postgraduate ?? "NIL")")
+        print("Career Aspirations: \(profile.personalInfo?.careerAspirations ?? "NIL")")
+        print("Hometown: \(profile.personalInfo?.hometown ?? "NIL")")
+        print("High School: \(profile.personalInfo?.highSchool ?? "NIL")")
+        print("==================================")
+        
+
         socialView.setupData(account: profile.socialInfo)
         nameLabel.text = "\(profile.firstName) \(profile.lastName)"
         profilePicImage.roundFull()
@@ -355,6 +373,11 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
             return
         }
         
+        // Prevent multiple saves while one is in progress
+        if !saveButton.isEnabled {
+            return
+        }
+        
         saveButton.showWaiting()
         
         let city = locationInput.getInput() ?? ""
@@ -445,10 +468,19 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         }
         userUpdate?.myFriends = myFriends
         if let user = userUpdate {
+            print("=== DEBUG: About to call updateUserProfileAWS ===")
+            print("User ID: \(user.id)")
+            print("API Base URL: \(OpenAPIClientAPI.basePath)")
+            print("Authorization header: \(OpenAPIClientAPI.customHeaders[APIKeys.HTTP_AUTHORIZATION_HEADER] ?? "MISSING")")
             ProfileAPI.updateUserProfileAWS(id: user.id, user: user).thenInAction{ userUpdated in
-                self.processSaveProfile(userUpdated)
+                print("=== DEBUG: API call succeeded ===")
+                DispatchQueue.main.async {
+                    self.processSaveProfile(userUpdated)
+                }
             }.ensure {
-                self.saveButton.showNormal()
+                DispatchQueue.main.async {
+                    self.saveButton.showNormal()
+                }
             }.catchCBRError(show: true, from: self)
         }
         
@@ -532,6 +564,13 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
     private func processSaveProfile(_ updatedProfile: User) //UserProfileData)
     {
         editChanges = false
+        
+        // Preserve the current image URLs before updating the profile
+        let currentProfile = databaseService.getProfile().user
+        let currentProfilePicture = currentProfile.pictureProfile
+        let currentCoverPicture = currentProfile.pictureCover
+        
+        // Update the profile with server response
         databaseService.getProfile().user = updatedProfile
         
         var profile = databaseService.getProfile().user
@@ -551,6 +590,16 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         profile.personalInfo?.postgraduate = updatedProfile.personalInfo?.postgraduate
         profile.personalInfo?.hometown = updatedProfile.personalInfo?.hometown
         profile.personalInfo?.highSchool = updatedProfile.personalInfo?.highSchool
+        
+        // Preserve image URLs if they exist in the current profile (uploaded during this session)
+        // Only use server response if current profile doesn't have images
+        if let currentProfilePic = currentProfilePicture, !currentProfilePic.isEmpty {
+            profile.pictureProfile = currentProfilePic
+        }
+        if let currentCoverPic = currentCoverPicture, !currentCoverPic.isEmpty {
+            profile.pictureCover = currentCoverPic
+        }
+        
         databaseService.getProfile().user = profile
         
         nav.pop(animated: true)
@@ -578,15 +627,17 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
                 switch encodingResult {
                 case .success(let upload, _, _):
                     upload.responseJSON { [weak self] response in
-                        switch response.result {
-                        case .success(let data):
-                            if let url = (data as? [String: Any])?["url"] as? String {
-                                self?.databaseService.updateCover(url: url)
+                        DispatchQueue.main.async {
+                            switch response.result {
+                            case .success(let data):
+                                if let url = (data as? [String: Any])?["url"] as? String {
+                                    self?.databaseService.updateCover(url: url)
+                                }
+                                self?.view.makeToast("Cover picture uploaded successfully", duration: 3.0, position: .bottom)
+                                self?.isHaveCover = true
+                            case .failure(_):
+                                self?.view.makeToast("Cover picture can't upload")
                             }
-                            self?.view.makeToast("Cover picture uploaded successfully", duration: 3.0, position: .bottom)
-                            self?.isHaveCover = true
-                        case .failure(_):
-                            self?.view.makeToast("Cover picture can't upload")
                         }
                     }
                 case .failure(let encodingError):
@@ -618,15 +669,17 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
                 switch encodingResult {
                 case .success(let upload, _, _):
                     upload.responseJSON { [weak self] response in
-                        switch response.result {
-                        case .success(let data):
-                            if let url = (data as? [String: Any])?["url"] as? String {
-                                self?.databaseService.updateAvatar(url: url)
+                        DispatchQueue.main.async {
+                            switch response.result {
+                            case .success(let data):
+                                if let url = (data as? [String: Any])?["url"] as? String {
+                                    self?.databaseService.updateAvatar(url: url)
+                                }
+                                self?.view.makeToast("Profile picture uploaded successfully", duration: 3.0, position: .bottom)
+                                self?.isHaveAvatar = true
+                            case .failure(_):
+                                self?.view.makeToast("Profile picture can't upload")
                             }
-                            self?.view.makeToast("Profile picture uploaded successfully", duration: 3.0, position: .bottom)
-                            self?.isHaveAvatar = true
-                        case .failure(_):
-                            self?.view.makeToast("Profile picture can't upload")
                         }
                     }
                 case .failure(let encodingError):

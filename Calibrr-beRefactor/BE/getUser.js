@@ -1,61 +1,65 @@
-let AWS = require('aws-sdk')
-AWS.config.update({region: process.env.REGION})
-let db = new AWS.DynamoDB.DocumentClient({region: process.env.REGION})
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
 
-exports.handler = async (event) => {
+const client = new DynamoDBClient({ region: process.env.REGION });
+const db = DynamoDBDocumentClient.from(client);
 
-    let userId = getUserId(event)
+export const handler = async (event) => {
+    console.log('getUser v1.0 - Processing request:', JSON.stringify(event, null, 2));
 
-    return getUser(userId).then(
-        function(data) {
-            return processUser(data.Item, userId)
+    try {
+        const userId = event.pathParameters.id;
+        
+        console.log('Fetching user with ID:', userId);
+
+        // Get the user from DynamoDB
+        const getParams = {
+            TableName: process.env.DB_TABLE_NAME,
+            Key: { id: userId }
+        };
+
+        console.log('DynamoDB get params:', JSON.stringify(getParams, null, 2));
+        
+        const result = await db.send(new GetCommand(getParams));
+        
+        console.log('DynamoDB get result:', JSON.stringify(result, null, 2));
+
+        if (!result.Item) {
+            return {
+                statusCode: 404,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'
+                },
+                body: JSON.stringify({
+                    error: 'User not found'
+                })
+            };
         }
-    ).then(
-        function(user) {
-            if (user) {
-                return response(200, user)
-            }
-            return response(404, "User Id Not Found")
-        }
-    )
-}
 
-function getUserId(request)
-{
-    return request.pathParameters.id
-}
-
-function getUser(id)
-{
-    let params = {
-        TableName: process.env.DB_TABLE_NAME,
-        Key: {
-          id
-        }
+        return {
+            statusCode: 200,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'
+            },
+            body: JSON.stringify(result.Item)
+        };
+    } catch (error) {
+        console.error('Error:', error);
+        return {
+            statusCode: 500,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'
+            },
+            body: JSON.stringify({
+                error: error.message,
+                stack: error.stack
+            })
+        };
     }
-    return db.get(params).promise()
-}
-
-function processUser(user, userId)
-{
-    if (user) {
-        var processedUser = user
-
-        processedUser.likeCount = processedUser.likes.count
-        delete processedUser.likes
-
-        if (!(processedUser.id === userId)){
-            delete processedUser.subscription
-        }
-        return processedUser
-    }
-    return null
-}
-
-function response(statusCode, body)
-{
-    if (!(typeof body === 'string' || body instanceof String)) {
-        return { statusCode, 'body': JSON.stringify(body) }
-    }
-    return { statusCode, body }
-}
+};
