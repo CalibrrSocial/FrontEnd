@@ -513,8 +513,8 @@
                                                 <outlet property="titleLabel" destination="Mg6-jJ-cXP" id="M8A-h6-RyQ"/>
                                             </connections>
                                         </view>
-                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xYc-4H-dVE" userLabel="ClassYearInput" customClass="CBRTextInputView" customModule="Calibrr" customModuleProvider="target">
-                                            <rect key="frame" x="0.0" y="298.5" width="422.5" height="52"/>
+                                                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xYc-4H-dVE" userLabel="ClassYearInput" customClass="CBRTextInputView" customModule="Calibrr" customModuleProvider="target">
+                            <rect key="frame" x="0.0" y="298.5" width="422.5" height="72"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Class Year:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="8" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jA9-5Q-GpE">
                                                     <rect key="frame" x="20" y="0.0" width="382.5" height="20"/>
@@ -571,7 +571,6 @@
                                                 <constraint firstItem="9Xf-Yb-Bks" firstAttribute="leading" secondItem="vLk-Hf-9oN" secondAttribute="leading" id="6nW-Uv-OtS"/>
                                                 <constraint firstItem="9Xf-Yb-Bks" firstAttribute="leading" secondItem="jA9-5Q-GpE" secondAttribute="leading" id="7Dj-bV-BQN"/>
                                                 <constraint firstItem="vLk-Hf-9oN" firstAttribute="top" secondItem="9Xf-Yb-Bks" secondAttribute="bottom" constant="5" id="N4k-qp-3tP"/>
-                                                <constraint firstAttribute="bottom" secondItem="vLk-Hf-9oN" secondAttribute="bottom" id="Q7Q-nU-Edy"/>
                                                 <constraint firstAttribute="trailing" secondItem="vLk-Hf-9oN" secondAttribute="trailing" constant="20" id="VlL-xM-xdL"/>
                                                 <constraint firstItem="jA9-5Q-GpE" firstAttribute="top" secondItem="xYc-4H-dVE" secondAttribute="top" id="WPZ-Gd-aQP"/>
                                                 <constraint firstItem="9Xf-Yb-Bks" firstAttribute="trailing" secondItem="jA9-5Q-GpE" secondAttribute="trailing" id="ZGM-eK-xGl"/>
@@ -672,8 +671,8 @@
                                                 <outlet property="titleLabel" destination="Q7H-Ym-9Qf" id="Hb5-xE-J7D"/>
                                             </connections>
                                         </view>
-                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UEq-Im-Asr" userLabel="Studying" customClass="CBRTextInputView" customModule="Calibrr" customModuleProvider="target">
-                                            <rect key="frame" x="0.0" y="308.5" width="422.5" height="52"/>
+                                                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UEq-Im-Asr" userLabel="Studying" customClass="CBRTextInputView" customModule="Calibrr" customModuleProvider="target">
+                            <rect key="frame" x="0.0" y="308.5" width="422.5" height="72"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Studying:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="8" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ifb-0y-dV5">
                                                     <rect key="frame" x="20" y="0.0" width="382.5" height="20"/>
@@ -728,7 +727,6 @@
                                                 <constraint firstAttribute="trailing" secondItem="G1H-r2-9Xc" secondAttribute="trailing" constant="20" id="Hwg-hr-a50"/>
                                                 <constraint firstItem="XT1-1R-Y0f" firstAttribute="leading" secondItem="G1H-r2-9Xc" secondAttribute="leading" id="Nso-oo-BhK"/>
                                                 <constraint firstItem="G1H-r2-9Xc" firstAttribute="leading" secondItem="UEq-Im-Asr" secondAttribute="leading" constant="20" id="Oaw-hj-TvV"/>
-                                                <constraint firstAttribute="bottom" secondItem="G1H-r2-9Xc" secondAttribute="bottom" id="cQr-XJ-SRo"/>
                                                 <constraint firstItem="XT1-1R-Y0f" firstAttribute="top" secondItem="ifb-0y-dV5" secondAttribute="bottom" constant="5" id="iND-XA-HJL"/>
                                                 <constraint firstItem="G1H-r2-9Xc" firstAttribute="top" secondItem="XT1-1R-Y0f" secondAttribute="bottom" constant="5" id="qmm-PA-HAj"/>
                                                 <constraint firstItem="REQ-STUDYING-LABEL" firstAttribute="top" secondItem="G1H-r2-9Xc" secondAttribute="bottom" constant="4" id="REQ-STUDYING-TOP"/>
