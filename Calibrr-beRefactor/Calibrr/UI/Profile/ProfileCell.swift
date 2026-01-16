@@ -94,19 +94,33 @@ class ProfileCell: ACell<(String, String, Bool)> {
     
     override func setup(_ indexPath: IndexPath, _ item: (String, String, Bool)) {
         dividerView.isHidden = item.2
-        desLabel.text = item.1
-        titleLabel.text = item.0
         
-        // Parse category and attribute from title
-        currentCategory = getCategoryFromTitle(item.0)
+        // Normalize title for potential subitems (those marked with __SUBITEM__)
+        let originalTitle = item.0
+        let isSubitem = originalTitle.contains("__SUBITEM__")
+        let baseTitle = originalTitle.replacingOccurrences(of: "__SUBITEM__", with: "")
+        
+        // UI: show the title only for the first item; subitems get an empty title with paragraph head indent on value
+        titleLabel.text = isSubitem ? "" : baseTitle
+        desLabel.attributedText = makeIndentedValueText(item.1, isSubitem: isSubitem)
+        
+        // Parse category and labels using the base title (no marker)
+        currentCategory = getCategoryFromTitle(baseTitle)
         currentAttribute = item.1
-        currentDisplayLabel = getDisplayLabelFromTitle(item.0)
-        print("🔥 ProfileCell setup - category: '\(currentCategory)', attribute: '\(currentAttribute)', title: '\(item.0)'")
+        currentDisplayLabel = getDisplayLabelFromTitle(baseTitle)
+        print("🔥 ProfileCell setup - category: '\(currentCategory)', attribute: '\(currentAttribute)', title: '\(baseTitle)', isSubitem: \(isSubitem))")
         
         // Setup complete
         
         // Don't load like state here - wait for configureForProfile to be called with profileId
         // This prevents unnecessary API calls with missing profileId
+    }
+
+    private func makeIndentedValueText(_ text: String, isSubitem: Bool) -> NSAttributedString {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        // We no longer add paragraph indent; the cell's layout already aligns values.
+        // Returning plain text ensures perfect column alignment with the first item.
+        return NSAttributedString(string: trimmed)
     }
     
     func configureForProfile(_ profileId: String) {
@@ -244,6 +258,7 @@ class ProfileCell: ACell<(String, String, Bool)> {
     
     private func getCategoryFromTitle(_ title: String) -> String {
         // Map display titles to categories
+        let normalizedTitle = title.replacingOccurrences(of: "__SUBITEM__", with: "")
         let categoryMap: [String: String] = [
             "Born:": "Personal",
             "Currently lives in:": "Location",
@@ -271,11 +286,12 @@ class ProfileCell: ACell<(String, String, Bool)> {
             "Bio:": "Personal"
         ]
         
-        return categoryMap[title] ?? "Other"
+        return categoryMap[normalizedTitle] ?? "Other"
     }
 
     private func getDisplayLabelFromTitle(_ title: String) -> String {
         // Map UI titles to the exact email display label we want
+        let normalizedTitle = title.replacingOccurrences(of: "__SUBITEM__", with: "")
         let labelMap: [String: String] = [
             "Born:": "Born",
             "Currently lives in:": "Location",
@@ -302,7 +318,7 @@ class ProfileCell: ACell<(String, String, Bool)> {
             "Relationship:": "Relationship",
             "Bio:": "Bio"
         ]
-        return labelMap[title] ?? title.replacingOccurrences(of: ":", with: "")
+        return labelMap[normalizedTitle] ?? normalizedTitle.replacingOccurrences(of: ":", with: "")
     }
     
     private func loadAttributeLikeState() {

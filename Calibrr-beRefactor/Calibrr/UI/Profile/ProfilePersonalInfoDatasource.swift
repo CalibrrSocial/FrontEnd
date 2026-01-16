@@ -70,11 +70,17 @@ class ProfilePersonalInfoDatasource : AStandardItemsDatasource<ProfileCell, (Str
                 appendNonNull(title: "Postgraduate Plans:", value: postgraduate)
             }
             
-            // Display each course as a separate likeable item
-            for (index, course) in myCourses.enumerated() {
+            // Courses: show label once, subsequent items marked as subitems
+            var hasEmittedCoursesHeader = false
+            for (_, course) in myCourses.enumerated() {
                 if let courseName = course.name, !courseName.isEmpty {
-                    let title = index == 0 ? "In Courses:" : "  "
-                    appendNonNull(title: title, value: courseName)
+                    if !hasEmittedCoursesHeader {
+                        appendNonNull(title: "In Courses:", value: courseName)
+                        hasEmittedCoursesHeader = true
+                    } else {
+                        // Use a marker in the title so the cell can compute displayLabel while UI shows only once
+                        appendNonNull(title: "In Courses:__SUBITEM__", value: courseName)
+                    }
                 }
             }
             
@@ -91,14 +97,19 @@ class ProfilePersonalInfoDatasource : AStandardItemsDatasource<ProfileCell, (Str
                 appendNonNull(title: "Team/Club:", value: text)
             }
             
-            // Display each best friend as a separate likeable item
-            for (index, friend) in bestFriends.enumerated() {
+            // Best Friends: show label once, subsequent items marked as subitems
+            var hasEmittedBestFriendsHeader = false
+            for (_, friend) in bestFriends.enumerated() {
                 let firstName = friend.firstName ?? ""
                 let lastName = friend.lastName ?? ""
                 if !firstName.isEmpty || !lastName.isEmpty {
                     let fullName = "\(firstName) \(lastName)".trimmingCharacters(in: .whitespacesAndNewlines)
-                    let title = index == 0 ? "Best Friends:" : "  "
-                    appendNonNull(title: title, value: fullName)
+                    if !hasEmittedBestFriendsHeader {
+                        appendNonNull(title: "Best Friends:", value: fullName)
+                        hasEmittedBestFriendsHeader = true
+                    } else {
+                        appendNonNull(title: "Best Friends:__SUBITEM__", value: fullName)
+                    }
                 }
             }
             
@@ -106,30 +117,45 @@ class ProfilePersonalInfoDatasource : AStandardItemsDatasource<ProfileCell, (Str
                 appendNonNull(title: "Politics:", value: politics)
             }
             
-            // Display each music artist as a separate likeable item
+            // Favorite Music: show label once, subsequent items marked as subitems
             if let music = profile.favoriteMusic, !music.isEmpty {
                 let musicArtists = music.components(separatedBy: CharacterSet(charactersIn: ",\n")).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
-                for (index, artist) in musicArtists.enumerated() {
-                    let title = index == 0 ? "Favorite Music:" : "  "
-                    appendNonNull(title: title, value: artist)
+                var hasEmittedMusicHeader = false
+                for (_, artist) in musicArtists.enumerated() {
+                    if !hasEmittedMusicHeader {
+                        appendNonNull(title: "Favorite Music:", value: artist)
+                        hasEmittedMusicHeader = true
+                    } else {
+                        appendNonNull(title: "Favorite Music:__SUBITEM__", value: artist)
+                    }
                 }
             }
             
-            // Display each TV show as a separate likeable item
+            // Favorite TV: show label once, subsequent items marked as subitems
             if let tv = profile.favoriteTV, !tv.isEmpty {
                 let tvShows = tv.components(separatedBy: CharacterSet(charactersIn: ",\n")).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
-                for (index, show) in tvShows.enumerated() {
-                    let title = index == 0 ? "Favorite TV:" : "  "
-                    appendNonNull(title: title, value: show)
+                var hasEmittedTVHeader = false
+                for (_, show) in tvShows.enumerated() {
+                    if !hasEmittedTVHeader {
+                        appendNonNull(title: "Favorite TV:", value: show)
+                        hasEmittedTVHeader = true
+                    } else {
+                        appendNonNull(title: "Favorite TV:__SUBITEM__", value: show)
+                    }
                 }
             }
             
-            // Display each game as a separate likeable item
+            // Favorite Games: show label once, subsequent items marked as subitems
             if let game = profile.favoriteGame, !game.isEmpty {
                 let games = game.components(separatedBy: CharacterSet(charactersIn: ",\n")).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
-                for (index, gameItem) in games.enumerated() {
-                    let title = index == 0 ? "Favorite Games:" : "  "
-                    appendNonNull(title: title, value: gameItem)
+                var hasEmittedGamesHeader = false
+                for (_, gameItem) in games.enumerated() {
+                    if !hasEmittedGamesHeader {
+                        appendNonNull(title: "Favorite Games:", value: gameItem)
+                        hasEmittedGamesHeader = true
+                    } else {
+                        appendNonNull(title: "Favorite Games:__SUBITEM__", value: gameItem)
+                    }
                 }
             }
             

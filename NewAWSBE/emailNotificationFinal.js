@@ -41,8 +41,8 @@ exports.handler = async (event) => {
       const recipientEmail = ad.recipientEmail;
       const senderFirstName = ad.senderFirstName || "";
       const senderLastName = ad.senderLastName || "";
-      const category = ad.category || "";
-      const attribute = ad.attribute || "";
+      const category = (ad.category || ad.attributeCategory || ad.group || "").toString().trim();
+      const attribute = (ad.attribute || ad.attributeName || ad.value || "").toString().trim();
       const providedLabel = (ad.displayLabel || ad.attributeLabel || ad.label || ad.titleLabel || "").toString().trim();
       
       if (!recipientEmail) {
@@ -56,7 +56,9 @@ exports.handler = async (event) => {
       }
 
       const senderName = [senderFirstName, senderLastName].filter(Boolean).join(" ") || "Someone";
-      const displayLabel = providedLabel || canonicalLabelFromCategory(category);
+      // Strip any client-side subitem marker if it ever leaks through
+      const normalizedProvided = providedLabel.replace(/__SUBITEM__/g, '').trim();
+      const displayLabel = (normalizedProvided || canonicalLabelFromCategory(category)).trim();
       const subject = `${senderName} just liked your ${displayLabel}, "${attribute}"!`;
       const htmlBody = baseHtml().replace(
         "{{CONTENT}}",
@@ -238,8 +240,35 @@ function deadLinkHtml() {
 }
 
 function canonicalLabelFromCategory(category) {
-  const c = (category || '').toString().trim();
+  // Normalize and strip any accidental subitem marker
+  const c = (category || '').toString().replace(/__SUBITEM__/g, '').trim();
+  // Normalize known UI section titles to exact email labels
   const map = {
+    'Born:': 'Born',
+    'Currently lives in:': 'Currently lives in',
+    'Hometown:': 'Hometown',
+    'Past High School, Graduated from:': 'High School',
+    'Current College/School:': 'College/School',
+    'Major/Studying:': 'Major/Studying',
+    'Class/Graduation Year:': 'Class Year',
+    'Current Campus:': 'Campus',
+    'Career Aspirations:': 'Career Aspirations',
+    'Postgraduate Plans:': 'Postgraduate Plans',
+    'In Courses:': 'In Courses',
+    'Greek life:': 'Greek life',
+    'Team/Club:': 'Team/Club',
+    'Best Friends:': 'Best Friends',
+    'Politics:': 'Politics',
+    'Favorite Music:': 'Favorite Music',
+    'Favorite TV:': 'Favorite TV',
+    'Favorite Games:': 'Favorite Games',
+    'Religion:': 'Religion',
+    'Occupation:': 'Occupation',
+    'Gender:': 'Gender',
+    'Sexuality:': 'Sexuality',
+    'Relationship:': 'Relationship',
+    'Bio:': 'Bio',
+    // High-level groups
     'Personal': 'Personal',
     'Location': 'Location',
     'Education': 'Education',
