@@ -142,6 +142,11 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         
         headerErrorLabel?.setupRed(textSize: 12, bold: true)
         avatarErrorLabel?.setupRed(textSize: 12, bold: true)
+        // Hide errors if images are present from a previous session
+        let currentInitial = databaseService.getProfile().user
+        if !(currentInitial.pictureCover ?? "").isEmpty { isHaveCover = true }
+        if !(currentInitial.pictureProfile ?? "").isEmpty { isHaveAvatar = true }
+        showErrorImage(forceCover: isHaveCover, forceAvatar: isHaveAvatar)
         socialView.isEditMode = true
         socialView.delegate = self
         ActiveUser.singleton.startLocationServices()
@@ -161,11 +166,7 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
     func setupProfilePage() {
         let profile = databaseService.getProfile().user
 
-        print("=== Profile Edit Page Loaded ===")
-        print("Profile ID: \(profile.id)")
-        print("Profile Picture URL: \(profile.pictureProfile ?? "NIL")")
-        print("Cover Picture URL: \(profile.pictureCover ?? "NIL")")
-        print("================================")
+        // Quiet non-save logs: only log save-related events elsewhere
         
 
         socialView.setupData(account: profile.socialInfo)
@@ -327,7 +328,14 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
     
     private func validateAndShow() -> Bool
     {
-        showErrorImage()
+        // Re-evaluate image presence based on current stored URLs to avoid timing issues after upload
+        let current = databaseService.getProfile().user
+        let coverPresent = isHaveCover || !(current.pictureCover ?? "").isEmpty
+        let avatarPresent = isHaveAvatar || !(current.pictureProfile ?? "").isEmpty
+
+        print("[Validation] isHaveCover=\(isHaveCover) isHaveAvatar=\(isHaveAvatar) coverURL='\(current.pictureCover ?? "")' avatarURL='\(current.pictureProfile ?? "")' → coverPresent=\(coverPresent) avatarPresent=\(avatarPresent)")
+        
+        showErrorImage(forceCover: coverPresent, forceAvatar: avatarPresent)
         showSocialLinkError()
         let isGenderValid = genderInput.validateAndShow()
         let isEduValid = educationInput.validateAndShow()
@@ -345,14 +353,16 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         && isStudyingValid
         && isClassYearValid
         && isPostgraduateValid
-        && isHaveCover
-        && isHaveAvatar
+        && coverPresent
+        && avatarPresent
         && isValidSocialAccount
     }
     
-    private func showErrorImage() {
-        self.headerErrorLabel.isHidden = isHaveCover
-        self.avatarErrorLabel.isHidden = isHaveAvatar
+    private func showErrorImage(forceCover: Bool? = nil, forceAvatar: Bool? = nil) {
+        let coverOK = forceCover ?? isHaveCover
+        let avatarOK = forceAvatar ?? isHaveAvatar
+        self.headerErrorLabel.isHidden = coverOK
+        self.avatarErrorLabel.isHidden = avatarOK
     }
     
     private func showSocialLinkError() {
@@ -411,19 +421,8 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         }
         
         // Ensure firstName and lastName are preserved from current profile
-        // This fixes the issue where these fields were being lost in previous updates
-        print("=== DEBUGGING FIRSTNAME/LASTNAME ===")
-        print("Current Profile firstName: '\(currentProfile.firstName)'")
-        print("Current Profile lastName: '\(currentProfile.lastName)'")
-        print("UserUpdate firstName before: '\(userUpdate?.firstName ?? "NIL")'")
-        print("UserUpdate lastName before: '\(userUpdate?.lastName ?? "NIL")'")
-        
         userUpdate?.firstName = currentProfile.firstName
         userUpdate?.lastName = currentProfile.lastName
-        
-        print("UserUpdate firstName after: '\(userUpdate?.firstName ?? "NIL")'")
-        print("UserUpdate lastName after: '\(userUpdate?.lastName ?? "NIL")'")
-        print("=====================================")
         
         if let location = ActiveUser.singleton.currentLocation {
             userUpdate?.location = Position(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
@@ -489,14 +488,10 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         }
         userUpdate?.myFriends = myFriends
         if let user = userUpdate {
-            print("=== Saving Profile to PHP API ===")
-            print("Profile Picture URL: \(user.pictureProfile ?? "NIL")")
-            print("Cover Picture URL: \(user.pictureCover ?? "NIL")")
+            print("[SaveProfile] Sending update: avatar='\(user.pictureProfile ?? "")' cover='\(user.pictureCover ?? "")'")
             // Route through Laravel API instead of Lambda
             ProfileAPI.updateUserProfile(id: user.id, user: user).thenInAction{ userUpdated in
-                print("=== Profile Saved Successfully ===")
-                print("Profile Picture URL: \(userUpdated.pictureProfile ?? "NIL")")
-                print("Cover Picture URL: \(userUpdated.pictureCover ?? "NIL")")
+                print("[SaveProfile] Success: avatar='\(userUpdated.pictureProfile ?? "")' cover='\(userUpdated.pictureCover ?? "")'")
                 DispatchQueue.main.async {
                     self.processSaveProfile(userUpdated)
                 }
@@ -562,6 +557,8 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
     {
         self.headerErrorLabel.isHidden = true
         coverPicImage.image = image
+        isHaveCover = true  // Mark as having cover when image is selected
+        print("[ImageSelect] Cover image selected, isHaveCover=\(isHaveCover)")
         saveCoverPic()
         dismiss(animated: true)
     }
@@ -580,6 +577,8 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
     {
         self.avatarErrorLabel.isHidden = true
         profilePicImage.image = image
+        isHaveAvatar = true  // Mark as having avatar when image is selected
+        print("[ImageSelect] Avatar image selected, isHaveAvatar=\(isHaveAvatar)")
         saveProfilePic()
         dismiss(animated: true)
     }
@@ -633,8 +632,8 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         if let image = coverPicImage.image {
             let profile = databaseService.getProfile().user
             let fileUrl = URL(string: APIKeys.BASE_API_URL + "/profile/\(profile.id)/coverImage")
+            // Only send Authorization; let Alamofire set multipart Content-Type
             let headers = [
-                "Content-Type":"application/json",
                 APIKeys.HTTP_AUTHORIZATION_HEADER: OpenAPIClientAPI.customHeaders[APIKeys.HTTP_AUTHORIZATION_HEADER]!
             ]
             
@@ -652,12 +651,19 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
                         DispatchQueue.main.async {
                             switch response.result {
                             case .success(let data):
+                                print("[CoverUpload] Success response: \(data)")
                                 if let url = (data as? [String: Any])?["url"] as? String {
+                                    print("[CoverUpload] Extracted URL: \(url)")
                                     self?.databaseService.updateCover(url: url)
+                                    self?.userProfile?.pictureCover = url
+                                    self?.view.makeToast("Cover picture uploaded successfully", duration: 3.0, position: .bottom)
+                                } else {
+                                    print("[CoverUpload] Could not extract URL from response")
+                                    self?.view.makeToast("Cover picture uploaded but URL not found")
                                 }
-                                self?.view.makeToast("Cover picture uploaded successfully", duration: 3.0, position: .bottom)
                                 self?.isHaveCover = true
                             case .failure(_):
+                                print("[CoverUpload] Upload failed: \(String(describing: response.response?.statusCode)) body=\(String(data: response.data ?? Data(), encoding: .utf8) ?? "<nil>")")
                                 self?.view.makeToast("Cover picture can't upload")
                             }
                         }
@@ -675,8 +681,8 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         if let image = profilePicImage.image {
             let profile = databaseService.getProfile().user
             let fileUrl = URL(string: APIKeys.BASE_API_URL + "/profile/\(profile.id)/upload")
+            // Only send Authorization; let Alamofire set multipart Content-Type
             let headers = [
-                "Content-Type":"application/json",
                 APIKeys.HTTP_AUTHORIZATION_HEADER: OpenAPIClientAPI.customHeaders[APIKeys.HTTP_AUTHORIZATION_HEADER]!
             ]
             
@@ -694,12 +700,19 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
                         DispatchQueue.main.async {
                             switch response.result {
                             case .success(let data):
+                                print("[AvatarUpload] Success response: \(data)")
                                 if let url = (data as? [String: Any])?["url"] as? String {
+                                    print("[AvatarUpload] Extracted URL: \(url)")
                                     self?.databaseService.updateAvatar(url: url)
+                                    self?.userProfile?.pictureProfile = url
+                                    self?.view.makeToast("Profile picture uploaded successfully", duration: 3.0, position: .bottom)
+                                } else {
+                                    print("[AvatarUpload] Could not extract URL from response")
+                                    self?.view.makeToast("Profile picture uploaded but URL not found")
                                 }
-                                self?.view.makeToast("Profile picture uploaded successfully", duration: 3.0, position: .bottom)
                                 self?.isHaveAvatar = true
                             case .failure(_):
+                                print("[AvatarUpload] Upload failed: \(String(describing: response.response?.statusCode)) body=\(String(data: response.data ?? Data(), encoding: .utf8) ?? "<nil>")")
                                 self?.view.makeToast("Profile picture can't upload")
                             }
                         }

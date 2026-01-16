@@ -31,7 +31,7 @@ exports.handler = async (event) => {
           <p>${senderName} just liked your profile on the Calibrr Social App-- go like their profile back to return the favor!</p>
         `.trim()
       );
-      const textBody = `${senderName} just liked your profile on the Calibrr Social App-- go like their profile back to return the favor!`;
+      const textBody = `${senderName} just liked your profile on Calibrr Social -- go like their profile back to return the favor!`;
 
       const res = await sendEmail(recipientEmail, subject, htmlBody, textBody);
       return response(200, { ok: true, messageId: res.MessageId });
