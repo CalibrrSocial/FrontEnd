@@ -370,6 +370,72 @@
                                                 <outlet property="titleLabel" destination="dBp-8L-SqT" id="7Vj-9P-0cK"/>
                                             </connections>
                                         </view>
+                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hLt-7a-CpR" userLabel="HighSchoolInput" customClass="CBRTextInputView" customModule="Calibrr" customModuleProvider="target">
+                                            <rect key="frame" x="0.0" y="370.5" width="422.5" height="52"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Past Highschool, Graduated from:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="8" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Mg6-jJ-cXP">
+                                                    <rect key="frame" x="20" y="0.0" width="382.5" height="20"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="20" id="2Ft-vQ-g5G"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
+                                                    <color key="textColor" red="0.43529412150000002" green="0.4431372583" blue="0.47450980539999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="School name and graduation year" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="dQR-cd-YWe" userLabel="InputField">
+                                                    <rect key="frame" x="20" y="25" width="382.5" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                    <textInputTraits key="textInputTraits" textContentType="address-level2"/>
+                                                </textField>
+                                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HTY-eN-wlK" userLabel="Divider">
+                                                    <rect key="frame" x="20" y="51" width="382.5" height="1"/>
+                                                    <subviews>
+                                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7db-VF-jvn" userLabel="DividerHighlight">
+                                                            <rect key="frame" x="166.5" y="0.0" width="50" height="1"/>
+                                                            <color key="backgroundColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                            <constraints>
+                                                                <constraint firstAttribute="width" constant="50" id="v9A-uP-mzF"/>
+                                                            </constraints>
+                                                        </view>
+                                                    </subviews>
+                                                    <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="1" id="7Sj-0q-u77"/>
+                                                        <constraint firstItem="7db-VF-jvn" firstAttribute="centerX" secondItem="HTY-eN-wlK" secondAttribute="centerX" id="FuB-Gb-Fga"/>
+                                                        <constraint firstItem="7db-VF-jvn" firstAttribute="top" secondItem="HTY-eN-wlK" secondAttribute="top" id="TNS-3Y-sHi"/>
+                                                        <constraint firstAttribute="bottom" secondItem="7db-VF-jvn" secondAttribute="bottom" id="eWm-pE-wqr"/>
+                                                    </constraints>
+                                                </view>
+                                            </subviews>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <accessibility key="accessibilityConfiguration" identifier=""/>
+                                            <constraints>
+                                                <constraint firstItem="dQR-cd-YWe" firstAttribute="top" secondItem="Mg6-jJ-cXP" secondAttribute="bottom" constant="5" id="0mO-lA-Vm4"/>
+                                                <constraint firstItem="HTY-eN-wlK" firstAttribute="top" secondItem="dQR-cd-YWe" secondAttribute="bottom" constant="5" id="3mr-C6-Mw1"/>
+                                                <constraint firstItem="dQR-cd-YWe" firstAttribute="leading" secondItem="Mg6-jJ-cXP" secondAttribute="leading" id="8Qu-LJ-fam"/>
+                                                <constraint firstItem="HTY-eN-wlK" firstAttribute="leading" secondItem="hLt-7a-CpR" secondAttribute="leading" constant="20" id="E7T-3S-z6d"/>
+                                                <constraint firstItem="dQR-cd-YWe" firstAttribute="trailing" secondItem="Mg6-jJ-cXP" secondAttribute="trailing" id="H8Q-OJ-Lhw"/>
+                                                <constraint firstItem="HTY-eN-wlK" firstAttribute="trailing" secondItem="dQR-cd-YWe" secondAttribute="trailing" id="MlV-Ls-2MG"/>
+                                                <constraint firstItem="dQR-cd-YWe" firstAttribute="leading" secondItem="HTY-eN-wlK" secondAttribute="leading" id="QJT-kS-q6b"/>
+                                                <constraint firstAttribute="trailing" secondItem="HTY-eN-wlK" secondAttribute="trailing" constant="20" id="Szx-jr-xMR"/>
+                                                <constraint firstItem="Mg6-jJ-cXP" firstAttribute="top" secondItem="hLt-7a-CpR" secondAttribute="top" id="lEV-wD-rTD"/>
+                                                <constraint firstAttribute="bottom" secondItem="HTY-eN-wlK" secondAttribute="bottom" id="yGm-Pb-vHe"/>
+                                            </constraints>
+                                            <userDefinedRuntimeAttributes>
+                                                <userDefinedRuntimeAttribute type="boolean" keyPath="isRequired" value="NO"/>
+                                                <userDefinedRuntimeAttribute type="boolean" keyPath="isLight" value="NO"/>
+                                                <userDefinedRuntimeAttribute type="boolean" keyPath="isEnableNextBar" value="NO"/>
+                                            </userDefinedRuntimeAttributes>
+                                            <connections>
+                                                <outlet property="divider" destination="HTY-eN-wlK" id="Ql1-pB-I81"/>
+                                                <outlet property="dividerHighlight" destination="7db-VF-jvn" id="R0W-uf-FNV"/>
+                                                <outlet property="dividerHighlightWidthConstraint" destination="v9A-uP-mzF" id="BaY-7m-jEp"/>
+                                                <outlet property="inputDelegate" destination="-1" id="eWs-9R-wJQ"/>
+                                                <outlet property="inputField" destination="dQR-cd-YWe" id="1aF-7w-8Ap"/>
+                                                <outlet property="nextInput" destination="vQ6-oJ-x1T" id="DU4-0X-8Pr"/>
+                                                <outlet property="titleLabel" destination="Mg6-jJ-cXP" id="M8A-h6-RyQ"/>
+                                            </connections>
+                                        </view>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vQ6-oJ-x1T" userLabel="EducationInput" customClass="CBRTextInputView" customModule="Calibrr" customModuleProvider="target">
                                             <rect key="frame" x="0.0" y="226.5" width="422.5" height="72"/>
                                             <subviews>
@@ -446,72 +512,6 @@
                                                 <outlet property="nextInput" destination="UEq-Im-Asr" id="eDw-rc-gxw"/>
                                                 <outlet property="requiredLabel" destination="4jy-Be-NXR" id="oGJ-wE-Yxm"/>
                                                 <outlet property="titleLabel" destination="UyX-cs-rKV" id="YzO-GH-K72"/>
-                                            </connections>
-                                        </view>
-                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hLt-7a-CpR" userLabel="HighSchoolInput" customClass="CBRTextInputView" customModule="Calibrr" customModuleProvider="target">
-                                            <rect key="frame" x="0.0" y="370.5" width="422.5" height="52"/>
-                                            <subviews>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Past Highschool, Graduated from:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="8" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Mg6-jJ-cXP">
-                                                    <rect key="frame" x="20" y="0.0" width="382.5" height="20"/>
-                                                    <constraints>
-                                                        <constraint firstAttribute="height" constant="20" id="2Ft-vQ-g5G"/>
-                                                    </constraints>
-                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
-                                                    <color key="textColor" red="0.43529412150000002" green="0.4431372583" blue="0.47450980539999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                                <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="School name and graduation year" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="dQR-cd-YWe" userLabel="InputField">
-                                                    <rect key="frame" x="20" y="25" width="382.5" height="21"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
-                                                    <textInputTraits key="textInputTraits" textContentType="address-level2"/>
-                                                </textField>
-                                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HTY-eN-wlK" userLabel="Divider">
-                                                    <rect key="frame" x="20" y="51" width="382.5" height="1"/>
-                                                    <subviews>
-                                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7db-VF-jvn" userLabel="DividerHighlight">
-                                                            <rect key="frame" x="166.5" y="0.0" width="50" height="1"/>
-                                                            <color key="backgroundColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                            <constraints>
-                                                                <constraint firstAttribute="width" constant="50" id="v9A-uP-mzF"/>
-                                                            </constraints>
-                                                        </view>
-                                                    </subviews>
-                                                    <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                    <constraints>
-                                                        <constraint firstAttribute="height" constant="1" id="7Sj-0q-u77"/>
-                                                        <constraint firstItem="7db-VF-jvn" firstAttribute="centerX" secondItem="HTY-eN-wlK" secondAttribute="centerX" id="FuB-Gb-Fga"/>
-                                                        <constraint firstItem="7db-VF-jvn" firstAttribute="top" secondItem="HTY-eN-wlK" secondAttribute="top" id="TNS-3Y-sHi"/>
-                                                        <constraint firstAttribute="bottom" secondItem="7db-VF-jvn" secondAttribute="bottom" id="eWm-pE-wqr"/>
-                                                    </constraints>
-                                                </view>
-                                            </subviews>
-                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                            <accessibility key="accessibilityConfiguration" identifier=""/>
-                                            <constraints>
-                                                <constraint firstItem="dQR-cd-YWe" firstAttribute="top" secondItem="Mg6-jJ-cXP" secondAttribute="bottom" constant="5" id="0mO-lA-Vm4"/>
-                                                <constraint firstItem="HTY-eN-wlK" firstAttribute="top" secondItem="dQR-cd-YWe" secondAttribute="bottom" constant="5" id="3mr-C6-Mw1"/>
-                                                <constraint firstItem="dQR-cd-YWe" firstAttribute="leading" secondItem="Mg6-jJ-cXP" secondAttribute="leading" id="8Qu-LJ-fam"/>
-                                                <constraint firstItem="HTY-eN-wlK" firstAttribute="leading" secondItem="hLt-7a-CpR" secondAttribute="leading" constant="20" id="E7T-3S-z6d"/>
-                                                <constraint firstItem="dQR-cd-YWe" firstAttribute="trailing" secondItem="Mg6-jJ-cXP" secondAttribute="trailing" id="H8Q-OJ-Lhw"/>
-                                                <constraint firstItem="HTY-eN-wlK" firstAttribute="trailing" secondItem="dQR-cd-YWe" secondAttribute="trailing" id="MlV-Ls-2MG"/>
-                                                <constraint firstItem="dQR-cd-YWe" firstAttribute="leading" secondItem="HTY-eN-wlK" secondAttribute="leading" id="QJT-kS-q6b"/>
-                                                <constraint firstAttribute="trailing" secondItem="HTY-eN-wlK" secondAttribute="trailing" constant="20" id="Szx-jr-xMR"/>
-                                                <constraint firstItem="Mg6-jJ-cXP" firstAttribute="top" secondItem="hLt-7a-CpR" secondAttribute="top" id="lEV-wD-rTD"/>
-                                                <constraint firstAttribute="bottom" secondItem="HTY-eN-wlK" secondAttribute="bottom" id="yGm-Pb-vHe"/>
-                                            </constraints>
-                                            <userDefinedRuntimeAttributes>
-                                                <userDefinedRuntimeAttribute type="boolean" keyPath="isRequired" value="NO"/>
-                                                <userDefinedRuntimeAttribute type="boolean" keyPath="isLight" value="NO"/>
-                                                <userDefinedRuntimeAttribute type="boolean" keyPath="isEnableNextBar" value="NO"/>
-                                            </userDefinedRuntimeAttributes>
-                                            <connections>
-                                                <outlet property="divider" destination="HTY-eN-wlK" id="Ql1-pB-I81"/>
-                                                <outlet property="dividerHighlight" destination="7db-VF-jvn" id="R0W-uf-FNV"/>
-                                                <outlet property="dividerHighlightWidthConstraint" destination="v9A-uP-mzF" id="BaY-7m-jEp"/>
-                                                <outlet property="inputDelegate" destination="-1" id="eWs-9R-wJQ"/>
-                                                <outlet property="inputField" destination="dQR-cd-YWe" id="1aF-7w-8Ap"/>
-                                                <outlet property="nextInput" destination="vQ6-oJ-x1T" id="DU4-0X-8Pr"/>
-                                                <outlet property="titleLabel" destination="Mg6-jJ-cXP" id="M8A-h6-RyQ"/>
                                             </connections>
                                         </view>
                                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xYc-4H-dVE" userLabel="ClassYearInput" customClass="CBRTextInputView" customModule="Calibrr" customModuleProvider="target">
@@ -667,7 +667,7 @@
                                                 <outlet property="dividerHighlightWidthConstraint" destination="9Dg-bC-MkJ" id="bXK-9L-PF3"/>
                                                 <outlet property="inputDelegate" destination="-1" id="Oyu-gj-8Ej"/>
                                                 <outlet property="inputField" destination="Yg2-vu-cke" id="fhJ-qw-SgJ"/>
-                                                <outlet property="nextInput" destination="UEq-Im-Asr" id="RnQ-J8-CQJ"/>
+                                                <outlet property="nextInput" destination="zUv-cD-gXc" id="RnQ-J8-CQJ"/>
                                                 <outlet property="requiredLabel" destination="REQ-CAMPUS-LABEL" id="REQ-CAMPUS-OUTLET"/>
                                                 <outlet property="titleLabel" destination="Q7H-Ym-9Qf" id="Hb5-xE-J7D"/>
                                             </connections>
