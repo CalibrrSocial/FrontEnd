@@ -68,18 +68,23 @@ class ProfilePage : APage, UITableViewDelegate, UICollectionViewDelegate
         self.items = personalInfoDatasource.items
         personalInfoTableView.reloadData()
 
-        // Reconcile with server truth so liked/likeCount persist across app restarts
+        // Reconcile like state with server truth so liked/likeCount persist across app restarts
         let myId = profile.id
         ProfileAPI.getUser(id: myId).done { updated in
-            DatabaseService.singleton.updateAccount(updated)
-            self.profile = updated
-            self.isValidSocialAccount = !(updated.socialInfo?.getAccountValid().isEmpty ?? true)
-            self.personalInfoDatasource.profile = updated.personalInfo
-            self.personalInfoDatasource.myCourses = updated.myCourses
-            self.personalInfoDatasource.bestFriends = updated.myFriends
-            self.personalInfoDatasource.reload()
-            self.items = self.personalInfoDatasource.items
-            self.personalInfoTableView.reloadData()
+            guard var current = self.profile else { return }
+            // Merge only fields relevant to likes to avoid overwriting locally persisted profile details
+            current.liked = updated.liked
+            current.likeCount = updated.likeCount
+            DatabaseService.singleton.updateAccount(current)
+            self.profile = current
+            // Reload just the header row to reflect heart/count
+            let headerIndex = IndexPath(row: 0, section: 0)
+            if self.personalInfoTableView.indexPathsForVisibleRows?.contains(headerIndex) == true,
+               let cell = self.personalInfoTableView.cellForRow(at: headerIndex) as? HeaderProfileCell {
+                cell.setLikeUI(liked: current.liked ?? false, count: current.likeCount ?? 0, isEnabled: true)
+            } else {
+                self.personalInfoTableView.reloadData()
+            }
         }.catch { _ in }
     }
     

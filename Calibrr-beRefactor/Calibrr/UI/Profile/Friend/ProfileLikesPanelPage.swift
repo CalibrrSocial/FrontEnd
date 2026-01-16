@@ -97,15 +97,14 @@ class ProfileLikesPanelPage: APage, UITableViewDelegate, UITableViewDataSource {
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		// Ensure visible, opaque nav bar with dark controls
-		let appearance = UINavigationBarAppearance()
-		appearance.configureWithDefaultBackground()
-		appearance.backgroundColor = .systemBackground
-		appearance.titleTextAttributes = [.foregroundColor: UIColor.label]
-		navigationController?.navigationBar.standardAppearance = appearance
-		navigationController?.navigationBar.scrollEdgeAppearance = appearance
-		navigationController?.navigationBar.compactAppearance = appearance
+		// Do not globally override app nav bar color; only adjust tint for visibility
 		navigationController?.navigationBar.tintColor = .label
+	}
+
+	override func viewWillDisappear(_ animated: Bool) {
+		super.viewWillDisappear(animated)
+		// Restore tint control to app default (white) when leaving, so the rest of the app remains blue-themed
+		navigationController?.navigationBar.tintColor = .white
 	}
 
 	override func viewDidLayoutSubviews() {
