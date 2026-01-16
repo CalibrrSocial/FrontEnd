@@ -346,7 +346,7 @@ extension ProfileFriendPage: UITableViewDataSource {
         let endpoint = "https://api.calibrr.com/api/profile/\(myId)/attributes/like"
         
         print("Attribute like endpoint: \(endpoint)")
-        print("Current liked state: \(currentLiked), will use method: \(currentLiked ? "DELETE" : "POST")")
+        print("Current liked state: \(currentLiked), will use method: \(currentLiked ? "POST" : "DELETE")")
         print("Target ID: \(targetId), My ID: \(myId)")
         
         guard let url = URL(string: endpoint) else {
@@ -356,7 +356,7 @@ extension ProfileFriendPage: UITableViewDataSource {
         }
         
         var request = URLRequest(url: url)
-        request.httpMethod = currentLiked ? "DELETE" : "POST"
+        request.httpMethod = currentLiked ? "POST" : "DELETE"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         // Add authorization header
