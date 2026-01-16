@@ -55,15 +55,16 @@ exports.handler = async (event) => {
       }
 
       const senderName = [senderFirstName, senderLastName].filter(Boolean).join(" ") || "Someone";
-      const subject = `${senderName} just liked your ${attribute}!`;
+      const displayLabel = deriveAttributeLabel(category, attribute);
+      const subject = `${senderName} just liked your ${displayLabel}, "${attribute}"!`;
       const htmlBody = baseHtml().replace(
         "{{CONTENT}}",
         `
-          <h3>${senderName} just liked your ${attribute}!</h3>
-          <p>${senderName} just liked your ${attribute} on Calibrr Social-- go like their profile back to return the favor!</p>
+          <h3>${senderName} just liked your ${category}, ${attribute}!</h3>
+          <p>${senderName} just liked your ${category}, ${attribute} on Calibrr Social-- go like their profile back to return the favor!</p>
         `.trim()
       );
-      const textBody = `${senderName} just liked your ${attribute} on Calibrr Social -- go like their profile back to return the favor!`;
+      const textBody = `${senderName} just liked your ${category}, ${attribute} on Calibrr Social -- go like their profile back to return the favor!`;
 
       const res = await sendEmail(recipientEmail, subject, htmlBody, textBody);
       return response(200, { ok: true, messageId: res.MessageId });
@@ -233,6 +234,84 @@ function deadLinkHtml() {
       </div>
     </body></html>
   `;
+}
+
+function deriveAttributeLabel(category, attribute) {
+  const group = (category || '').trim();
+  const value = (attribute || '').trim();
+  const groupLower = group.toLowerCase();
+  const valueLower = value.toLowerCase();
+
+  const genderValues = new Set(['male', 'female', 'non-binary', 'nonbinary', 'other', 'prefer not to say']);
+  const relationshipValues = new Set(['single', 'in a relationship', 'married', 'engaged', "it's complicated", 'divorced', 'separated']);
+  const sexualityValues = new Set(['straight', 'heterosexual', 'gay', 'lesbian', 'bisexual', 'asexual', 'pansexual', 'queer', 'questioning', 'demisexual', 'prefer not to say']);
+  const monthNames = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+
+  const looksLikeDate = monthNames.some((m) => valueLower.includes(m)) || /\b(19|20)\d{2}\b/.test(valueLower) || /years? old\b/.test(valueLower);
+  const looksLikeCourse = /\b[A-Za-z]{2,4}\s?\d{3,4}[A-Za-z]?\b/.test(value);
+  const looksLikeClassYear = /\b(freshman|sophomore|junior|senior)\b/.test(valueLower) || /\b\d(?:st|nd|rd|th) year\b/.test(valueLower);
+  const looksLikeCollege = /\b(university|college|institute|state)\b/.test(valueLower);
+  const looksLikeCampus = /\bcampus\b/.test(valueLower);
+  const looksLikeFriendList = /friend\b/i.test(value) || /,/ .test(value);
+
+  const tvShows = new Set(['breaking bad','game of thrones','the office','friends','stranger things','succession','the boys']);
+  const games = new Set(['minecraft','call of duty','fortnite','league of legends','valorant','overwatch','apex legends','grand theft auto','gta','genshin impact']);
+  const musicExamples = new Set(['daft punk','rammstein','ramnstein','taylor swift','drake','ariana grande','metallica']);
+
+  switch (groupLower) {
+    case 'personal': {
+      if (genderValues.has(valueLower)) return 'Gender';
+      if (relationshipValues.has(valueLower)) return 'Relationship';
+      if (sexualityValues.has(valueLower)) return 'Sexuality';
+      if (looksLikeDate) return 'Born';
+      return 'Bio';
+    }
+    case 'education': {
+      if (looksLikeCourse) return 'Courses';
+      if (looksLikeClassYear) return 'Class Year';
+      if (looksLikeCampus) return 'Campus';
+      if (looksLikeCollege) return 'College';
+      return 'Major/Studying';
+    }
+    case 'career': {
+      if (valueLower === 'yes' || valueLower === 'no') return 'Postgraduate Plans';
+      const occupationHints = ['founder','ceo','cto','engineer','developer','designer','teacher','nurse','pca','manager','doctor','attorney','lawyer','analyst','technician'];
+      if (occupationHints.some((h) => valueLower.includes(h))) return 'Occupation';
+      return 'Career Aspirations';
+    }
+    case 'social': {
+      if (looksLikeFriendList) return 'Best Friends';
+      if (valueLower === 'none') return 'Greek life';
+      return 'Team/Club';
+    }
+    case 'entertainment': {
+      if (tvShows.has(valueLower)) return 'Favorite TV';
+      if (games.has(valueLower)) return 'Favorite Games';
+      // Default to TV for entertainment strings like known shows
+      return 'Favorite TV';
+    }
+    case 'music': {
+      return 'Favorite Music';
+    }
+    case 'politics': {
+      return 'Politics';
+    }
+    case 'religion': {
+      return 'Religion';
+    }
+    case 'location': {
+      return 'Location';
+    }
+    case 'other': {
+      if (looksLikeCourse) return 'Courses';
+      if (games.has(valueLower)) return 'Favorite Games';
+      if (tvShows.has(valueLower)) return 'Favorite TV';
+      if (musicExamples.has(valueLower)) return 'Favorite Music';
+      return 'Other';
+    }
+    default:
+      return group || 'Attribute';
+  }
 }
 
 async function sendEmail(toEmail, subject, htmlBody, textBody) {
