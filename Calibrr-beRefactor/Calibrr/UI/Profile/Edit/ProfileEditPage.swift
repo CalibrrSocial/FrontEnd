@@ -157,7 +157,35 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
             item.delegate = self
         }
         
+        // Set bold titles for all profile attribute inputs
+        setBoldTitlesForProfileInputs()
+        
         setupProfilePage()
+    }
+    
+    /// Sets bold titles for all profile attribute input fields
+    private func setBoldTitlesForProfileInputs() {
+        locationInput?.setBoldTitle()
+        politicsInput?.setBoldTitle()
+        religionInput?.setBoldTitle()
+        educationInput?.setBoldTitle()
+        occupationInput?.setBoldTitle()
+        genderInput?.setBoldTitle()
+        sexualityInput?.setBoldTitle()
+        relationshipInput?.setBoldTitle()
+        favoriteMusicInput?.setBoldTitle()
+        studyingInput?.setBoldTitle()
+        greekLifeInput?.setBoldTitle()
+        favoriteGamesInput?.setBoldTitle()
+        favoriteTVInput?.setBoldTitle()
+        myClub?.setBoldTitle()
+        classYearInput?.setBoldTitle()
+        campusInput?.setBoldTitle()
+        careerAspirationsInput?.setBoldTitle()
+        postgraduateInput?.setBoldTitle()
+        postgraduatePlansInput?.setBoldTitle()
+        hometownInput?.setBoldTitle()
+        highSchoolInput?.setBoldTitle()
     }
     
     override func refreshUI()

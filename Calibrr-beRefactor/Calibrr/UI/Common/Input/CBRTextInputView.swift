@@ -90,6 +90,15 @@ class CBRTextInputView : UIView, UITextFieldDelegate
         titleLabel.text = title
     }
     
+    /// Makes the title label bold
+    func setBoldTitle() {
+        if isLight {
+            titleLabel.setupWhite(textSize: 17, bold: true)
+        } else {
+            titleLabel.setupDark(textSize: 17, bold: true)
+        }
+    }
+    
     func setup(_ title: String, icon: UIImage)
     {
         iconView?.image = icon
