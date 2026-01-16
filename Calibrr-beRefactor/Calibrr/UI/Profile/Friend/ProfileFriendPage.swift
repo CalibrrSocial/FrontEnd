@@ -67,8 +67,8 @@ class ProfileFriendPage: APage, UITableViewDelegate, UICollectionViewDelegate
         personalInfoDatasource.reload()
         personalInfoTableView.reloadData()
         
-        socialInfoDatasource.reload()
-        socialInfoCollectionView.reloadData()
+        // Hide the collection view since we're using SocialLinkTableViewCell in the table view
+        socialInfoCollectionView.isHidden = true
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
