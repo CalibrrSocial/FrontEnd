@@ -11,7 +11,7 @@ public class APIKeys
 //    public static let BASE_URL = "http://calibrr.com/"
     public static let BASE_URL = "https://calibrr.com/"              //"http://www.calibrr.com/"
 //    public static let BASE_URL = "http://18.223.83.174/api/v1/"   //"http://www.calibrr.com/api/v1/"
-    public static let BASE_API_URL = "http://18.220.142.127/api"
+    public static let BASE_API_URL = "http://api.calibrr.com/api"
     
 //    OpenAPIClientAPI.customHeaders[APIKeys.HTTP_AUTHORIZATION_HEADER] = APIKeys.HTTP_AUTHORIZATION_PREFIX + databaseService.masterProfile.token!
     public static let HTTP_AUTHORIZATION_HEADER = "Authorization"

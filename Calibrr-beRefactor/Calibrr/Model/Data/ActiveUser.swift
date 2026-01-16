@@ -126,19 +126,8 @@ class ActiveUser : NSObject, CLLocationManagerDelegate
             user.location = Position(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
         }
         
-        // Ensure personalInfo is initialized to preserve all fields
-        if user.personalInfo == nil {
-            user.personalInfo = UserPersonalInfo()
-        }
-        
-        // Ensure socialInfo is initialized to preserve all fields
-        if user.socialInfo == nil {
-            user.socialInfo = UserSocialInfo()
-        }
-        
-        // Debug: Log what's being sent
-        print("[LocationUpdate] Sending update with classYear: '\(user.personalInfo?.classYear ?? "nil")'")
-        
-        ProfileAPI.updateUserProfileAWS(id: user.id, user: user).thenInAction{ _ in }
+        // Use the dedicated location update endpoint instead of full profile update
+        // This prevents overwriting personalInfo and socialInfo fields
+        ProfileAPI.updateUserLocation(id: user.id, user: user).thenInAction{ _ in }
     }
 }
