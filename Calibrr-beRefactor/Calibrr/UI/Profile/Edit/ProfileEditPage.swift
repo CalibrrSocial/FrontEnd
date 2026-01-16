@@ -625,19 +625,25 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         profile.personalInfo?.bio = updatedProfile.personalInfo?.bio
         profile.location = updatedProfile.location
         profile.personalInfo?.dob = updatedProfile.personalInfo?.dob
-        profile.personalInfo?.education = updatedProfile.personalInfo?.education
-        profile.personalInfo?.politics = updatedProfile.personalInfo?.politics
-        profile.personalInfo?.religion = updatedProfile.personalInfo?.religion
-        profile.personalInfo?.occupation = updatedProfile.personalInfo?.occupation
-        profile.personalInfo?.sexuality = updatedProfile.personalInfo?.sexuality
-        profile.personalInfo?.relationship = updatedProfile.personalInfo?.relationship
-        profile.personalInfo?.gender = updatedProfile.personalInfo?.gender
-        profile.personalInfo?.classYear = updatedProfile.personalInfo?.classYear
-        profile.personalInfo?.campus = updatedProfile.personalInfo?.campus
-        profile.personalInfo?.careerAspirations = updatedProfile.personalInfo?.careerAspirations
-        profile.personalInfo?.postgraduate = updatedProfile.personalInfo?.postgraduate
-        profile.personalInfo?.hometown = updatedProfile.personalInfo?.hometown
-        profile.personalInfo?.highSchool = updatedProfile.personalInfo?.highSchool
+        profile.personalInfo?.education = updatedProfile.personalInfo?.education ?? self.educationInput.getInput()
+        profile.personalInfo?.politics = updatedProfile.personalInfo?.politics ?? self.politicsInput.getInput()
+        profile.personalInfo?.religion = updatedProfile.personalInfo?.religion ?? self.religionInput.getInput()
+        profile.personalInfo?.occupation = updatedProfile.personalInfo?.occupation ?? self.occupationInput.getInput()
+        profile.personalInfo?.sexuality = updatedProfile.personalInfo?.sexuality ?? self.sexualityInput.getInput()
+        profile.personalInfo?.relationship = updatedProfile.personalInfo?.relationship ?? self.relationshipInput.getInput()
+        profile.personalInfo?.gender = updatedProfile.personalInfo?.gender ?? self.genderInput.getInput()
+        profile.personalInfo?.classYear = updatedProfile.personalInfo?.classYear ?? self.classYearInput.getInput()
+        profile.personalInfo?.campus = updatedProfile.personalInfo?.campus ?? self.campusInput.getInput()
+        profile.personalInfo?.careerAspirations = updatedProfile.personalInfo?.careerAspirations ?? self.careerAspirationsInput.getInput()
+        profile.personalInfo?.postgraduate = updatedProfile.personalInfo?.postgraduate ?? self.postgraduateInput.getInput()
+        profile.personalInfo?.hometown = updatedProfile.personalInfo?.hometown ?? self.hometownInput.getInput()
+        profile.personalInfo?.highSchool = updatedProfile.personalInfo?.highSchool ?? self.highSchoolInput.getInput()
+        // Merge fields that backend may not echo back yet
+        profile.personalInfo?.studying = updatedProfile.personalInfo?.studying ?? self.studyingInput.getInput()
+        profile.personalInfo?.favoriteTV = updatedProfile.personalInfo?.favoriteTV ?? self.favoriteTVInput.getInput()
+        profile.personalInfo?.favoriteGame = updatedProfile.personalInfo?.favoriteGame ?? self.favoriteGamesInput.getInput()
+        profile.personalInfo?.favoriteMusic = updatedProfile.personalInfo?.favoriteMusic ?? self.favoriteMusicInput.getInput()
+        profile.personalInfo?.greekLife = updatedProfile.personalInfo?.greekLife ?? self.greekLifeInput.getInput()
         
         // Preserve image URLs if they exist in the current profile (uploaded during this session)
         // Always use current profile images if they exist, regardless of server response
@@ -648,6 +654,12 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
             profile.pictureCover = currentCoverPic
         }
         
+        // If server didn't return social links, keep the ones the user just set
+        if (profile.socialInfo?.getAccountValid().count ?? 0) == 0,
+           (self.userProfile?.socialInfo?.getAccountValid().count ?? 0) > 0 {
+            profile.socialInfo = self.userProfile?.socialInfo
+        }
+
         // Update the database service with the final profile
         databaseService.getProfile().user = profile
         
