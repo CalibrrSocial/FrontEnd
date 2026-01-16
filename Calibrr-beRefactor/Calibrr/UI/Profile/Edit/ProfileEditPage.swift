@@ -445,7 +445,7 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         }
         userUpdate?.myFriends = myFriends
         if let user = userUpdate {
-            ProfileAPI.updateUserProfile(id: user.id, user: user).thenInAction{ userUpdated in
+            ProfileAPI.updateUserProfileAWS(id: user.id, user: user).thenInAction{ userUpdated in
                 self.processSaveProfile(userUpdated)
             }.ensure {
                 self.saveButton.showNormal()

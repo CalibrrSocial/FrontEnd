@@ -126,6 +126,6 @@ class ActiveUser : NSObject, CLLocationManagerDelegate
             user.location = Position(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
         }
         
-        ProfileAPI.updateUserProfile(id: user.id, user: user).thenInAction{ _ in }
+        ProfileAPI.updateUserProfileAWS(id: user.id, user: user).thenInAction{ _ in }
     }
 }

@@ -143,7 +143,7 @@ class SettingsPage : APage, UITableViewDataSource, UITableViewDelegate, MFMailCo
         var user = dataService.getProfile().user
         user.ghostMode = ghostMode
         self.showLoadingView()
-        ProfileAPI.updateUserProfile(id: user.id, user: user).thenInAction{ user in
+        ProfileAPI.updateUserProfileAWS(id: user.id, user: user).thenInAction{ user in
             self.dataService.updateAccount(user)
             self.hideLoadingView()
             self.tableView.reloadData()
