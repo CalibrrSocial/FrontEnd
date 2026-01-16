@@ -14,8 +14,8 @@ This implementation adds the ability to 'like' individual profile attributes in 
 
 ### 2. Backend Database Structure
 **Files:**
-- `/EC2BACKENDGIT/database/migrations/2025_01_28_000001_create_attribute_likes_table.php`
-- `/EC2BACKENDGIT/database/migrations/2025_01_28_000002_create_attribute_like_events_table.php`
+- `/EC2BACKENDGIT/database/migrations/create_attribute_likes_table.php`
+- `/EC2BACKENDGIT/database/migrations/create_attribute_like_events_table.php`
 - `/EC2BACKENDGIT/app/Models/AttributeLike.php`
 
 **Database Tables:**

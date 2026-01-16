@@ -2,8 +2,8 @@
 //  LogService.swift
 //  Calibrr
 //
-//  Created by Leon on 31/07/2022.
-//  Copyright © 2022 Calibrr. All rights reserved.
+//
+//  Copyright © Calibrr. All rights reserved.
 //
 
 import Foundation

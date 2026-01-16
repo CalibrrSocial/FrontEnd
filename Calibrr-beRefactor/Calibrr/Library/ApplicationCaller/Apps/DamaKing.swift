@@ -2,8 +2,8 @@
 //  DamaKing.swift
 //  Appz
 //
-//  Created by Mariam AlJamea on 6/26/17.
-//  Copyright © 2017 kitz. All rights reserved.
+//
+//  Copyright © kitz. All rights reserved.
 //
 
 public extension Applications {

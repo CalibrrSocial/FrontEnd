@@ -2,8 +2,8 @@
 //  Epson.swift
 //  Pods
 //
-//  Created by Mariam AlJamea on 1/19/16.
-//  Copyright © 2016 kitz. All rights reserved.
+//
+//  Copyright © kitz. All rights reserved.
 //
 
 public extension Applications {

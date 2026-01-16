@@ -2,8 +2,8 @@
 //  Viber.swift
 //  Pods
 //
-//  Created by Mariam AlJamea on 12/30/15.
-//  Copyright © 2015 kitz. All rights reserved.
+//
+//  Copyright © kitz. All rights reserved.
 //
 
 public extension Applications {

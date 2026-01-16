@@ -2,8 +2,8 @@
 //  ProfileAPI+BlockReport.swift
 //  Calibrr
 //
-//  Created by Assistant on 23/08/2025.
-//  Copyright © 2025 Calibrr. All rights reserved.
+//
+//  Copyright © Calibrr. All rights reserved.
 //
 
 import Foundation

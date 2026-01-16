@@ -2,8 +2,8 @@
 //  FRIL.swift
 //  Appz
 //
-//  Created by Tomonobu Sato on 3/25/16.
-//  Copyright © 2016 kitz. All rights reserved.
+//
+//  Copyright © kitz. All rights reserved.
 //
 
 public extension Applications {

@@ -2,8 +2,8 @@
 //  Photos.swift
 //  Pods
 //
-//  Created by Mariam AlJamea on 1/28/17.
-//  Copyright © 2017 kitz. All rights reserved.
+//
+//  Copyright © kitz. All rights reserved.
 //
 
 public extension Applications {

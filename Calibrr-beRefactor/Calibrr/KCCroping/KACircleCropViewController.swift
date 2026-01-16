@@ -2,7 +2,7 @@
 //  KACircleCropViewController.swift
 //  Circle Crop View Controller
 //
-//  Created by Keke Arif on 29/02/2016.
+//
 //  . All rights reserved.
 //
 

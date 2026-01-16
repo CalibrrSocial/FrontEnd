@@ -2,8 +2,8 @@
 //  KASquareCropViewController.swift
 //  Calibrr
 //
-//  Created by _MacBook on 06/05/19.
-//  Copyright © 2019 . All rights reserved.
+//
+//  Copyright © . All rights reserved.
 //
 
 import UIKit

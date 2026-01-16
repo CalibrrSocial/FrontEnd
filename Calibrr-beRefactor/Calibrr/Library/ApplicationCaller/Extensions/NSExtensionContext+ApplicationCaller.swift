@@ -2,8 +2,8 @@
 //  NSExtensionContext+ApplicationCaller.swift
 //  Appz
 //
-//  Created by Mazyad Alabduljaleel on 11/10/15.
-//  Copyright © 2015 kitz. All rights reserved.
+//
+//  Copyright © kitz. All rights reserved.
 //
 
 import Foundation

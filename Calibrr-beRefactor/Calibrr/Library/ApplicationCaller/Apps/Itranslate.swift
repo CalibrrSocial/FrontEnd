@@ -2,8 +2,8 @@
 //  Itranslate.swift
 //  Pods
 //
-//  Created by Mariam AlJamea on 12/27/15.
-//  Copyright © 2015 kitz. All rights reserved.
+//
+//  Copyright © kitz. All rights reserved.
 //
 
 public extension Applications {

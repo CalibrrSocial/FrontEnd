@@ -2,8 +2,8 @@
 //  FaceTimeAudio.swift
 //  Appz
 //
-//  Created by MARYAM ALJAME on 1/26/18.
-//  Copyright © 2018 kitz. All rights reserved.
+//
+//  Copyright © kitz. All rights reserved.
 //
 
 public extension Applications {

@@ -13,7 +13,7 @@ exports.handler = async (event) => {
         // You can modify these test parameters
         let testRecipientUserId = event.testRecipientUserId || "test-recipient-123"
         let testSenderUserId = event.testSenderUserId || "test-sender-456"
-        let testEmail = event.testEmail || "eliyoung4now@gmail.com"
+        let testEmail = event.testEmail || "test@example.com"
         
         console.log(`🔍 DEBUG TEST: Testing with recipient: ${testRecipientUserId}, sender: ${testSenderUserId}, email: ${testEmail}`)
         

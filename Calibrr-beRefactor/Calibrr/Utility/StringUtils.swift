@@ -2,8 +2,8 @@
 //  StringUtils.swift
 //  Calibrr
 //
-//  Created by Leon on 11/08/2022.
-//  Copyright © 2022 Calibrr. All rights reserved.
+//
+//  Copyright © Calibrr. All rights reserved.
 //
 
 import Foundation

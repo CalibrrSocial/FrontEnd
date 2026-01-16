@@ -1,8 +1,8 @@
 app_identifier("com.app.Calibrr") # The bundle identifier of your app
-apple_id("kamil.c@toptal.com") # Your Apple email address
+apple_id("YOUR_APPLE_ID") # Your Apple email address
 
-itc_team_id("119029224") # App Store Connect Team ID
-team_id("JPJ9F24F56") # Developer Portal Team ID
+itc_team_id("YOUR_ITC_TEAM_ID") # App Store Connect Team ID
+team_id("YOUR_TEAM_ID") # Developer Portal Team ID
 
 # For more information about the Appfile, see:
 #     https://docs.fastlane.tools/advanced/#appfile

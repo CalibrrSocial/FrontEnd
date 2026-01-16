@@ -2,8 +2,8 @@
 //  Views.swift
 //  Pods
 //
-//  Created by Sai Kambampati on 10/1/18.
-//  Copyright © 2017 kitz. All rights reserved.
+//
+//  Copyright © kitz. All rights reserved.
 //
 
 public extension Applications {

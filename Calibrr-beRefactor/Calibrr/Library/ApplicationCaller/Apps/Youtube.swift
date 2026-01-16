@@ -2,8 +2,8 @@
 //  Twitter.swift
 //  Appz
 //
-//  Created by Hamad AlGhanim on 12/22/15.
-//  Copyright © 2015 kitz. All rights reserved.
+//
+//  Copyright © kitz. All rights reserved.
 //
 
 public extension Applications {

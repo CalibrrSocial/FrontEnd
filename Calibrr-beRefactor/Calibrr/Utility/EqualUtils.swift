@@ -2,8 +2,8 @@
 //  EqualUtils.swift
 //  Calibrr
 //
-//  Created by Kamil Chmurzynski on 03/06/2019.
-//  Copyright © 2019 NCRTS. All rights reserved.
+//
+//  Copyright © Calibrr. All rights reserved.
 //
 
 import Foundation

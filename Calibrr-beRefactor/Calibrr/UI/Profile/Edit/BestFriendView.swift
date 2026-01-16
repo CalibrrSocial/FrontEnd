@@ -2,8 +2,8 @@
 //  BestFriendView.swift
 //  Calibrr
 //
-//  Created by ZVN20210023 on 17/02/2023.
-//  Copyright © 2023 Calibrr. All rights reserved.
+//
+//  Copyright © Calibrr. All rights reserved.
 //
 
 import UIKit

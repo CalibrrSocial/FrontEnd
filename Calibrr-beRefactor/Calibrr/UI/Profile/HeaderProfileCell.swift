@@ -2,8 +2,8 @@
 //  HeaderProfileCell.swift
 //  Calibrr
 //
-//  Created by ZVN20210023 on 06/09/2022.
-//  Copyright © 2022 Calibrr. All rights reserved.
+//
+//  Copyright © Calibrr. All rights reserved.
 //
 
 import UIKit

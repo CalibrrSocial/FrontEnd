@@ -2,8 +2,8 @@
 //  ASectionItemsDatasource.swift
 //  Calibrr
 //
-//  Created by Kamil Chmurzynski on 18/06/2019.
-//  Copyright © 2019 Calibrr. All rights reserved.
+//
+//  Copyright © Calibrr. All rights reserved.
 //
 
 import UIKit

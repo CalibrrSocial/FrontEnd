@@ -2,8 +2,8 @@
 //  ViewController.swift
 //  ActivityControllerDemo
 //
-//  Created by Sayanti on 6/14/18.
-//  Copyright © 2018 NCRT. All rights reserved.
+//
+//  Copyright © NCRT. All rights reserved.
 //
 
 import UIKit

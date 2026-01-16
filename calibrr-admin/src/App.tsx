@@ -38,7 +38,7 @@ function App({ signOut, user }: AppProps) {
     // If it's a UUID (Cognito sub), we need to hardcode the email for now
     if (email && email.includes('-')) {
       // This is a UUID, not an email - use the known admin email
-      setAdminEmail('eliyoung4now@gmail.com');
+      setAdminEmail('admin@calibrr.com');
     } else {
       setAdminEmail(email);
     }

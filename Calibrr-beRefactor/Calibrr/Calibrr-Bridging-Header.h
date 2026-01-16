@@ -2,8 +2,8 @@
 //  Calibrr-Bridging-Header.h
 //  Calibrr
 //
-//  Created by Developer on 3/27/18.
-//  Copyright © 2018 . All rights reserved.
+//
+//  Copyright © Calibrr. All rights reserved.
 //
 
 //#import <LinkedinSwift/LSHeader.h>

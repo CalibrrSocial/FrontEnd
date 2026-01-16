@@ -2,8 +2,8 @@
 //  Path.swift
 //  Appz
 //
-//  Created by Mazyad Alabduljaleel on 12/13/15.
-//  Copyright © 2015 kitz. All rights reserved.
+//
+//  Copyright © kitz. All rights reserved.
 //
 
 import Foundation

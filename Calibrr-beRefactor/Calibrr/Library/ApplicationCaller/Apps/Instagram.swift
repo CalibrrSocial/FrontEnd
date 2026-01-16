@@ -2,8 +2,8 @@
 //  Instagram.swift
 //  Appz
 //
-//  Created by Suraj Shirvankar on 12/6/15.
-//  Copyright © 2015 kitz. All rights reserved.
+//
+//  Copyright © kitz. All rights reserved.
 //
 
 public extension Applications {

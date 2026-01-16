@@ -2,8 +2,8 @@
 //  Mail.swift
 //  Appz
 //
-//  Created by Suraj Shirvankar on 12/5/15.
-//  Copyright © 2015 kitz. All rights reserved.
+//
+//  Copyright © kitz. All rights reserved.
 //
 
 public extension Applications {

@@ -13,7 +13,7 @@ This document explains how to set up and use the email notification system for t
 ### 1. AWS SES (Simple Email Service) Setup ✅
 
 - ✅ Domain `calibrr.com` is verified and can send emails
-- ✅ Test email address `eliyoung4now@gmail.com` verified for testing
+- ✅ Test email address verified for testing
 - ✅ Emails are being sent successfully (some may initially go to spam)
 - ⚠️ Currently in sandbox mode - can only send to verified email addresses
 
