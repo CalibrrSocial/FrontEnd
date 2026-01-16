@@ -245,8 +245,12 @@ class ProfilePage : APage, UITableViewDelegate, UICollectionViewDelegate
     }
     
     private func handleAttributeLikeToggle(for cell: ProfileCell?) {
+        print("🔥 handleAttributeLikeToggle called!")
         guard let cell = cell,
-              let profile = self.profile else { return }
+              let profile = self.profile else { 
+            print("🔥 handleAttributeLikeToggle: Missing cell or profile")
+            return 
+        }
         
         let myId = DatabaseService.singleton.getProfile().user.id
         let targetId = profile.id
@@ -254,41 +258,41 @@ class ProfilePage : APage, UITableViewDelegate, UICollectionViewDelegate
         // Get current state
         var currentLiked = cell.currentAttributeLikeState()
         var currentCount = cell.currentAttributeLikesCount()
+        print("🔥 ProfilePage currentLiked: \(currentLiked), currentCount: \(currentCount)")
         
         // Optimistic toggle
-        currentLiked.toggle()
-        currentCount = max(0, currentLiked ? currentCount + 1 : currentCount - 1)
-        cell.setAttributeLikeUI(liked: currentLiked, count: currentCount, isEnabled: false)
+        let newLikedState = !currentLiked
+        let newCount = max(0, newLikedState ? currentCount + 1 : currentCount - 1)
+        cell.setAttributeLikeUI(liked: newLikedState, count: newCount, isEnabled: false)
         
         // Get attribute info from cell
+        print("🔥 Getting attribute info - category: \(cell.attributeCategory ?? "nil"), name: \(cell.attributeName ?? "nil")")
         guard let attributeCategory = cell.attributeCategory,
               let attributeName = cell.attributeName else {
-            print("Missing attribute information for like")
+            print("🔥 Missing attribute info, falling back to profile like system")
             cell.setAttributeLikeUI(liked: !currentLiked, count: currentLiked ? currentCount - 1 : currentCount + 1, isEnabled: true)
             return
         }
+        print("🔥 Using attribute like system - category: \(attributeCategory), name: \(attributeName)")
         
         // Make API call using dedicated attribute like endpoints
         let endpoint = "https://api.calibrr.com/api/profile/\(myId)/attributes/like"
-        
-        print("Attribute like endpoint: \(endpoint)")
-        print("Current liked state: \(currentLiked), will use method: \(currentLiked ? "POST" : "DELETE")")
-        print("Target ID: \(targetId), My ID: \(myId)")
+        print("🔥 ProfilePage Making API call to: \(endpoint)")
         
         guard let url = URL(string: endpoint) else {
-            print("Invalid URL for attribute like")
+            print("🔥 ProfilePage Failed to create URL from: \(endpoint)")
             cell.setAttributeLikeUI(liked: !currentLiked, count: currentLiked ? currentCount - 1 : currentCount + 1, isEnabled: true)
             return
         }
+        print("🔥 ProfilePage URL created successfully")
         
         var request = URLRequest(url: url)
-        request.httpMethod = currentLiked ? "POST" : "DELETE"
+        request.httpMethod = currentLiked ? "DELETE" : "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         // Add authorization header
         let token = DatabaseService.singleton.getProfile().token
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        print("Using auth token: \(token.prefix(20))...") // Log first 20 chars for security
         
         // Add attribute parameters in request body
         let body: [String: Any] = [
@@ -296,51 +300,45 @@ class ProfilePage : APage, UITableViewDelegate, UICollectionViewDelegate
             "category": attributeCategory,
             "attribute": attributeName
         ]
-        
-        print("Request body: \(body)")
-        print("Request headers: \(request.allHTTPHeaderFields ?? [:])")
-        
+        print("🔥 ProfilePage Request body: \(body)")
+
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: body)
+            print("🔥 ProfilePage JSON serialization successful")
         } catch {
-            print("Failed to serialize attribute like request body: \(error)")
+            print("🔥 ProfilePage JSON serialization failed: \(error)")
             cell.setAttributeLikeUI(liked: !currentLiked, count: currentLiked ? currentCount - 1 : currentCount + 1, isEnabled: true)
             return
         }
-        
+
         // Make the API call
+        print("🔥 ProfilePage About to make API call with method: \(request.httpMethod ?? "nil")")
         URLSession.shared.dataTask(with: request) { data, response, error in
+            print("🔥 ProfilePage API call completed")
             DispatchQueue.main.async {
                 if let error = error {
-                    print("Attribute like API error: \(error)")
                     // Revert optimistic update
-                    cell.setAttributeLikeUI(liked: !currentLiked, count: currentLiked ? currentCount - 1 : currentCount + 1, isEnabled: true)
+                    cell.setAttributeLikeUI(liked: currentLiked, count: currentCount, isEnabled: true)
                     return
                 }
                 
                 if let httpResponse = response as? HTTPURLResponse {
-                    print("Attribute like API response: \(httpResponse.statusCode)")
-                    
-                    // Log response body for debugging
-                    if let data = data {
-                        if let responseString = String(data: data, encoding: .utf8) {
-                            print("Response body: \(responseString)")
-                        }
-                    }
-                    
                     if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
-                        // Success - keep the optimistic update
-                        cell.setAttributeLikeUI(liked: currentLiked, count: currentCount, isEnabled: true)
-                        print("Attribute like \(currentLiked ? "added" : "removed") successfully")
+                        // Success - keep optimistic update and force refresh for accurate count
+                        cell.setAttributeLikeUI(liked: newLikedState, count: newCount, isEnabled: true)
+                        
+                        // Force refresh after short delay to get accurate server data
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            cell.forceRefreshLikeState()
+                        }
                     } else {
                         // Error - revert optimistic update
-                        cell.setAttributeLikeUI(liked: !currentLiked, count: currentLiked ? currentCount - 1 : currentCount + 1, isEnabled: true)
-                        print("Attribute like API failed with status: \(httpResponse.statusCode)")
-                        print("Headers: \(httpResponse.allHeaderFields)")
+                        cell.setAttributeLikeUI(liked: currentLiked, count: currentCount, isEnabled: true)
                     }
                 }
             }
         }.resume()
+        print("🔥 ProfilePage API call started (resume called)")
     }
 }
 
@@ -358,6 +356,8 @@ extension ProfilePage: UITableViewDataSource {
                 let initialLiked = profile.liked ?? false
                 let initialCount = profile.likeCount ?? 0
                 cell.setLikeUI(liked: initialLiked, count: initialCount, isEnabled: true)
+                // TEMPORARILY DISABLED OLD PROFILE LIKE SYSTEM TO TEST ATTRIBUTE LIKES
+                /*
                 cell.onToggleLike = { [weak self, weak cell] () -> Void in
                     guard let self = self else { return }
                     let myId = DatabaseService.singleton.getProfile().user.id
@@ -388,6 +388,7 @@ extension ProfilePage: UITableViewDataSource {
                         cell?.setLikeUI(liked: rollbackLiked, count: rollbackCount, isEnabled: true)
                     }
                 }
+                */
                 cell.onOpenLikes = { [weak self] in
                     guard let self = self, let userId = self.profile?.id else { return }
                     let vc = ProfileLikesPanelPage()

@@ -13,8 +13,11 @@ public class LogService {
     static let share = LogService()
     
     func log(request: URLRequest) {
-        
         let urlString = request.url?.absoluteString ?? ""
+        
+        // Only log attribute-like related requests
+        guard shouldLogRequest(urlString: urlString) else { return }
+        
         let components = NSURLComponents(string: urlString)
         
         let method = request.httpMethod != nil ? "\(request.httpMethod!)": ""
@@ -40,18 +43,19 @@ public class LogService {
     }
     
     func log(data: Data?, response: HTTPURLResponse?, error: Error?){
+        let urlString = response?.url?.absoluteString ?? ""
         
-        let urlString = response?.url?.absoluteString
-        let components = NSURLComponents(string: urlString ?? "")
+        // Only log attribute-like related responses
+        guard shouldLogRequest(urlString: urlString) else { return }
+        
+        let components = NSURLComponents(string: urlString)
         
         let path = "\(components?.path ?? "")"
         let query = "\(components?.query ?? "")"
         
         var responseLog = "\n<---------- RESPONSE ----------\n"
-        if let urlString = urlString {
-            responseLog += "\(urlString)"
-            responseLog += "\n\n"
-        }
+        responseLog += "\(urlString)"
+        responseLog += "\n\n"
         
         if let statusCode =  response?.statusCode{
             responseLog += "HTTP \(statusCode) \(path)?\(query)\n"
@@ -72,6 +76,12 @@ public class LogService {
         
         responseLog += "<------------------------\n";
         print(responseLog)
+    }
+    
+    private func shouldLogRequest(urlString: String) -> Bool {
+        // Only log requests related to attribute likes or profile viewing issues
+        return urlString.contains("/attributes/") || 
+               urlString.contains("/profile/") && !urlString.contains("/location")
     }
 }
 
