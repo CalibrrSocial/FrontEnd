@@ -161,10 +161,7 @@ class SocialLink: UIView {
                 make.edges.equalToSuperview()
             }
             
-            // Set container size constraints
-            containerView.snp.makeConstraints { make in
-                make.width.height.equalTo(iconSize)
-            }
+            // Don't set fixed constraints on container - let stack view handle distribution
             
             stackView.addArrangedSubview(containerView)
         }
