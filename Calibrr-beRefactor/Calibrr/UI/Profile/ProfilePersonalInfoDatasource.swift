@@ -73,7 +73,7 @@ class ProfilePersonalInfoDatasource : AStandardItemsDatasource<ProfileCell, (Str
             // Display each course as a separate likeable item
             for (index, course) in myCourses.enumerated() {
                 if let courseName = course.name, !courseName.isEmpty {
-                    let title = index == 0 ? "In Courses:" : ""
+                    let title = index == 0 ? "In Courses:" : "  "
                     appendNonNull(title: title, value: courseName)
                 }
             }
@@ -97,7 +97,7 @@ class ProfilePersonalInfoDatasource : AStandardItemsDatasource<ProfileCell, (Str
                 let lastName = friend.lastName ?? ""
                 if !firstName.isEmpty || !lastName.isEmpty {
                     let fullName = "\(firstName) \(lastName)".trimmingCharacters(in: .whitespacesAndNewlines)
-                    let title = index == 0 ? "Best Friends:" : ""
+                    let title = index == 0 ? "Best Friends:" : "  "
                     appendNonNull(title: title, value: fullName)
                 }
             }
@@ -110,7 +110,7 @@ class ProfilePersonalInfoDatasource : AStandardItemsDatasource<ProfileCell, (Str
             if let music = profile.favoriteMusic, !music.isEmpty {
                 let musicArtists = music.components(separatedBy: CharacterSet(charactersIn: ",\n")).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
                 for (index, artist) in musicArtists.enumerated() {
-                    let title = index == 0 ? "Favorite Music:" : ""
+                    let title = index == 0 ? "Favorite Music:" : "  "
                     appendNonNull(title: title, value: artist)
                 }
             }
@@ -119,7 +119,7 @@ class ProfilePersonalInfoDatasource : AStandardItemsDatasource<ProfileCell, (Str
             if let tv = profile.favoriteTV, !tv.isEmpty {
                 let tvShows = tv.components(separatedBy: CharacterSet(charactersIn: ",\n")).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
                 for (index, show) in tvShows.enumerated() {
-                    let title = index == 0 ? "Favorite TV:" : ""
+                    let title = index == 0 ? "Favorite TV:" : "  "
                     appendNonNull(title: title, value: show)
                 }
             }
@@ -128,7 +128,7 @@ class ProfilePersonalInfoDatasource : AStandardItemsDatasource<ProfileCell, (Str
             if let game = profile.favoriteGame, !game.isEmpty {
                 let games = game.components(separatedBy: CharacterSet(charactersIn: ",\n")).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
                 for (index, gameItem) in games.enumerated() {
-                    let title = index == 0 ? "Favorite Games:" : ""
+                    let title = index == 0 ? "Favorite Games:" : "  "
                     appendNonNull(title: title, value: gameItem)
                 }
             }
