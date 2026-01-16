@@ -16,47 +16,40 @@ This feature allows users to report broken social media links on other users' pr
 
 ### 2. Backend (AWS Lambda)
 
-#### reportBrokenLinks.mjs
-New Lambda function that:
-- Receives broken link reports from the Calibrr API
-- Validates the request data
-- Invokes the emailNotificationFinal Lambda with proper payload
-
 #### emailNotificationFinal.js
-Updated to handle "dead_link_reported" notification type:
+Already supports "dead_link_reported" notification type:
 - Sends formatted email with broken platform list
 - Includes instructions on how to fix the links
 - Uses Calibrr branding
 
 ## Architecture Flow
 
-1. **iOS App** → `https://api.calibrr.com/api/broken-links/report`
-2. **Calibrr API** → Routes to `reportBrokenLinks` Lambda
-3. **reportBrokenLinks Lambda** → Invokes `emailNotificationFinal` Lambda
-4. **emailNotificationFinal Lambda** → Sends email via AWS SES
+1. **iOS App** → Calls `emailNotificationFinal` Lambda directly via API Gateway
+2. **emailNotificationFinal Lambda** → Sends email via AWS SES
 
 ## API Endpoint
 
 ```
-POST /broken-links/report
+POST https://x1oyeepmz2.execute-api.us-east-1.amazonaws.com/prod/email-notification
 ```
 
 **Request Body:**
 ```json
 {
-  "platforms": ["Instagram", "Facebook", "TikTok"],
-  "recipientEmail": "user@example.com",
-  "reporterName": "John Doe"
+  "notificationType": "dead_link_reported",
+  "additionalData": {
+    "recipientEmail": "user@example.com",
+    "platforms": ["Instagram", "Facebook", "TikTok"],
+    "reporterName": "John Doe"
+  }
 }
 ```
 
 **Response:**
 ```json
 {
-  "success": true,
-  "message": "Broken link report submitted successfully",
-  "platforms": ["Instagram", "Facebook", "TikTok"],
-  "recipientEmail": "user@example.com"
+  "ok": true,
+  "messageId": "email-message-id"
 }
 ```
 

@@ -733,13 +733,12 @@ extension ProfileFriendPage: UIScrollViewDelegate {
     private func sendEmailNotification(notificationType: String, additionalData: [String: Any]) -> Promise<Void> {
         let deferred = Promise<Void>.pending()
         
-        // Use the Calibrr API endpoint for broken link reporting
-        // This will be handled by the backend which can then invoke the emailNotificationFinal Lambda
-        let urlString = "\(APIKeys.BASE_API_URL)/broken-links/report"
-        print("📧 [BROKEN LINKS API] URL: \(urlString)")
+        // Call emailNotificationFinal Lambda directly via API Gateway
+        let urlString = "https://x1oyeepmz2.execute-api.us-east-1.amazonaws.com/prod/email-notification"
+        print("📧 [EMAIL API] URL: \(urlString)")
         
         guard let url = URL(string: urlString) else {
-            print("❌ [BROKEN LINKS API] Invalid URL: \(urlString)")
+            print("❌ [EMAIL API] Invalid URL: \(urlString)")
             deferred.resolver.reject(NSError(domain: "InvalidURL", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]))
             return deferred.promise
         }
@@ -748,60 +747,48 @@ extension ProfileFriendPage: UIScrollViewDelegate {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        // Add authorization header using the same pattern as other API calls
-        if let token = OpenAPIClientAPI.customHeaders[APIKeys.HTTP_AUTHORIZATION_HEADER] {
-            let tokenPrefix = String(token.prefix(20))
-            print("🔑 [BROKEN LINKS API] Using token: \(tokenPrefix)...")
-            request.setValue(token, forHTTPHeaderField: APIKeys.HTTP_AUTHORIZATION_HEADER)
-        } else {
-            print("❌ [BROKEN LINKS API] No authorization token found")
-        }
-        
-        // Extract the specific data we need for the broken links API
-        let platforms = additionalData["platforms"] as? [String] ?? []
-        let recipientEmail = additionalData["recipientEmail"] as? String ?? ""
-        let reporterName = additionalData["reporterName"] as? String ?? ""
+        // emailNotificationFinal Lambda is public - no authentication needed
+        print("🔑 [EMAIL API] Making public request to emailNotificationFinal Lambda")
         
         let parameters: [String: Any] = [
-            "platforms": platforms,
-            "recipientEmail": recipientEmail,
-            "reporterName": reporterName
+            "notificationType": notificationType,
+            "additionalData": additionalData
         ]
         
-        print("📧 [BROKEN LINKS API] Parameters: \(parameters)")
+        print("📧 [EMAIL API] Parameters: \(parameters)")
         
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: parameters)
         } catch {
-            print("❌ [BROKEN LINKS API] JSON serialization failed: \(error)")
+            print("❌ [EMAIL API] JSON serialization failed: \(error)")
             deferred.resolver.reject(error)
             return deferred.promise
         }
         
-        print("📧 [BROKEN LINKS API] Making request...")
+        print("📧 [EMAIL API] Making request...")
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
-                print("❌ [BROKEN LINKS API] Network error: \(error)")
+                print("❌ [EMAIL API] Network error: \(error)")
                 deferred.resolver.reject(error)
                 return
             }
             
             if let httpResponse = response as? HTTPURLResponse {
-                print("📧 [BROKEN LINKS API] Response status: \(httpResponse.statusCode)")
+                print("📧 [EMAIL API] Response status: \(httpResponse.statusCode)")
                 if let data = data, let responseString = String(data: data, encoding: .utf8) {
-                    print("📧 [BROKEN LINKS API] Response body: \(responseString)")
+                    print("📧 [EMAIL API] Response body: \(responseString)")
                 }
                 
                 if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
-                    print("✅ [BROKEN LINKS API] Broken link report sent successfully")
+                    print("✅ [EMAIL API] Email notification sent successfully")
                     deferred.resolver.fulfill(())
                 } else {
-                    print("❌ [BROKEN LINKS API] HTTP Error \(httpResponse.statusCode)")
+                    print("❌ [EMAIL API] HTTP Error \(httpResponse.statusCode)")
                     let error = NSError(domain: "HTTPError", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "HTTP Error \(httpResponse.statusCode)"])
                     deferred.resolver.reject(error)
                 }
             } else {
-                print("❌ [BROKEN LINKS API] Invalid response")
+                print("❌ [EMAIL API] Invalid response")
                 let error = NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
                 deferred.resolver.reject(error)
             }
