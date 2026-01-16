@@ -190,15 +190,15 @@ class ActiveUser : NSObject, CLLocationManagerDelegate
                 // Clear pending data
                 PendingProfileData.shared.clear()
                 
-                // Navigate to home
+                // Navigate to home - use pushAsFirst to clear navigation stack
                 DispatchQueue.main.async {
-                    nav.show(SearchUsersByDistancePage(), animated: true)
+                    nav.pushAsFirst(SearchUsersByDistancePage(), animated: true)
                 }
             }.catch { error in
                 print("[SavePendingProfile] Error saving profile: \(error)")
-                // Still navigate to home even if save fails
+                // Still navigate to home even if save fails - use pushAsFirst to clear navigation stack
                 DispatchQueue.main.async {
-                    nav.show(SearchUsersByDistancePage(), animated: true)
+                    nav.pushAsFirst(SearchUsersByDistancePage(), animated: true)
                 }
                 // Clear pending data anyway
                 PendingProfileData.shared.clear()
