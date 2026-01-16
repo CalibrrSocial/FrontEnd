@@ -143,9 +143,11 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
         headerErrorLabel?.setupRed(textSize: 12, bold: true)
         avatarErrorLabel?.setupRed(textSize: 12, bold: true)
         // Hide errors if images are present from a previous session
-        let currentInitial = databaseService.getProfile().user
-        if !(currentInitial.pictureCover ?? "").isEmpty { isHaveCover = true }
-        if !(currentInitial.pictureProfile ?? "").isEmpty { isHaveAvatar = true }
+        if databaseService.hasProfile() {
+            let currentInitial = databaseService.getProfile().user
+            if !(currentInitial.pictureCover ?? "").isEmpty { isHaveCover = true }
+            if !(currentInitial.pictureProfile ?? "").isEmpty { isHaveAvatar = true }
+        }
         showErrorImage(forceCover: isHaveCover, forceAvatar: isHaveAvatar)
         socialView.isEditMode = true
         socialView.delegate = self

@@ -233,7 +233,8 @@ class LandingPage : APage
     {
         Tracking.Track("landingClickCreateAccount")
         
-        nav.push(CreateAccountPage())
+        // Navigate to Create Profile first, then Sign Up
+        nav.push(CreateProfilePage())
     }
     
     @IBAction func withoutAccount(_ sender: Any) {

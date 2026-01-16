@@ -10,6 +10,7 @@ import UIKit
 import PromiseKit
 import MapKit
 import OpenAPIClient
+import Alamofire
 
 class ActiveUser : NSObject, CLLocationManagerDelegate
 {
@@ -136,13 +137,149 @@ class ActiveUser : NSObject, CLLocationManagerDelegate
     {
         if isAdmin {
             //            nav.pushAsFirst(ReportUserListPage())
-        }else if firstTime {
-            let vc = ProfileEditPage()
-            vc.isHiddenBack = true
-            nav.pushAsFirst(vc, rootPage: SearchUsersByDistancePage(), animated: true)
-            return
+        } else if firstTime {
+            // Check if there's pending profile data from pre-signup flow
+            if PendingProfileData.shared.hasPendingData {
+                // Save pending profile data after signup
+                savePendingProfileData(nav: nav)
+                return
+            } else {
+                // No pending data, show profile edit page as before
+                let vc = ProfileEditPage()
+                vc.isHiddenBack = true
+                nav.pushAsFirst(vc, rootPage: SearchUsersByDistancePage(), animated: true)
+                return
+            }
         }
         nav.show(SearchUsersByDistancePage(), animated: false)
+    }
+    
+    /// Saves pending profile data after user completes signup
+    private func savePendingProfileData(nav: CBRNavigator) {
+        let pending = PendingProfileData.shared
+        let userId = databaseService.getProfile().user.id
+        
+        // Create user object from pending data
+        var userUpdate = pending.toUser(withId: userId)
+        
+        // Preserve the names from registration
+        let currentProfile = databaseService.getProfile().user
+        userUpdate.firstName = currentProfile.firstName
+        userUpdate.lastName = currentProfile.lastName
+        
+        // Set location if available
+        if let location = currentLocation {
+            userUpdate.location = Position(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+        }
+        
+        // First upload images, then save profile
+        uploadPendingImages(userId: userId, token: OpenAPIClientAPI.customHeaders[APIKeys.HTTP_AUTHORIZATION_HEADER] ?? "") { profileUrl, coverUrl in
+            // Update URLs if available
+            if let profileUrl = profileUrl {
+                userUpdate.pictureProfile = profileUrl
+            }
+            if let coverUrl = coverUrl {
+                userUpdate.pictureCover = coverUrl
+            }
+            
+            // Save profile via API
+            ProfileAPI.updateUserProfile(id: userId, user: userUpdate).done { updatedProfile in
+                // Update local database
+                self.databaseService.updateAccount(updatedProfile)
+                
+                // Clear pending data
+                PendingProfileData.shared.clear()
+                
+                // Navigate to home
+                DispatchQueue.main.async {
+                    nav.show(SearchUsersByDistancePage(), animated: true)
+                }
+            }.catch { error in
+                print("[SavePendingProfile] Error saving profile: \(error)")
+                // Still navigate to home even if save fails
+                DispatchQueue.main.async {
+                    nav.show(SearchUsersByDistancePage(), animated: true)
+                }
+                // Clear pending data anyway
+                PendingProfileData.shared.clear()
+            }
+        }
+    }
+    
+    /// Uploads pending profile and cover images
+    private func uploadPendingImages(userId: String, token: String, completion: @escaping (String?, String?) -> Void) {
+        let pending = PendingProfileData.shared
+        
+        var profileUrl: String?
+        var coverUrl: String?
+        
+        let group = DispatchGroup()
+        
+        // Upload profile image if exists
+        if let profileImageData = pending.profileImageData {
+            group.enter()
+            uploadImage(
+                endpoint: "/profile/\(userId)/upload",
+                imageData: profileImageData,
+                fieldName: "avatar",
+                fileName: "avatar.jpg",
+                token: token
+            ) { url in
+                profileUrl = url
+                group.leave()
+            }
+        }
+        
+        // Upload cover image if exists
+        if let coverImageData = pending.coverImageData {
+            group.enter()
+            uploadImage(
+                endpoint: "/profile/\(userId)/coverImage",
+                imageData: coverImageData,
+                fieldName: "coverImage",
+                fileName: "CoverProfile.jpg",
+                token: token
+            ) { url in
+                coverUrl = url
+                group.leave()
+            }
+        }
+        
+        group.notify(queue: .main) {
+            completion(profileUrl, coverUrl)
+        }
+    }
+    
+    /// Helper to upload an image
+    private func uploadImage(endpoint: String, imageData: Data, fieldName: String, fileName: String, token: String, completion: @escaping (String?) -> Void) {
+        let fileUrl = URL(string: APIKeys.BASE_API_URL + endpoint)!
+        let headers: [String: String] = [
+            APIKeys.HTTP_AUTHORIZATION_HEADER: token
+        ]
+        
+        let url = try! URLRequest(url: fileUrl, method: .post, headers: headers)
+        
+        Alamofire.upload(multipartFormData: { multipartFormData in
+            multipartFormData.append(imageData, withName: fieldName, fileName: fileName, mimeType: "image/jpg")
+        }, with: url, encodingCompletion: { encodingResult in
+            switch encodingResult {
+            case .success(let upload, _, _):
+                upload.responseJSON { response in
+                    switch response.result {
+                    case .success(let data):
+                        if let url = (data as? [String: Any])?["url"] as? String {
+                            completion(url)
+                        } else {
+                            completion(nil)
+                        }
+                    case .failure:
+                        completion(nil)
+                    }
+                }
+            case .failure:
+                completion(nil)
+            }
+        })
     }
     
     public func startLocationServices()
@@ -172,10 +309,16 @@ class ActiveUser : NSObject, CLLocationManagerDelegate
     {
         currentLocation = locations.first
         self.locationManager?.stopUpdatingLocation()
-        updateUserLocation()
+        // Only update user location if we're logged in
+        if loggedIn {
+            updateUserLocation()
+        }
     }
     
     private func updateUserLocation() {
+        // Double check we have a profile before accessing it
+        guard DatabaseService.singleton.hasProfile() else { return }
+        
         var user = DatabaseService.singleton.getProfile().user
         
         if let location = currentLocation {

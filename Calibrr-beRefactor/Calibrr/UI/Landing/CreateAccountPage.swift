@@ -31,7 +31,18 @@ class CreateAccountPage : APage
     private var checked = false
     private var checkBoxRedStartingWidth : CGFloat = 0
     
-    override func getBackPage() -> IPage? { return LandingPage() }
+    /// Track if we came from the create profile flow
+    private var hasPendingProfile: Bool {
+        return PendingProfileData.shared.hasPendingData
+    }
+    
+    override func getBackPage() -> IPage? {
+        // If we have pending profile data, go back to CreateProfilePage
+        if hasPendingProfile {
+            return CreateProfilePage()
+        }
+        return LandingPage()
+    }
     
     override func viewDidLoad()
     {
