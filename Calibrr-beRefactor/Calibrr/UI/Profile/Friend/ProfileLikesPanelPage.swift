@@ -23,6 +23,7 @@ class ProfileLikesPanelPage: APage, UITableViewDelegate, UITableViewDataSource {
 	private var nextCursor: String? = nil
 	private var isLoading: Bool = false
 	private var mode: Mode = .received
+	private var backOverlayButton: UIButton?
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -36,8 +37,17 @@ class ProfileLikesPanelPage: APage, UITableViewDelegate, UITableViewDataSource {
 	}
 
 	private func setupUI() {
-		// Back button (pop if in navigation, else dismiss)
-		navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(onBack))
+		// Back button (custom, larger + label for prominence)
+		let backButton = UIButton(type: .system)
+		backButton.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
+		backButton.setTitle("Back", for: .normal)
+		backButton.tintColor = .label
+		backButton.setTitleColor(.label, for: .normal)
+		backButton.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
+		backButton.addTarget(self, action: #selector(onBack), for: .touchUpInside)
+		backButton.contentEdgeInsets = UIEdgeInsets(top: 0, left: -6, bottom: 0, right: 6)
+		let leftItem = UIBarButtonItem(customView: backButton)
+		navigationItem.leftBarButtonItem = leftItem
 
 		let titles: [String]
 		if viewingOwnProfile {
@@ -63,6 +73,51 @@ class ProfileLikesPanelPage: APage, UITableViewDelegate, UITableViewDataSource {
 			tableView.topAnchor.constraint(equalTo: view.topAnchor),
 			tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
 		])
+
+		// Visible in-view back button overlay to guarantee visibility regardless of nav bar styling
+		let overlay = UIButton(type: .system)
+		overlay.translatesAutoresizingMaskIntoConstraints = false
+		overlay.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
+		overlay.setTitle("Back", for: .normal)
+		overlay.tintColor = .label
+		overlay.setTitleColor(.label, for: .normal)
+		overlay.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+		overlay.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.9)
+		overlay.layer.cornerRadius = 18
+		overlay.contentEdgeInsets = UIEdgeInsets(top: 6, left: 12, bottom: 6, right: 12)
+		overlay.addTarget(self, action: #selector(onBack), for: .touchUpInside)
+		view.addSubview(overlay)
+		NSLayoutConstraint.activate([
+			overlay.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 12),
+			overlay.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8)
+		])
+		self.backOverlayButton = overlay
+		view.bringSubviewToFront(overlay)
+	}
+
+	override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
+		// Ensure visible, opaque nav bar with dark controls
+		let appearance = UINavigationBarAppearance()
+		appearance.configureWithDefaultBackground()
+		appearance.backgroundColor = .systemBackground
+		appearance.titleTextAttributes = [.foregroundColor: UIColor.label]
+		navigationController?.navigationBar.standardAppearance = appearance
+		navigationController?.navigationBar.scrollEdgeAppearance = appearance
+		navigationController?.navigationBar.compactAppearance = appearance
+		navigationController?.navigationBar.tintColor = .label
+	}
+
+	override func viewDidLayoutSubviews() {
+		super.viewDidLayoutSubviews()
+		guard let overlay = backOverlayButton else { return }
+		overlay.layoutIfNeeded()
+		let overlayHeight = max(36, overlay.bounds.height)
+		let desiredTopInset: CGFloat = overlayHeight + 16
+		if tableView.contentInset.top != desiredTopInset {
+			tableView.contentInset.top = desiredTopInset
+			tableView.scrollIndicatorInsets.top = desiredTopInset
+		}
 	}
 
 	@objc private func onBack() {
@@ -126,6 +181,7 @@ class ProfileLikesPanelPage: APage, UITableViewDelegate, UITableViewDataSource {
 		} else {
 			let vc = ProfileFriendPage()
 			vc.friendId = profileId
+			vc.preferDarkBackButton = true
 			self.nav.push(vc)
 		}
 	}

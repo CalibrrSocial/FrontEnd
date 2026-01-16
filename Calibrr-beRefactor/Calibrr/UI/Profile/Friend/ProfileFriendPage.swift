@@ -26,6 +26,7 @@ class ProfileFriendPage: APage, UITableViewDelegate, UICollectionViewDelegate
     var items: [(String, String, Bool)] = []
     var isShowBarColor: Bool = false
     var isValidSocialAccount: Bool = false
+    var preferDarkBackButton: Bool = false
     
     override func viewDidLoad()
     {
@@ -233,7 +234,7 @@ extension ProfileFriendPage: UIScrollViewDelegate {
         let color: UIColor = .clear
         self.nav.updateColor(color: color, isShowShadow: isShowBarColor)
         navigationItem.rightBarButtonItem?.tintColor = .white
-        self.setupBackButton(tintColor: .white)
+        self.setupBackButton(tintColor: preferDarkBackButton ? .label : .white)
         if let firstName = self.firstName,
             !firstName.isEmpty {
             self.title = isShowBarColor ? "\(firstName)'s Profile" : nil

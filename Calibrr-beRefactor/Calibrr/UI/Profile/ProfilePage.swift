@@ -67,6 +67,20 @@ class ProfilePage : APage, UITableViewDelegate, UICollectionViewDelegate
         personalInfoDatasource.reload()
         self.items = personalInfoDatasource.items
         personalInfoTableView.reloadData()
+
+        // Reconcile with server truth so liked/likeCount persist across app restarts
+        let myId = profile.id
+        ProfileAPI.getUser(id: myId).done { updated in
+            DatabaseService.singleton.updateAccount(updated)
+            self.profile = updated
+            self.isValidSocialAccount = !(updated.socialInfo?.getAccountValid().isEmpty ?? true)
+            self.personalInfoDatasource.profile = updated.personalInfo
+            self.personalInfoDatasource.myCourses = updated.myCourses
+            self.personalInfoDatasource.bestFriends = updated.myFriends
+            self.personalInfoDatasource.reload()
+            self.items = self.personalInfoDatasource.items
+            self.personalInfoTableView.reloadData()
+        }.catch { _ in }
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
