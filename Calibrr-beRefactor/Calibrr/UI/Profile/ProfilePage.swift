@@ -124,17 +124,13 @@ class ProfilePage : APage, UITableViewDelegate, UICollectionViewDelegate
         // Refresh attribute like states for all visible ProfileCell instances
         guard let visibleIndexPaths = personalInfoTableView.indexPathsForVisibleRows else { return }
         
-        // Add small delays between API calls to prevent rate limiting
-        var delay: TimeInterval = 0.0
-        
+        // With the new AttributeLikeManager, we can be less aggressive about refreshing
+        // since the cache is more intelligent and API calls are rate-limited
         for indexPath in visibleIndexPaths {
             if let cell = personalInfoTableView.cellForRow(at: indexPath) as? ProfileCell {
-                // Trigger a reload of the like state for this cell with a small delay
                 if let profileId = self.profile?.id {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                        cell.configureForProfile(profileId)
-                    }
-                    delay += 0.1 // 100ms delay between each API call
+                    // No delay needed - the AttributeLikeManager handles rate limiting
+                    cell.configureForProfile(profileId)
                 }
             }
         }
@@ -252,104 +248,66 @@ class ProfilePage : APage, UITableViewDelegate, UICollectionViewDelegate
             return 
         }
         
-        let myId = DatabaseService.singleton.getProfile().user.id
         let targetId = profile.id
         
         // Get current state
-        var currentLiked = cell.currentAttributeLikeState()
-        var currentCount = cell.currentAttributeLikesCount()
+        let currentLiked = cell.currentAttributeLikeState()
+        let currentCount = cell.currentAttributeLikesCount()
         print("🔥 ProfilePage currentLiked: \(currentLiked), currentCount: \(currentCount)")
-        
-        // Optimistic toggle
-        let newLikedState = !currentLiked
-        let newCount = max(0, newLikedState ? currentCount + 1 : currentCount - 1)
-        cell.setAttributeLikeUI(liked: newLikedState, count: newCount, isEnabled: false)
         
         // Get attribute info from cell
         print("🔥 Getting attribute info - category: \(cell.attributeCategory ?? "nil"), name: \(cell.attributeName ?? "nil")")
         guard let attributeCategory = cell.attributeCategory,
               let attributeName = cell.attributeName else {
-            print("🔥 Missing attribute info, falling back to profile like system")
-            cell.setAttributeLikeUI(liked: !currentLiked, count: currentLiked ? currentCount - 1 : currentCount + 1, isEnabled: true)
+            print("🔥 Missing attribute info, cannot proceed with attribute like")
             return
         }
         print("🔥 Using attribute like system - category: \(attributeCategory), name: \(attributeName)")
         
-        // Make API call using dedicated attribute like endpoints
-        let endpoint = "https://api.calibrr.com/api/profile/\(myId)/attributes/like"
-        print("🔥 ProfilePage Making API call to: \(endpoint)")
+        // Immediate optimistic UI update
+        let newLikedState = !currentLiked
+        let newCount = max(0, newLikedState ? currentCount + 1 : currentCount - 1)
         
-        guard let url = URL(string: endpoint) else {
-            print("🔥 ProfilePage Failed to create URL from: \(endpoint)")
-            cell.setAttributeLikeUI(liked: !currentLiked, count: currentLiked ? currentCount - 1 : currentCount + 1, isEnabled: true)
-            return
-        }
-        print("🔥 ProfilePage URL created successfully")
+        // Update local cache for immediate UI feedback
+        AttributeLikeManager.shared.updateLocalCache(
+            profileId: targetId,
+            category: attributeCategory,
+            attribute: attributeName,
+            liked: newLikedState,
+            count: newCount
+        )
         
-        var request = URLRequest(url: url)
-        request.httpMethod = currentLiked ? "DELETE" : "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        // Update UI immediately
+        cell.setAttributeLikeUI(liked: newLikedState, count: newCount, isEnabled: true)
         
-        // Add authorization header
-        let token = DatabaseService.singleton.getProfile().token
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        
-        // Add attribute parameters in request body
-        let body: [String: Any] = [
-            "profileId": targetId,
-            "category": attributeCategory,
-            "attribute": attributeName
-        ]
-        print("🔥 ProfilePage Request body: \(body)")
-
-        do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: body)
-            print("🔥 ProfilePage JSON serialization successful")
-        } catch {
-            print("🔥 ProfilePage JSON serialization failed: \(error)")
-            cell.setAttributeLikeUI(liked: !currentLiked, count: currentLiked ? currentCount - 1 : currentCount + 1, isEnabled: true)
-            return
-        }
-
-        // Make the API call
-        print("🔥 ProfilePage About to make API call with method: \(request.httpMethod ?? "nil")")
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            print("🔥 ProfilePage API call completed")
+        // Queue the API request through the rate-limited manager
+        AttributeLikeManager.shared.queueAttributeLikeOperation(
+            profileId: targetId,
+            category: attributeCategory,
+            attribute: attributeName,
+            isLike: newLikedState
+        ) { [weak self, weak cell] (finalLiked: Bool, finalCount: Int?) in
+            // Update UI with final server state when request completes
             DispatchQueue.main.async {
-                if let error = error {
-                    // Revert optimistic update
-                    cell.setAttributeLikeUI(liked: currentLiked, count: currentCount, isEnabled: true)
-                    return
+                if let finalCount = finalCount {
+                    cell?.setAttributeLikeUI(liked: finalLiked, count: finalCount, isEnabled: true)
                 }
                 
-                if let httpResponse = response as? HTTPURLResponse {
-                    if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
-                        // Success - keep optimistic update and force refresh for accurate count
-                        cell.setAttributeLikeUI(liked: newLikedState, count: newCount, isEnabled: true)
-                        
-                        // Force refresh after short delay to get accurate server data
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            cell.forceRefreshLikeState()
-                        }
-                        
-                        // If liking own profile, refresh profile data to ensure persistence
-                        if targetId == myId {
-                            ProfileAPI.getUser(id: myId).done { [weak self] updated in
-                                // Update cached profile data
-                                DatabaseService.singleton.updateAccount(updated)
-                                self?.profile = updated
-                            }.catch { error in
-                                print("🔥 ProfilePage Failed to refresh own profile after attribute like: \(error)")
-                            }
-                        }
-                    } else {
-                        // Error - revert optimistic update
-                        cell.setAttributeLikeUI(liked: currentLiked, count: currentCount, isEnabled: true)
+                // If liking own profile, refresh profile data to ensure persistence
+                let myId = DatabaseService.singleton.getProfile().user.id
+                if targetId == myId && finalLiked == true {
+                    ProfileAPI.getUser(id: myId).done { [weak self] updated in
+                        // Update cached profile data
+                        DatabaseService.singleton.updateAccount(updated)
+                        self?.profile = updated
+                    }.catch { error in
+                        print("🔥 ProfilePage Failed to refresh own profile after attribute like: \(error)")
                     }
                 }
             }
-        }.resume()
-        print("🔥 ProfilePage API call started (resume called)")
+        }
+        
+        print("🔥 ProfilePage: Queued attribute like operation through AttributeLikeManager")
     }
 }
 
@@ -447,5 +405,326 @@ extension ProfilePage: UIScrollViewDelegate {
         self.setupMenuButton(0, tintColor: .white)
         self.title = isShowBarColor ? "Profile" : nil
         self.setNeedsStatusBarAppearanceUpdate()
+    }
+}
+
+// MARK: - AttributeLikeManager (Temporary inline implementation)
+
+struct AttributeLikeRequest {
+    let id: String
+    let profileId: String
+    let category: String
+    let attribute: String
+    let isLike: Bool // true for like, false for unlike
+    let completion: ((Bool, Int?) -> Void)?
+    let timestamp: Date
+    
+    init(profileId: String, category: String, attribute: String, isLike: Bool, completion: ((Bool, Int?) -> Void)? = nil) {
+        self.id = "\(profileId)|\(category)|\(attribute)"
+        self.profileId = profileId
+        self.category = category
+        self.attribute = attribute
+        self.isLike = isLike
+        self.completion = completion
+        self.timestamp = Date()
+    }
+}
+
+class AttributeLikeManager {
+    static let shared = AttributeLikeManager()
+    
+    private init() {
+        setupRequestProcessor()
+    }
+    
+    // MARK: - Properties
+    private var requestQueue: [AttributeLikeRequest] = []
+    private var processingQueue = DispatchQueue(label: "com.calibrr.attributelike", qos: .userInitiated)
+    private var isProcessing = false
+    private var lastRequestTime = Date.distantPast
+    
+    // Rate limiting configuration
+    private let maxRequestsPerMinute = 45 // Stay well under the 60/minute API limit
+    private let minRequestInterval: TimeInterval = 60.0 / 45.0 // ~1.33 seconds between requests
+    private let maxRetries = 3
+    private let baseRetryDelay: TimeInterval = 2.0
+    
+    // Local state cache for immediate UI updates
+    private var localStateCache: [String: (liked: Bool, count: Int, timestamp: Date)] = [:]
+    private let cacheExpiration: TimeInterval = 300.0 // 5 minutes
+    
+    // MARK: - Public Interface
+    
+    /// Queue an attribute like/unlike operation
+    func queueAttributeLikeOperation(
+        profileId: String,
+        category: String,
+        attribute: String,
+        isLike: Bool,
+        completion: ((Bool, Int?) -> Void)? = nil
+    ) {
+        let request = AttributeLikeRequest(
+            profileId: profileId,
+            category: category,
+            attribute: attribute,
+            isLike: isLike,
+            completion: completion
+        )
+        
+        processingQueue.async { [weak self] in
+            self?.addToQueue(request)
+        }
+    }
+    
+    /// Get cached like state for immediate UI updates
+    func getCachedLikeState(profileId: String, category: String, attribute: String) -> (liked: Bool, count: Int)? {
+        let key = "\(profileId)|\(category)|\(attribute)"
+        
+        if let cached = localStateCache[key] {
+            let age = Date().timeIntervalSince(cached.timestamp)
+            if age < cacheExpiration {
+                return (cached.liked, cached.count)
+            }
+        }
+        
+        return nil
+    }
+    
+    /// Update local cache for immediate UI feedback
+    func updateLocalCache(profileId: String, category: String, attribute: String, liked: Bool, count: Int) {
+        let key = "\(profileId)|\(category)|\(attribute)"
+        localStateCache[key] = (liked: liked, count: count, timestamp: Date())
+    }
+    
+    /// Clear cache for a specific attribute
+    func clearCache(profileId: String, category: String, attribute: String) {
+        let key = "\(profileId)|\(category)|\(attribute)"
+        localStateCache.removeValue(forKey: key)
+    }
+    
+    // MARK: - Private Implementation
+    
+    private func addToQueue(_ request: AttributeLikeRequest) {
+        // Remove any existing requests for the same attribute to avoid conflicts
+        requestQueue.removeAll { $0.id == request.id }
+        
+        // Add the new request
+        requestQueue.append(request)
+        
+        print("🔥 AttributeLikeManager: Queued request for \(request.id), isLike: \(request.isLike), queue size: \(requestQueue.count)")
+        
+        // Start processing if not already running
+        if !isProcessing {
+            processNextRequest()
+        }
+    }
+    
+    private func setupRequestProcessor() {
+        // Clean up expired cache entries periodically
+        Timer.scheduledTimer(withTimeInterval: 60.0, repeats: true) { [weak self] _ in
+            self?.cleanupExpiredCache()
+        }
+    }
+    
+    private func cleanupExpiredCache() {
+        let now = Date()
+        localStateCache = localStateCache.filter { _, value in
+            now.timeIntervalSince(value.timestamp) < cacheExpiration
+        }
+    }
+    
+    private func processNextRequest() {
+        processingQueue.async { [weak self] in
+            guard let self = self else { return }
+            
+            guard !self.requestQueue.isEmpty else {
+                self.isProcessing = false
+                return
+            }
+            
+            self.isProcessing = true
+            let request = self.requestQueue.removeFirst()
+            
+            // Calculate delay needed to respect rate limiting
+            let timeSinceLastRequest = Date().timeIntervalSince(self.lastRequestTime)
+            let requiredDelay = max(0, self.minRequestInterval - timeSinceLastRequest)
+            
+            if requiredDelay > 0 {
+                print("🔥 AttributeLikeManager: Delaying request by \(requiredDelay)s for rate limiting")
+                DispatchQueue.main.asyncAfter(deadline: .now() + requiredDelay) {
+                    self.executeRequest(request)
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self.executeRequest(request)
+                }
+            }
+        }
+    }
+    
+    private func executeRequest(_ request: AttributeLikeRequest, retryCount: Int = 0) {
+        lastRequestTime = Date()
+        
+        print("🔥 AttributeLikeManager: Executing request for \(request.id), isLike: \(request.isLike), retry: \(retryCount)")
+        
+        let myId = DatabaseService.singleton.getProfile().user.id
+        let endpoint = "https://api.calibrr.com/api/profile/\(myId)/attributes/like"
+        
+        guard let url = URL(string: endpoint) else {
+            print("🔥 AttributeLikeManager: Failed to create URL")
+            handleRequestFailure(request, retryCount: retryCount)
+            return
+        }
+        
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = request.isLike ? "POST" : "DELETE"
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add authorization header
+        let token = DatabaseService.singleton.getProfile().token
+        urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        // Add request body
+        let body: [String: Any] = [
+            "profileId": request.profileId,
+            "category": request.category,
+            "attribute": request.attribute
+        ]
+        
+        do {
+            urlRequest.httpBody = try JSONSerialization.data(withJSONObject: body)
+        } catch {
+            print("🔥 AttributeLikeManager: JSON serialization failed: \(error)")
+            handleRequestFailure(request, retryCount: retryCount)
+            return
+        }
+        
+        // Execute the request
+        URLSession.shared.dataTask(with: urlRequest) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                self?.handleRequestResponse(request, data: data, response: response, error: error, retryCount: retryCount)
+            }
+        }.resume()
+    }
+    
+    private func handleRequestResponse(
+        _ request: AttributeLikeRequest,
+        data: Data?,
+        response: URLResponse?,
+        error: Error?,
+        retryCount: Int
+    ) {
+        if let error = error {
+            print("🔥 AttributeLikeManager: Request failed with error: \(error)")
+            handleRequestFailure(request, retryCount: retryCount)
+            return
+        }
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            print("🔥 AttributeLikeManager: Invalid response type")
+            handleRequestFailure(request, retryCount: retryCount)
+            return
+        }
+        
+        print("🔥 AttributeLikeManager: Response status: \(httpResponse.statusCode)")
+        
+        if httpResponse.statusCode == 429 {
+            // Rate limited - retry with exponential backoff
+            print("🔥 AttributeLikeManager: Rate limited, will retry")
+            handleRequestFailure(request, retryCount: retryCount, isRateLimit: true)
+            return
+        }
+        
+        if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
+            // Success
+            print("🔥 AttributeLikeManager: Request succeeded for \(request.id)")
+            
+            // Update local cache with the new state
+            if let cached = getCachedLikeState(profileId: request.profileId, category: request.category, attribute: request.attribute) {
+                let newCount = request.isLike ? cached.count + 1 : max(0, cached.count - 1)
+                updateLocalCache(profileId: request.profileId, category: request.category, attribute: request.attribute, liked: request.isLike, count: newCount)
+                
+                // Notify completion
+                request.completion?(request.isLike, newCount)
+            } else {
+                // Fetch fresh data if no cache available
+                fetchAttributeLikeState(request.profileId, request.category, request.attribute) { [weak self] liked, count in
+                    self?.updateLocalCache(profileId: request.profileId, category: request.category, attribute: request.attribute, liked: liked, count: count)
+                    request.completion?(liked, count)
+                }
+            }
+            
+            // Process next request
+            processingQueue.async { [weak self] in
+                self?.processNextRequest()
+            }
+        } else {
+            print("🔥 AttributeLikeManager: Request failed with status: \(httpResponse.statusCode)")
+            handleRequestFailure(request, retryCount: retryCount)
+        }
+    }
+    
+    private func handleRequestFailure(_ request: AttributeLikeRequest, retryCount: Int, isRateLimit: Bool = false) {
+        if retryCount < maxRetries {
+            let delay = isRateLimit ? baseRetryDelay * 2 : baseRetryDelay * pow(2.0, Double(retryCount))
+            print("🔥 AttributeLikeManager: Retrying request in \(delay)s (attempt \(retryCount + 1)/\(maxRetries))")
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+                self?.executeRequest(request, retryCount: retryCount + 1)
+            }
+        } else {
+            print("🔥 AttributeLikeManager: Request failed after \(maxRetries) retries")
+            
+            // Revert local cache to previous state
+            if let cached = getCachedLikeState(profileId: request.profileId, category: request.category, attribute: request.attribute) {
+                let revertedLiked = !request.isLike
+                let revertedCount = request.isLike ? max(0, cached.count - 1) : cached.count + 1
+                updateLocalCache(profileId: request.profileId, category: request.category, attribute: request.attribute, liked: revertedLiked, count: revertedCount)
+                
+                request.completion?(revertedLiked, revertedCount)
+            }
+            
+            // Process next request
+            processingQueue.async { [weak self] in
+                self?.processNextRequest()
+            }
+        }
+    }
+    
+    private func fetchAttributeLikeState(
+        _ profileId: String,
+        _ category: String,
+        _ attribute: String,
+        completion: @escaping (Bool, Int) -> Void
+    ) {
+        let encodedCategory = category.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? category
+        let encodedAttribute = attribute.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? attribute
+        let endpoint = "https://api.calibrr.com/api/profile/\(profileId)/attributes/\(encodedCategory)/\(encodedAttribute)/likes"
+        
+        guard let url = URL(string: endpoint) else {
+            completion(false, 0)
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        let token = DatabaseService.singleton.getProfile().token
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                guard let data = data,
+                      let httpResponse = response as? HTTPURLResponse,
+                      httpResponse.statusCode == 200,
+                      let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                    completion(false, 0)
+                    return
+                }
+                
+                let totalLikes = json["total_likes"] as? Int ?? 0
+                let isLikedByMe = json["liked_by_user"] as? Bool ?? false
+                completion(isLikedByMe, totalLikes)
+            }
+        }.resume()
     }
 }

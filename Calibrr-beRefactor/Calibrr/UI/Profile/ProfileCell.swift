@@ -129,9 +129,14 @@ class ProfileCell: ACell<(String, String, Bool)> {
         retryCount = 0
         lastLoadTime = Date()
         
-        // Invalidate cache for this configuration
+        // Invalidate both legacy and new caches for this configuration
         let currentConfig = "\(currentProfileId)|\(currentCategory)|\(currentAttribute)"
         ProfileCell.attributeLikeCache.removeValue(forKey: currentConfig)
+        AttributeLikeManager.shared.clearCache(
+            profileId: currentProfileId,
+            category: currentCategory,
+            attribute: currentAttribute
+        )
         
         loadAttributeLikeState()
     }
@@ -273,16 +278,36 @@ class ProfileCell: ACell<(String, String, Bool)> {
             return 
         }
         
-        // Create a unique configuration string
+        // First check the new AttributeLikeManager cache
+        if let cached = AttributeLikeManager.shared.getCachedLikeState(
+            profileId: currentProfileId,
+            category: currentCategory,
+            attribute: currentAttribute
+        ) {
+            print("🔥 ProfileCell loadAttributeLikeState: Using AttributeLikeManager cached data")
+            setAttributeLikeUI(liked: cached.liked, count: cached.count, isEnabled: true)
+            return
+        }
+        
+        // Create a unique configuration string for legacy cache
         let currentConfig = "\(currentProfileId)|\(currentCategory)|\(currentAttribute)"
         
-        // Check cache first
+        // Check legacy cache as fallback
         if let cached = ProfileCell.attributeLikeCache[currentConfig] {
             let age = Date().timeIntervalSince(cached.timestamp)
             if age < ProfileCell.cacheExpiration {
-                print("🔥 ProfileCell loadAttributeLikeState: Using cached data (age: \(Int(age))s)")
+                print("🔥 ProfileCell loadAttributeLikeState: Using legacy cached data (age: \(Int(age))s)")
                 setAttributeLikeUI(liked: cached.liked, count: cached.count, isEnabled: true)
                 lastLoadedConfig = currentConfig
+                
+                // Also update the new cache
+                AttributeLikeManager.shared.updateLocalCache(
+                    profileId: currentProfileId,
+                    category: currentCategory,
+                    attribute: currentAttribute,
+                    liked: cached.liked,
+                    count: cached.count
+                )
                 return
             }
         }
@@ -406,11 +431,19 @@ class ProfileCell: ACell<(String, String, Bool)> {
                             self.retryCount = 0 // Reset retry count on success
                             self.setAttributeLikeUI(liked: isLikedByMe, count: totalLikes, isEnabled: true)
                             
-                            // Update cache
+                            // Update both legacy and new caches
                             ProfileCell.attributeLikeCache[currentConfig] = (
                                 liked: isLikedByMe,
                                 count: totalLikes,
                                 timestamp: Date()
+                            )
+                            
+                            AttributeLikeManager.shared.updateLocalCache(
+                                profileId: self.currentProfileId,
+                                category: self.currentCategory,
+                                attribute: self.currentAttribute,
+                                liked: isLikedByMe,
+                                count: totalLikes
                             )
                         }
                     } catch {

@@ -329,101 +329,66 @@ extension ProfileFriendPage: UITableViewDataSource {
             return 
         }
         
-        let myId = DatabaseService.singleton.getProfile().user.id
         let targetId = profile.id
         
         // Get current state
-        var currentLiked = cell.currentAttributeLikeState()
-        var currentCount = cell.currentAttributeLikesCount()
+        let currentLiked = cell.currentAttributeLikeState()
+        let currentCount = cell.currentAttributeLikesCount()
         print("🔥 ProfileFriendPage currentLiked: \(currentLiked), currentCount: \(currentCount)")
-        
-        // INSTANT optimistic toggle - heart fills immediately and stays enabled
-        let newLikedState = !currentLiked
-        let newCount = max(0, newLikedState ? currentCount + 1 : currentCount - 1)
-        cell.setAttributeLikeUI(liked: newLikedState, count: newCount, isEnabled: true)
         
         // Get attribute info from cell
         print("🔥 ProfileFriendPage Getting attribute info - category: \(cell.attributeCategory ?? "nil"), name: \(cell.attributeName ?? "nil")")
         guard let attributeCategory = cell.attributeCategory,
               let attributeName = cell.attributeName else {
-            print("🔥 ProfileFriendPage Missing attribute info, keeping optimistic UI")
-            // Keep the instant UI change even if we can't make the API call
+            print("🔥 ProfileFriendPage Missing attribute info, cannot proceed with attribute like")
             return
         }
         print("🔥 ProfileFriendPage Using attribute like system - category: \(attributeCategory), name: \(attributeName)")
         
-        // Make API call using dedicated attribute like endpoints
-        let endpoint = "https://api.calibrr.com/api/profile/\(myId)/attributes/like"
-        print("🔥 ProfileFriendPage Making API call to: \(endpoint)")
+        // Immediate optimistic UI update
+        let newLikedState = !currentLiked
+        let newCount = max(0, newLikedState ? currentCount + 1 : currentCount - 1)
         
-        guard let url = URL(string: endpoint) else {
-            print("🔥 ProfileFriendPage Failed to create URL from: \(endpoint)")
-            // Keep the instant UI change even if URL creation fails
-            return
-        }
-        print("🔥 ProfileFriendPage URL created successfully")
+        // Update local cache for immediate UI feedback
+        AttributeLikeManager.shared.updateLocalCache(
+            profileId: targetId,
+            category: attributeCategory,
+            attribute: attributeName,
+            liked: newLikedState,
+            count: newCount
+        )
         
-        var request = URLRequest(url: url)
-        request.httpMethod = currentLiked ? "DELETE" : "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        // Update UI immediately
+        cell.setAttributeLikeUI(liked: newLikedState, count: newCount, isEnabled: true)
         
-        // Add authorization header
-        let token = DatabaseService.singleton.getProfile().token
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        
-        // Add attribute parameters in request body
-        let body: [String: Any] = [
-            "profileId": targetId,
-            "category": attributeCategory,
-            "attribute": attributeName
-        ]
-        print("🔥 ProfileFriendPage Request body: \(body)")
-        
-        do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: body)
-            print("🔥 ProfileFriendPage JSON serialization successful")
-        } catch {
-            print("🔥 ProfileFriendPage JSON serialization failed: \(error)")
-            // Keep the instant UI change even if JSON serialization fails
-            return
-        }
-        
-        // Make the API call
-        print("🔥 ProfileFriendPage About to make API call with method: \(request.httpMethod ?? "nil")")
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            print("🔥 ProfileFriendPage API call completed")
+        // Queue the API request through the rate-limited manager
+        AttributeLikeManager.shared.queueAttributeLikeOperation(
+            profileId: targetId,
+            category: attributeCategory,
+            attribute: attributeName,
+            isLike: newLikedState
+        ) { [weak self, weak cell] (finalLiked: Bool, finalCount: Int?) in
+            // Update UI with final server state when request completes
             DispatchQueue.main.async {
-                if let error = error {
-                    print("🔥 ProfileFriendPage API call failed with error: \(error)")
-                    // Only revert on network/connection errors, keep instant UI for user experience
-                    if (error as NSError).code != NSURLErrorCancelled {
-                        cell.setAttributeLikeUI(liked: currentLiked, count: currentCount, isEnabled: true)
-                    }
-                    return
+                if let finalCount = finalCount {
+                    cell?.setAttributeLikeUI(liked: finalLiked, count: finalCount, isEnabled: true)
                 }
                 
-                if let httpResponse = response as? HTTPURLResponse {
-                    print("🔥 ProfileFriendPage HTTP response status: \(httpResponse.statusCode)")
-                    if let data = data, let responseString = String(data: data, encoding: .utf8) {
-                        print("🔥 ProfileFriendPage Response body: \(responseString)")
+                // If liking own profile, refresh profile data to ensure persistence
+                let myId = DatabaseService.singleton.getProfile().user.id
+                if targetId == myId && finalLiked == true {
+                    ProfileAPI.getUser(id: myId).done { [weak self] updated in
+                        // Update cached profile data
+                        DatabaseService.singleton.updateAccount(updated)
+                        self?.profile = updated
+                    }.catch { error in
+                        print("🔥 ProfileFriendPage Failed to refresh own profile after attribute like: \(error)")
                     }
-                    
-                    if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
-                        print("🔥 ProfileFriendPage Success response")
-                        // SUCCESS: Keep the optimistic UI (heart is already red/filled instantly!)
-                        // Silently refresh cache for accuracy on next load - no UI changes needed
-                        cell.forceRefreshLikeState()
-                    } else {
-                        print("🔥 ProfileFriendPage Error response: \(httpResponse.statusCode)")
-                        // FAILURE: Only revert on actual API failure
-                        cell.setAttributeLikeUI(liked: currentLiked, count: currentCount, isEnabled: true)
-                    }
-                } else {
-                    print("🔥 ProfileFriendPage No HTTP response received")
                 }
             }
-        }.resume()
-        print("🔥 ProfileFriendPage API call started (resume called)")
+        }
+        
+        print("🔥 ProfileFriendPage: Queued attribute like operation through AttributeLikeManager")
     }
 }
 
