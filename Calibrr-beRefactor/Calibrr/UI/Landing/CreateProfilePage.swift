@@ -143,13 +143,34 @@ class CreateProfilePage: ProfileEditPage {
         let isClassYearValid = classYearInput?.validateAndShow() ?? true
         let isPostgraduateValid = postgraduateInput?.validateAndShow() ?? true
         
+        // For pre-signup flow, check social accounts from socialView directly
+        let socialAccountCount = socialView?.getValidAccount().count ?? 0
+        let hasSocialAccounts = socialAccountCount >= 2
+        
+        // Show/hide social account error message
+        socialAccountMessage?.isHidden = hasSocialAccounts
+        
         // Check required validations
         let isValid = isGenderValid && isEduValid && isLocationValid && isRelationValid
             && isCampusValid && isStudyingValid && isClassYearValid && isPostgraduateValid
-            && isHaveCover && isHaveAvatar && isValidSocialAccount
+            && isHaveCover && isHaveAvatar && hasSocialAccounts
         
         if !isValid {
-            Alert.Error(message: "Please complete all required fields!", from: self)
+            var missingFields: [String] = []
+            if !isGenderValid { missingFields.append("Gender") }
+            if !isEduValid { missingFields.append("Education") }
+            if !isLocationValid { missingFields.append("Location") }
+            if !isRelationValid { missingFields.append("Relationship") }
+            if !isCampusValid { missingFields.append("Campus") }
+            if !isStudyingValid { missingFields.append("Major/Studying") }
+            if !isClassYearValid { missingFields.append("Class Year") }
+            if !isPostgraduateValid { missingFields.append("Postgraduate") }
+            if !isHaveCover { missingFields.append("Cover Photo") }
+            if !isHaveAvatar { missingFields.append("Profile Photo") }
+            if !hasSocialAccounts { missingFields.append("At least 2 Social Media accounts") }
+            
+            let message = missingFields.isEmpty ? "Please complete all required fields!" : "Missing: \(missingFields.joined(separator: ", "))"
+            Alert.Error(message: message, from: self)
             return
         }
         
