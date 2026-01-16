@@ -87,14 +87,14 @@ class SocialLink: UIView {
     
     private func setupView() {
         stackView.axis = .horizontal
-        stackView.spacing = 30.0  // Very generous spacing to eliminate any overlap
+        stackView.spacing = 16.0  // Reduced spacing to minimize white space
         stackView.distribution = .equalCentering  // Center icons with equal spacing
         stackView.alignment = .center
         
         self.addSubview(stackView)
         
         stackView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(8)  // Add 8pt margins to prevent cutoff
+            make.leading.trailing.equalToSuperview().inset(4)  // Minimal margins to reduce white space
             make.top.bottom.equalToSuperview()
             make.centerX.centerY.equalToSuperview()  // Center both horizontally and vertically
         }
@@ -107,20 +107,20 @@ class SocialLink: UIView {
         let availablePlatforms = 7  // instagram, facebook, snapchat, linkedin, x, vsco, tiktok
         let numberOfItem = isEditMode ? availablePlatforms : items.count
         
-        let optimalSpacing: CGFloat = 30.0  // Very generous spacing to eliminate any overlap
+        let optimalSpacing: CGFloat = 16.0  // Reduced spacing to minimize white space
         
         // Update stack view spacing
         stackView.spacing = optimalSpacing
         
-        // Calculate based on ACTUAL number of items with very conservative spacing
+        // Calculate based on ACTUAL number of items with compact spacing
         let actualNetworks: CGFloat = CGFloat(numberOfItem)
         let totalSpacing = max(0, (actualNetworks - 1)) * optimalSpacing  // Spacing between actual icons
-        let safetyMargin: CGFloat = 24.0  // Extra margin to ensure absolutely no overlap
+        let safetyMargin: CGFloat = 8.0  // Minimal margin to reduce white space
         let availableWidthForIcons = sizeScreen - totalSpacing - safetyMargin
         let maxPossibleIconSize = actualNetworks > 0 ? availableWidthForIcons / actualNetworks : 40.0
         
-        // Use very conservative size to guarantee no overlap
-        let finalSizeItem = min(max(maxPossibleIconSize, 30.0), 55.0)  // Between 30-55pt with absolute no overlap guarantee
+        // Use optimal size with reduced white space
+        let finalSizeItem = min(max(maxPossibleIconSize, 35.0), 60.0)  // Between 35-60pt for good visibility with less white space
         
         for i in 0..<numberOfItem {
             let containerView = UIView()
