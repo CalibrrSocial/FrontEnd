@@ -1,4 +1,4 @@
-const { SESClient, SendEmailCommand, SendRawEmailCommand } = require("@aws-sdk/client-ses");
+const { SESClient, SendEmailCommand } = require("@aws-sdk/client-ses");
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 const { DynamoDBDocumentClient, GetCommand } = require("@aws-sdk/lib-dynamodb");
 
@@ -82,7 +82,7 @@ function generateEmailContent(notificationType, recipient, sender, additionalDat
                     <p>Open the Calibrr Social <a href="https://apps.apple.com/us/app/calibrr-social/id1377015871" class="app-link">HERE</a></p>
                 </div>
                 <div class="logo">
-                    <img src="cid:calibrr-logo" alt="Calibrr Social App" style="max-width: 200px; height: auto;">
+                    <img src="https://calibrr-email-logo-1753077694.s3.amazonaws.com/calibrr-logo.png" alt="Calibrr Social App" style="max-width: 200px; height: auto;">
                 </div>
             </div>
         </body>
@@ -163,7 +163,7 @@ function generateEmailContent(notificationType, recipient, sender, additionalDat
                             <p>This email was sent from the Calibrr Social app.</p>
                         </div>
                         <div class="logo">
-                            <img src="cid:calibrr-logo" alt="Calibrr Social App" style="max-width: 200px; height: auto;">
+                            <img src="https://calibrr-email-logo-1753077694.s3.amazonaws.com/calibrr-logo.png" alt="Calibrr Social App" style="max-width: 200px; height: auto;">
                         </div>
                     </div>
                 </body>
@@ -181,12 +181,6 @@ function generateEmailContent(notificationType, recipient, sender, additionalDat
 }
 
 async function sendEmail(toEmail, subject, htmlBody, textBody) {
-    // For profile and attribute emails with embedded logo
-    if (htmlBody.includes('cid:calibrr-logo')) {
-        return await sendEmailWithAttachment(toEmail, subject, htmlBody, textBody)
-    }
-    
-    // For simple emails without attachments (like dead link reports)
     const params = {
         Source: 'contact@calibrr.com',
         Destination: {
@@ -214,52 +208,7 @@ async function sendEmail(toEmail, subject, htmlBody, textBody) {
     return await sesClient.send(command);
 }
 
-async function sendEmailWithAttachment(toEmail, subject, htmlBody, textBody) {
-    // Simple placeholder logo (1x1 transparent pixel) - you can replace with actual logo later
-    let logoBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
-    
-    let rawMessage = `From: contact@calibrr.com
-To: ${toEmail}
-Subject: ${subject}
-MIME-Version: 1.0
-Content-Type: multipart/related; boundary="boundary123"
 
---boundary123
-Content-Type: multipart/alternative; boundary="boundary456"
-
---boundary456
-Content-Type: text/plain; charset=UTF-8
-
-${textBody}
-
---boundary456
-Content-Type: text/html; charset=UTF-8
-
-${htmlBody}
-
---boundary456--
-
---boundary123
-Content-Type: image/png; name="calibrr-logo.png"
-Content-Transfer-Encoding: base64
-Content-ID: <calibrr-logo>
-Content-Disposition: inline; filename="calibrr-logo.png"
-
-${logoBase64}
-
---boundary123--`
-
-    const params = {
-        Source: 'contact@calibrr.com',
-        Destinations: [toEmail],
-        RawMessage: {
-            Data: rawMessage
-        }
-    }
-    
-    const command = new SendRawEmailCommand(params);
-    return await sesClient.send(command);
-}
 
 async function getUser(userId) {
     const params = {
