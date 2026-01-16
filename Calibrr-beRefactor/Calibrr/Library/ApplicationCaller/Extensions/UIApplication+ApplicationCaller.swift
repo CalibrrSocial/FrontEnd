@@ -12,17 +12,21 @@ import UIKit
 extension UIApplication: ApplicationCaller {
     
     public func openURL(_ url: URL) -> Bool {
-        // Use the modern open method instead of deprecated openURL
-        var success = false
-        let semaphore = DispatchSemaphore(value: 0)
-        
-        open(url, options: [:]) { (result) in
-            success = result
-            semaphore.signal()
+        // Check if we can open the URL first
+        guard canOpenURL(url) else {
+            return false
         }
         
-        // Wait for the completion handler to be called
-        _ = semaphore.wait(timeout: .distantFuture)
-        return success
+        // Use the modern async open method without blocking the main thread
+        // This prevents the app from freezing when returning from external apps
+        open(url, options: [:]) { success in
+            if !success {
+                print("Failed to open URL: \(url)")
+            }
+        }
+        
+        // Return true immediately if we can open the URL
+        // The actual opening happens asynchronously
+        return true
     }
 }

@@ -39,11 +39,40 @@ class ProfileFriendPage: APage, UITableViewDelegate, UICollectionViewDelegate
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.updateNavidation(true)
+        
+        // Register for app lifecycle notifications to handle returning from external apps
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAppDidBecomeActive),
+            name: UIApplication.didBecomeActiveNotification,
+            object: nil
+        )
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         self.updateNavidation(false)
+        
+        // Remove app lifecycle observers to prevent memory leaks
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIApplication.didBecomeActiveNotification,
+            object: nil
+        )
+    }
+    
+    @objc private func handleAppDidBecomeActive() {
+        // Ensure UI is refreshed on the main thread when returning from external apps
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            // Only refresh if this view controller is visible
+            if self.isViewLoaded && self.view.window != nil {
+                // Refresh table view to ensure proper state
+                self.personalInfoTableView?.reloadData()
+                self.socialInfoCollectionView?.reloadData()
+            }
+        }
     }
     
     override func reloadData()
@@ -122,33 +151,49 @@ class ProfileFriendPage: APage, UITableViewDelegate, UICollectionViewDelegate
     }
     
     private func openSocialMedia(platform: String, username: String) {
-        let app = UIApplication.shared
-        var cleanUsername = username
-        
-        // Clean up username
-        if let url = URL(string: username),
-           let name = url.pathComponents.last {
-            cleanUsername = name
-        }
-        cleanUsername = cleanUsername.replacingOccurrences(of: "@", with: "")
-        
-        switch platform {
-        case "Instagram":
-            app.open(Applications.Instagram(), action: .username(cleanUsername))
-        case "Facebook":
-            app.open(Applications.FacebookCustom(), action: .userName(cleanUsername))
-        case "VSCO":
-            app.open(Applications.VSCOCustom(), action: .userName(cleanUsername))
-        case "X (Twitter)":
-            app.open(Applications.TwitterCustom(), action: .userName(cleanUsername))
-        case "LinkedIn":
-            app.open(Applications.LinkedinCustom(), action: .userName(cleanUsername))
-        case "Snapchat":
-            app.open(Applications.SnapChatCustom(), action: .userName(cleanUsername))
-        case "TikTok":
-            app.open(Applications.TikTok(), action: .userName(cleanUsername))
-        default:
-            Alert.Basic(message: "Unable to open \(platform)")
+        // Ensure we're on the main thread for UI operations
+        DispatchQueue.main.async { [weak self] in
+            guard self != nil else { return }
+            
+            let app = UIApplication.shared
+            var cleanUsername = username
+            
+            // Clean up username
+            if let url = URL(string: username),
+               let name = url.pathComponents.last {
+                cleanUsername = name
+            }
+            cleanUsername = cleanUsername.replacingOccurrences(of: "@", with: "")
+            
+            // Add a small delay to ensure UI has fully processed the tap before opening external app
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                var success = false
+                
+                switch platform {
+                case "Instagram":
+                    success = app.open(Applications.Instagram(), action: .username(cleanUsername))
+                case "Facebook":
+                    success = app.open(Applications.FacebookCustom(), action: .userName(cleanUsername))
+                case "VSCO":
+                    success = app.open(Applications.VSCOCustom(), action: .userName(cleanUsername))
+                case "X (Twitter)":
+                    success = app.open(Applications.TwitterCustom(), action: .userName(cleanUsername))
+                case "LinkedIn":
+                    success = app.open(Applications.LinkedinCustom(), action: .userName(cleanUsername))
+                case "Snapchat":
+                    success = app.open(Applications.SnapChatCustom(), action: .userName(cleanUsername))
+                case "TikTok":
+                    success = app.open(Applications.TikTok(), action: .userName(cleanUsername))
+                default:
+                    Alert.Basic(message: "Unable to open \(platform)")
+                    return
+                }
+                
+                // Log if opening failed
+                if !success {
+                    print("Failed to open \(platform) for username: \(cleanUsername)")
+                }
+            }
         }
     }
     

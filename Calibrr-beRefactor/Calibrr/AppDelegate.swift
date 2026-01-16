@@ -45,17 +45,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate
     {
         Tracking.TrackEnterForeground()
         
-        if let nav = window?.rootViewController as? CBRNavigator {
-            // Check moderation status when app comes to foreground
-            if ActiveUser.singleton.loggedIn {
-                ActiveUser.singleton.checkModerationStatus(nav) { isAllowed in
-                    if isAllowed {
-                        (nav.topViewController as? IPage)?.reloadData()
+        // Add a small delay to ensure the app has fully transitioned to foreground
+        // This prevents UI freezing when returning from external apps
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            if let nav = self.window?.rootViewController as? CBRNavigator {
+                // Check moderation status when app comes to foreground
+                if ActiveUser.singleton.loggedIn {
+                    ActiveUser.singleton.checkModerationStatus(nav) { isAllowed in
+                        if isAllowed {
+                            // Only reload data if the current view controller is not a profile page
+                            // Profile pages handle their own lifecycle updates
+                            if let topVC = nav.topViewController,
+                               !(topVC is ProfilePage) && !(topVC is ProfileFriendPage) {
+                                (topVC as? IPage)?.reloadData()
+                            }
+                        }
+                        // If not allowed, the moderation screen is already shown
                     }
-                    // If not allowed, the moderation screen is already shown
+                } else {
+                    // Only reload data if the current view controller is not a profile page
+                    if let topVC = nav.topViewController,
+                       !(topVC is ProfilePage) && !(topVC is ProfileFriendPage) {
+                        (topVC as? IPage)?.reloadData()
+                    }
                 }
-            } else {
-                (nav.topViewController as? IPage)?.reloadData()
             }
         }
     }

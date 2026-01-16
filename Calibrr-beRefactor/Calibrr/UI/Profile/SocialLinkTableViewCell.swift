@@ -30,31 +30,45 @@ class SocialLinkTableViewCell: UITableViewCell, SocialLinkDelegate {
     }
     
     func didTapOnItem(item: SocialItemData?) {
-        let app = UIApplication.shared
         guard let item = item else { return }
         
-        var userName = item.account
-        if let url = URL(string: userName),
-           let name = url.pathComponents.last {
-            userName = name
-        }
-        userName = userName.replacingOccurrences(of: "@", with: "")
-        
-        switch item.type {
-        case .instagarm:
-            app.open(Applications.Instagram(), action: .username(userName))
-        case .facebook:
-            app.open(Applications.FacebookCustom(), action: .userName(userName))
-        case .vsco:
-            app.open(Applications.VSCOCustom(), action: .userName(userName))
-        case .x:
-            app.open(Applications.TwitterCustom(), action: .userName(userName))
-        case .linkedin:
-            app.open(Applications.LinkedinCustom(), action: .userName(userName))
-        case .snapchat:
-            app.open(Applications.SnapChatCustom(), action: .userName(userName))
-        case .tiktok:
-            app.open(Applications.TikTok(), action: .userName(userName))
+        // Ensure we're on the main thread for UI operations
+        DispatchQueue.main.async {
+            let app = UIApplication.shared
+            
+            var userName = item.account
+            if let url = URL(string: userName),
+               let name = url.pathComponents.last {
+                userName = name
+            }
+            userName = userName.replacingOccurrences(of: "@", with: "")
+            
+            // Add a small delay to ensure UI has fully processed the tap before opening external app
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                var success = false
+                
+                switch item.type {
+                case .instagarm:
+                    success = app.open(Applications.Instagram(), action: .username(userName))
+                case .facebook:
+                    success = app.open(Applications.FacebookCustom(), action: .userName(userName))
+                case .vsco:
+                    success = app.open(Applications.VSCOCustom(), action: .userName(userName))
+                case .x:
+                    success = app.open(Applications.TwitterCustom(), action: .userName(userName))
+                case .linkedin:
+                    success = app.open(Applications.LinkedinCustom(), action: .userName(userName))
+                case .snapchat:
+                    success = app.open(Applications.SnapChatCustom(), action: .userName(userName))
+                case .tiktok:
+                    success = app.open(Applications.TikTok(), action: .userName(userName))
+                }
+                
+                // Log if opening failed
+                if !success {
+                    print("Failed to open \(item.type) for username: \(userName)")
+                }
+            }
         }
     }
 }
