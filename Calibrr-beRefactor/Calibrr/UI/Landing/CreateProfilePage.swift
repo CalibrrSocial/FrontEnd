@@ -57,7 +57,8 @@ class CreateProfilePage: ProfileEditPage {
         
         headerErrorLabel?.setupRed(textSize: 12, bold: true)
         avatarErrorLabel?.setupRed(textSize: 12, bold: true)
-        showErrorImage(forceCover: false, forceAvatar: false)
+        // Hide error labels by default - only show when user tries to continue without images
+        showErrorImage(forceCover: true, forceAvatar: true)
         
         ActiveUser.singleton.startLocationServices()
     }
@@ -168,6 +169,9 @@ class CreateProfilePage: ProfileEditPage {
             if !isHaveCover { missingFields.append("Cover Photo") }
             if !isHaveAvatar { missingFields.append("Profile Photo") }
             if !hasSocialAccounts { missingFields.append("At least 2 Social Media accounts") }
+            
+            // Show error labels for missing images
+            showErrorImage(forceCover: isHaveCover, forceAvatar: isHaveAvatar)
             
             let message = missingFields.isEmpty ? "Please complete all required fields!" : "Missing: \(missingFields.joined(separator: ", "))"
             Alert.Error(message: message, from: self)
