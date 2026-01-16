@@ -45,7 +45,7 @@
                         <constraint firstAttribute="height" constant="50" id="PCs-8o-F4g"/>
                     </constraints>
                     <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="19"/>
-                    <state key="normal" title="Create a Free Account">
+                    <state key="normal" title="Join">
                         <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </state>
                     <userDefinedRuntimeAttributes>
