@@ -45,7 +45,7 @@
                             <constraint firstAttribute="trailing" secondItem="sSG-g4-1qX" secondAttribute="trailing" id="G5l-rW-zYa"/>
                             <constraint firstItem="sSG-g4-1qX" firstAttribute="leading" secondItem="nF7-Rc-dX4" secondAttribute="leading" constant="5" id="SXe-Yc-Fr6"/>
                             <constraint firstItem="pd7-h0-u9b" firstAttribute="leading" secondItem="nF7-Rc-dX4" secondAttribute="leading" constant="15" id="W27-0x-RLR"/>
-                            <constraint firstItem="pd7-h0-u9b" firstAttribute="width" relation="lessThanOrEqual" constant="180" id="PDT-title-width"/>
+                            <constraint firstItem="pd7-h0-u9b" firstAttribute="width" constant="180" id="PDT-title-width"/>
                             <constraint firstItem="8Ro-s0-Bjm" firstAttribute="leading" secondItem="pd7-h0-u9b" secondAttribute="trailing" constant="10" id="aQO-pD-h2S"/>
                             <constraint firstItem="pd7-h0-u9b" firstAttribute="top" secondItem="8Ro-s0-Bjm" secondAttribute="top" id="fMe-pk-JSa"/>
                             <constraint firstItem="sSG-g4-1qX" firstAttribute="top" secondItem="nF7-Rc-dX4" secondAttribute="top" id="lTh-Kl-kyH"/>
