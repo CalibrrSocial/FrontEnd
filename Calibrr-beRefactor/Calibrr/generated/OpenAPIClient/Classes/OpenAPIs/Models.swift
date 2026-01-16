@@ -120,6 +120,20 @@ public final class RequestTask {
 
 // MARK: - Likes Pagination Models
 
+public struct UserSummary: Codable, Hashable {
+	public let id: String
+	public let firstName: String
+	public let lastName: String
+	public let avatarUrl: String?
+
+	public init(id: String, firstName: String, lastName: String, avatarUrl: String?) {
+		self.id = id
+		self.firstName = firstName
+		self.lastName = lastName
+		self.avatarUrl = avatarUrl
+	}
+}
+
 public struct PaginatedUserSummaries: Codable, Hashable {
 	public let data: [UserSummary]
 	public let nextCursor: String?

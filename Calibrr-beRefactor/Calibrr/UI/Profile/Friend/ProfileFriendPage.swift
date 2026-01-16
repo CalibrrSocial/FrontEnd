@@ -8,6 +8,7 @@
 
 import UIKit
 import OpenAPIClient
+import PromiseKit
 
 class ProfileFriendPage: APage, UITableViewDelegate, UICollectionViewDelegate
 {
@@ -178,7 +179,7 @@ extension ProfileFriendPage: UITableViewDataSource {
                 let initialLiked = profile.liked ?? false
                 let initialCount = profile.likeCount ?? 0
                 cell.setLikeUI(liked: initialLiked, count: initialCount, isEnabled: true)
-                cell.onToggleLike = { [weak self, weak cell] in
+                cell.onToggleLike = { [weak self, weak cell] () -> Void in
                     guard let self = self, let targetId = self.friendId else { return }
                     let myId = DatabaseService.singleton.getProfile().user.id
                     var currentLiked = cell?.currentLikeState() ?? initialLiked

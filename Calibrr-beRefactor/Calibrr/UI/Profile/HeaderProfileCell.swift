@@ -8,6 +8,7 @@
 
 import UIKit
 import OpenAPIClient
+import SDWebImage
 
 class HeaderProfileCell: UITableViewCell {
 
@@ -83,7 +84,7 @@ class HeaderProfileCell: UITableViewCell {
 	// MARK: - Private helpers
 	private func setupLikesUI() {
 		// Heart button
-		heartButton.tintColor = .white
+		heartButton.tintColor = .tertiaryLabel
 		heartButton.addTarget(self, action: #selector(didTapHeart), for: .touchUpInside)
 		heartButton.setContentCompressionResistancePriority(.required, for: .horizontal)
 		heartButton.setContentHuggingPriority(.required, for: .horizontal)
@@ -123,9 +124,10 @@ class HeaderProfileCell: UITableViewCell {
 	}
 
 	private func updateHeartAppearance() {
-		let filled = UIImage(named: "icon-like-1")?.withRenderingMode(.alwaysTemplate)
-		let outline = UIImage(named: "icon-like")?.withRenderingMode(.alwaysTemplate)
+		let filled = UIImage(systemName: "heart.fill")?.withRenderingMode(.alwaysTemplate)
+		let outline = UIImage(systemName: "heart")?.withRenderingMode(.alwaysTemplate)
 		heartButton.setImage(isLiked ? (filled ?? outline) : (outline ?? filled), for: .normal)
+		heartButton.tintColor = isLiked ? .systemRed : .tertiaryLabel
 	}
 
 	@objc private func didTapHeart() {

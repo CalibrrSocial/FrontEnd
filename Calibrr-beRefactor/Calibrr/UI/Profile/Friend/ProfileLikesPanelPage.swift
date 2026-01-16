@@ -17,7 +17,7 @@ class ProfileLikesPanelPage: APage, UITableViewDelegate, UITableViewDataSource {
 
 	private var userId: String = ""
 	private var viewingOwnProfile: Bool = false
-	private var tableView: CBRTableView!
+	private var tableView: UITableView!
 	private var segmented: UISegmentedControl!
 	private var items: [UserSummary] = []
 	private var nextCursor: String? = nil
@@ -36,6 +36,9 @@ class ProfileLikesPanelPage: APage, UITableViewDelegate, UITableViewDataSource {
 	}
 
 	private func setupUI() {
+		// Back button (pop if in navigation, else dismiss)
+		navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(onBack))
+
 		let titles: [String]
 		if viewingOwnProfile {
 			titles = ["Who liked me", "Who I liked"]
@@ -47,7 +50,9 @@ class ProfileLikesPanelPage: APage, UITableViewDelegate, UITableViewDataSource {
 		segmented.addTarget(self, action: #selector(changeMode), for: .valueChanged)
 		navigationItem.titleView = segmented
 
-		tableView = CBRTableView()
+		// CBRTableView only has required init(coder:), but UITableView provides convenience inits.
+		// Use a plain UITableView, which is fine for this screen, to avoid init(coder:) requirement.
+		tableView = UITableView(frame: .zero, style: .plain)
 		tableView.delegate = self
 		tableView.dataSource = self
 		tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -58,6 +63,16 @@ class ProfileLikesPanelPage: APage, UITableViewDelegate, UITableViewDataSource {
 			tableView.topAnchor.constraint(equalTo: view.topAnchor),
 			tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
 		])
+	}
+
+	@objc private func onBack() {
+		if let nav = self.navigationController, nav.viewControllers.first != self {
+			nav.popViewController(animated: true)
+		} else if presentingViewController != nil {
+			self.dismiss(animated: true, completion: nil)
+		} else {
+			_ = self.nav.pop()
+		}
 	}
 
 	@objc private func changeMode() {
