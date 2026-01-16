@@ -20,6 +20,17 @@ export const handler = async (event) => {
         let expressionAttributeNames = {};
         let updateParts = [];
 
+        // Update firstName and lastName if provided
+        if (user.firstName !== undefined) {
+            updateParts.push('firstName = :firstName');
+            expressionAttributeValues[':firstName'] = user.firstName;
+        }
+
+        if (user.lastName !== undefined) {
+            updateParts.push('lastName = :lastName');
+            expressionAttributeValues[':lastName'] = user.lastName;
+        }
+
         // Always update personalInfo and socialInfo (core profile data)
         if (user.personalInfo) {
             updateParts.push('personalInfo = :personal');

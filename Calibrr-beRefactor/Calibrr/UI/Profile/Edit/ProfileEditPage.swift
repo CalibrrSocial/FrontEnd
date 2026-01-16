@@ -410,6 +410,21 @@ class ProfileEditPage : APage, UITextFieldDelegate, KASquareCropViewControllerDe
             userUpdate?.pictureCover = currentProfile.pictureCover
         }
         
+        // Ensure firstName and lastName are preserved from current profile
+        // This fixes the issue where these fields were being lost in previous updates
+        print("=== DEBUGGING FIRSTNAME/LASTNAME ===")
+        print("Current Profile firstName: '\(currentProfile.firstName)'")
+        print("Current Profile lastName: '\(currentProfile.lastName)'")
+        print("UserUpdate firstName before: '\(userUpdate?.firstName ?? "NIL")'")
+        print("UserUpdate lastName before: '\(userUpdate?.lastName ?? "NIL")'")
+        
+        userUpdate?.firstName = currentProfile.firstName
+        userUpdate?.lastName = currentProfile.lastName
+        
+        print("UserUpdate firstName after: '\(userUpdate?.firstName ?? "NIL")'")
+        print("UserUpdate lastName after: '\(userUpdate?.lastName ?? "NIL")'")
+        print("=====================================")
+        
         if let location = ActiveUser.singleton.currentLocation {
             userUpdate?.location = Position(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
         }
