@@ -549,10 +549,23 @@
                                                         <constraint firstAttribute="bottom" secondItem="nBC-Gf-dMg" secondAttribute="bottom" id="jCR-tR-8pq"/>
                                                     </constraints>
                                                 </view>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Enter your class year" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="8" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="NEW-REQ-CLASS-YEAR" userLabel="RequiredLabel">
+                                                    <rect key="frame" x="20" y="57" width="126" height="15"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="15" id="NEW-REQ-CLASS-YEAR-HEIGHT"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="12"/>
+                                                    <color key="textColor" red="0.88335897019999998" green="0.22510686229999999" blue="0.105240731" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
                                             </subviews>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <accessibility key="accessibilityConfiguration" identifier=""/>
                                             <constraints>
+                                                <constraint firstItem="NEW-REQ-CLASS-YEAR" firstAttribute="top" secondItem="vLk-Hf-9oN" secondAttribute="bottom" constant="4" id="NEW-CLASS-YEAR-TOP"/>
+                                                <constraint firstItem="NEW-REQ-CLASS-YEAR" firstAttribute="leading" secondItem="vLk-Hf-9oN" secondAttribute="leading" id="NEW-CLASS-YEAR-LEADING"/>
+                                                <constraint firstAttribute="bottom" secondItem="NEW-REQ-CLASS-YEAR" secondAttribute="bottom" id="NEW-CLASS-YEAR-BOTTOM"/>
+                                                <constraint firstAttribute="trailing" secondItem="vLk-Hf-9oN" secondAttribute="trailing" constant="20" id="NEW-CLASS-YEAR-TRAILING"/>
                                                 <constraint firstItem="9Xf-Yb-Bks" firstAttribute="top" secondItem="jA9-5Q-GpE" secondAttribute="bottom" constant="5" id="3Gg-3V-Xyq"/>
                                                 <constraint firstItem="vLk-Hf-9oN" firstAttribute="trailing" secondItem="9Xf-Yb-Bks" secondAttribute="trailing" id="6Eq-QJ-FWB"/>
                                                 <constraint firstItem="9Xf-Yb-Bks" firstAttribute="leading" secondItem="vLk-Hf-9oN" secondAttribute="leading" id="6nW-Uv-OtS"/>
@@ -565,7 +578,7 @@
                                                 <constraint firstItem="vLk-Hf-9oN" firstAttribute="leading" secondItem="xYc-4H-dVE" secondAttribute="leading" constant="20" id="k5M-vE-QOJ"/>
                                             </constraints>
                                             <userDefinedRuntimeAttributes>
-                                                <userDefinedRuntimeAttribute type="boolean" keyPath="isRequired" value="NO"/>
+                                                <userDefinedRuntimeAttribute type="boolean" keyPath="isRequired" value="YES"/>
                                                 <userDefinedRuntimeAttribute type="boolean" keyPath="isLight" value="NO"/>
                                                 <userDefinedRuntimeAttribute type="boolean" keyPath="isEnableNextBar" value="NO"/>
                                             </userDefinedRuntimeAttributes>
@@ -631,7 +644,7 @@
                                                 <constraint firstAttribute="bottom" secondItem="0Ke-D2-MfJ" secondAttribute="bottom" id="qCE-sK-EQu"/>
                                             </constraints>
                                             <userDefinedRuntimeAttributes>
-                                                <userDefinedRuntimeAttribute type="boolean" keyPath="isRequired" value="NO"/>
+                                                <userDefinedRuntimeAttribute type="boolean" keyPath="isRequired" value="YES"/>
                                                 <userDefinedRuntimeAttribute type="boolean" keyPath="isLight" value="NO"/>
                                                 <userDefinedRuntimeAttribute type="boolean" keyPath="isEnableNextBar" value="NO"/>
                                             </userDefinedRuntimeAttributes>
@@ -697,7 +710,7 @@
                                                 <constraint firstItem="G1H-r2-9Xc" firstAttribute="top" secondItem="XT1-1R-Y0f" secondAttribute="bottom" constant="5" id="qmm-PA-HAj"/>
                                             </constraints>
                                             <userDefinedRuntimeAttributes>
-                                                <userDefinedRuntimeAttribute type="boolean" keyPath="isRequired" value="NO"/>
+                                                <userDefinedRuntimeAttribute type="boolean" keyPath="isRequired" value="YES"/>
                                                 <userDefinedRuntimeAttribute type="boolean" keyPath="isLight" value="NO"/>
                                                 <userDefinedRuntimeAttribute type="boolean" keyPath="isEnableNextBar" value="NO"/>
                                             </userDefinedRuntimeAttributes>
@@ -829,7 +842,7 @@
                                                 <constraint firstAttribute="bottom" secondItem="q4S-CT-xmb" secondAttribute="bottom" id="xHr-5w-tHt"/>
                                             </constraints>
                                             <userDefinedRuntimeAttributes>
-                                                <userDefinedRuntimeAttribute type="boolean" keyPath="isRequired" value="NO"/>
+                                                <userDefinedRuntimeAttribute type="boolean" keyPath="isRequired" value="YES"/>
                                                 <userDefinedRuntimeAttribute type="boolean" keyPath="isLight" value="NO"/>
                                                 <userDefinedRuntimeAttribute type="boolean" keyPath="isEnableNextBar" value="NO"/>
                                             </userDefinedRuntimeAttributes>
@@ -1077,7 +1090,7 @@
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="252" verticalCompressionResistancePriority="751" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PDV-me-PV0">
                                                     <rect key="frame" x="20" y="25" width="382.5" height="182"/>
-                                                    <string key="text">(Add your best friends by their first and last names. You are NOT “ranking” them. Tap the (+) button to invite them to join Calibrr!) </string>
+                                                    <string key="text">(Add your best friends by their first and last names. You are NOT "ranking" them. Tap the (+) button to invite them to join Calibrr!) </string>
                                                     <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="13"/>
                                                     <color key="textColor" red="0.39215686274509803" green="0.39215686274509803" blue="0.39215686274509803" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <nil key="highlightedColor"/>
