@@ -261,14 +261,14 @@ extension ProfileFriendPage: UITableViewDataSource {
                     cell?.setLikeUI(liked: currentLiked, count: currentCount, isEnabled: false)
                     let request: Promise<Void> = currentLiked ? ProfileAPI.likeProfile(id: myId, profileLikedId: targetId) : ProfileAPI.unlikeProfile(id: myId, profileLikedId: targetId)
                     request.done {
-                        // Refresh truth from server
-                        ProfileAPI.getUser(id: targetId).done { updated in
-                            self.profile = updated
-                            let sLiked = updated.liked ?? currentLiked
-                            let sCount = updated.likeCount ?? currentCount
-                            cell?.setLikeUI(liked: sLiked, count: sCount, isEnabled: true)
-                        }.catch { _ in
-                            cell?.setLikeUI(liked: currentLiked, count: currentCount, isEnabled: true)
+                        // Success - keep the optimistic UI update
+                        cell?.setLikeUI(liked: currentLiked, count: currentCount, isEnabled: true)
+                        
+                        // Update the local profile object without making another API call
+                        if var updatedProfile = self.profile {
+                            updatedProfile.liked = currentLiked
+                            updatedProfile.likeCount = currentCount
+                            self.profile = updatedProfile
                         }
                     }.catch { _ in
                         // Rollback on failure

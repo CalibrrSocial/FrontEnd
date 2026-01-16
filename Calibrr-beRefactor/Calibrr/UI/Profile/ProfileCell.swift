@@ -16,7 +16,7 @@ class ProfileCell: ACell<(String, String, Bool)> {
     
     // Static cache for attribute like states to prevent duplicate API calls across cells
     private static var attributeLikeCache: [String: (liked: Bool, count: Int, timestamp: Date)] = [:]
-    private static let cacheExpiration: TimeInterval = 30.0 // Cache for 30 seconds
+    private static let cacheExpiration: TimeInterval = 300.0 // Cache for 5 minutes to reduce API calls
     
     // MARK: - Attribute Likes UI
     private var heartButton: UIButton = UIButton(type: .system)
@@ -40,8 +40,9 @@ class ProfileCell: ACell<(String, String, Bool)> {
     private var retryCount: Int = 0
     private let maxRetries: Int = 3
     private var lastLoadTime: Date = Date.distantPast
-    private let minLoadInterval: TimeInterval = 1.0 // Minimum 1 second between loads
+    private let minLoadInterval: TimeInterval = 2.0 // Minimum 2 seconds between loads to prevent API spam
     private var currentDataTask: URLSessionDataTask?
+    private var loadDebounceTimer: Timer?
     
     // Track the last loaded configuration to prevent duplicate requests
     private var lastLoadedConfig: String = ""
@@ -65,6 +66,10 @@ class ProfileCell: ACell<(String, String, Bool)> {
         // Cancel any ongoing network request
         currentDataTask?.cancel()
         currentDataTask = nil
+        
+        // Cancel any pending debounced loads
+        loadDebounceTimer?.invalidate()
+        loadDebounceTimer = nil
         
         // Reset state
         isLoadingLikeState = false
@@ -281,6 +286,17 @@ class ProfileCell: ACell<(String, String, Bool)> {
                 return
             }
         }
+        
+        // Cancel any existing debounce timer
+        loadDebounceTimer?.invalidate()
+        
+        // Debounce the API call to prevent rapid requests during scrolling
+        loadDebounceTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false) { [weak self] _ in
+            self?.performAttributeLikeStateLoad(currentConfig: currentConfig)
+        }
+    }
+    
+    private func performAttributeLikeStateLoad(currentConfig: String) {
         
         // Check if we've already loaded this exact configuration
         if currentConfig == lastLoadedConfig && isLoadingLikeState {
