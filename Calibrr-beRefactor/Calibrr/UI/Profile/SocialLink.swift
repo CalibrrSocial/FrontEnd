@@ -88,7 +88,7 @@ class SocialLink: UIView {
     private func setupView() {
         stackView.axis = .horizontal
         stackView.spacing = 8.0  // Fixed spacing to prevent overlap
-        stackView.distribution = .fillEqually  // Ensure equal width for all icons
+        stackView.distribution = .equalSpacing  // Use equalSpacing with fixed-size containers
         stackView.alignment = .center
         
         self.addSubview(stackView)
@@ -161,7 +161,10 @@ class SocialLink: UIView {
                 make.edges.equalToSuperview()
             }
             
-            // Don't set fixed constraints on container - let stack view handle distribution
+            // Set container size constraints to match icon size (from original commit)
+            containerView.snp.makeConstraints { make in
+                make.width.height.equalTo(iconSize)
+            }
             
             stackView.addArrangedSubview(containerView)
         }
